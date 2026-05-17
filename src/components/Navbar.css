@@ -1,0 +1,233 @@
+/* ── Base — fully transparent ─────────────────────────── */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: transparent;
+  transition:
+    background  0.4s ease,
+    box-shadow  0.4s ease;
+}
+
+/* ── Scrolled — glassmorphism ─────────────────────────── */
+.navbar--scrolled {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  box-shadow: 0 1px 28px rgba(0, 0, 0, 0.07);
+}
+
+/* ── Top bar ──────────────────────────────────────────── */
+.navbar-inner {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  transition: height 0.35s ease;
+}
+
+.navbar--scrolled .navbar-inner { height: 60px; }
+
+/* ── Brand ────────────────────────────────────────────── */
+.navbar-brand {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+  transition: color 0.35s ease, opacity 0.18s ease;
+}
+
+.navbar-brand:hover { opacity: 0.8; }
+.navbar-brand span { color: #D7262E; }
+
+.navbar--scrolled .navbar-brand { color: #0F1117; }
+
+/* ── Desktop nav links ────────────────────────────────── */
+.navbar-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 0.15rem;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  transition: color 0.35s ease, background 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-link:hover  { color: rgba(255, 255, 255, 0.95); background: rgba(255, 255, 255, 0.1); }
+.nav-link.active { color: #fff; background: rgba(255, 255, 255, 0.13); font-weight: 600; }
+
+.navbar--scrolled .nav-link       { color: #6B7280; }
+.navbar--scrolled .nav-link:hover { color: #0F1117; background: #F4F4F5; }
+.navbar--scrolled .nav-link.active { color: #D7262E; background: #FEF2F2; }
+
+/* ── Desktop CTA ──────────────────────────────────────── */
+.navbar-cta {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  padding: 0.5rem 1.15rem;
+}
+
+/* ── Hamburger button ─────────────────────────────────── */
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.navbar-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 2px;
+  transition:
+    transform 0.24s ease,
+    opacity   0.24s ease,
+    background 0.35s ease;
+  transform-origin: center;
+}
+
+.navbar--scrolled .navbar-toggle span { background: #111827; }
+
+/* Animate to × when open */
+.navbar-toggle--open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.navbar-toggle--open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.navbar-toggle--open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── Mobile drawer ────────────────────────────────────── */
+.navbar-mobile {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border-top: 1px solid transparent;
+}
+
+.navbar-mobile--open {
+  max-height: 480px;
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+.navbar-mobile-inner {
+  padding: 0.75rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.navbar-mobile-links {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.9rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  text-decoration: none;
+  border-bottom: 1px solid #F4F4F5;
+  min-height: 44px;
+  touch-action: manipulation;
+  transition: color 0.18s ease;
+}
+
+.mobile-nav-link:hover  { color: #D7262E; }
+.mobile-nav-link.active { color: #D7262E; font-weight: 600; }
+
+.mobile-cta {
+  width: 100%;
+  justify-content: center;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  min-height: 48px;
+  margin-top: 0.5rem;
+}
+
+/* ── Dark mode overrides ──────────────────────────────── */
+[data-theme="dark"] .navbar {
+  background: transparent;
+  border-bottom-color: transparent;
+}
+
+[data-theme="dark"] .navbar--scrolled {
+  background: rgba(11, 11, 11, 0.72);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow: 0 1px 28px rgba(0, 0, 0, 0.55);
+}
+
+/* Brand — transparent stays white in dark mode (same) */
+[data-theme="dark"] .navbar--scrolled .navbar-brand { color: #F0F0F5; }
+
+/* Nav links — transparent state already white-ish, scrolled: slightly lighter */
+[data-theme="dark"] .navbar--scrolled .nav-link       { color: #9CA3AF; }
+[data-theme="dark"] .navbar--scrolled .nav-link:hover { color: #F9FAFB; background: rgba(255, 255, 255, 0.05); }
+[data-theme="dark"] .navbar--scrolled .nav-link.active { color: #D7262E; background: rgba(215, 38, 46, 0.12); }
+
+[data-theme="dark"] .navbar-mobile {
+  background: rgba(13, 13, 16, 0.96);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border-top-color: transparent;
+}
+
+[data-theme="dark"] .navbar-mobile--open { border-top-color: rgba(255, 255, 255, 0.07); }
+
+[data-theme="dark"] .mobile-nav-link {
+  color: #9CA3AF;
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .mobile-nav-link:hover  { color: #F9FAFB; }
+[data-theme="dark"] .mobile-nav-link.active { color: #D7262E; }
+
+/* Hamburger — transparent state is already white, scrolled: lighter gray in dark */
+[data-theme="dark"] .navbar--scrolled .navbar-toggle span { background: #D1D5DB; }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar-toggle { display: flex; }
+  .navbar-nav    { display: none; }
+  .navbar-cta    { display: none; }
+
+  .navbar-inner {
+    padding: 0 1.5rem;
+  }
+}

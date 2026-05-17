@@ -1,0 +1,229 @@
+import { Link } from 'react-router-dom'
+import './About.css'
+
+const VALUES = [
+  {
+    icon: '🎯',
+    title: 'Results First',
+    body: 'We measure success in revenue, not reach. Every strategy we build is engineered around your business objectives — and nothing else.',
+  },
+  {
+    icon: '🔍',
+    title: 'Radical Transparency',
+    body: 'No smoke and mirrors. No vanity metrics. You will always know exactly what we are doing, why we are doing it, and how it is performing.',
+  },
+  {
+    icon: '⚡',
+    title: 'Obsessive Quality',
+    body: 'We do not do average. Every campaign, every piece of content, every report reflects our absolute commitment to excellence.',
+  },
+  {
+    icon: '🤝',
+    title: 'True Partnership',
+    body: 'Your wins are our wins. We show up as a genuine extension of your team — invested in your success just as much as you are.',
+  },
+]
+
+const STATS = [
+  { num: '120+',  label: 'Brands Grown' },
+  { num: '8+',    label: 'Years in Business' },
+  { num: '$40M+', label: 'Revenue Generated' },
+  { num: '94%',   label: 'Client Retention' },
+  { num: '3.2×',  label: 'Average ROI' },
+  { num: '9',     label: 'Core Services' },
+]
+
+export default function About() {
+  return (
+    <main className="about-page">
+
+      {/* ── Hero ── */}
+      <section className="about-hero">
+        <div className="container">
+          <p className="eyebrow fade-up">About KTI Marketing</p>
+          <h1 className="about-hero__title fade-up-1">
+            Built to Grow Brands.<br />
+            <span className="accent">Obsessed With Results.</span>
+          </h1>
+          <p className="about-hero__sub fade-up-2">
+            A team of strategists, creatives, and performance marketers united
+            by one obsession — making your brand the market leader it deserves to be.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Mission ── */}
+      <section className="about-mission">
+        <div className="container">
+          <div className="about-mission__inner reveal">
+            <p className="eyebrow">Our Mission</p>
+            <blockquote className="about-mission__quote">
+              "We exist to help ambitious brands grow. Not just in followers or impressions,
+              but in the metrics that actually matter: qualified leads, conversions, revenue,
+              and market share. Since 2016, we have helped over 120 businesses transform
+              their marketing from a cost centre into their most powerful competitive advantage."
+            </blockquote>
+            <cite className="about-mission__cite">— The KTI Marketing Team</cite>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats ── */}
+      <section className="about-stats">
+        <div className="container">
+          <div className="about-stats__grid">
+            {STATS.map(({ num, label }, i) => (
+              <div className="about-stat reveal-scale" key={label} style={{ '--reveal-delay': `${i * 0.07}s` }}>
+                <span className="about-stat__num">{num}</span>
+                <span className="about-stat__label">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Values ── */}
+      <section className="about-values">
+        <div className="container">
+          <div className="about-values__header text-center reveal">
+            <p className="eyebrow">What We Stand For</p>
+            <h2>The Values That Drive <span className="accent">Everything We Do</span></h2>
+          </div>
+          <div className="about-values__grid">
+            {VALUES.map(({ icon, title, body }, i) => (
+              <div className="value-card reveal" key={title} style={{ '--reveal-delay': `${i * 0.1}s` }}>
+                <span className="value-card__icon" aria-hidden="true">{icon}</span>
+                <h3 className="value-card__title">{title}</h3>
+                <p className="value-card__body">{body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Story ── */}
+      <section className="about-story">
+        <div className="container">
+          <div className="about-story__grid">
+            <div className="about-story__left reveal-left">
+              <p className="eyebrow">Our Story</p>
+              <h2>From a Small Studio to <span className="accent">a Full-Scale Agency</span></h2>
+            </div>
+            <div className="about-story__right reveal" style={{ '--reveal-delay': '0.15s' }}>
+              <p>
+                KTI Marketing started in 2016 with a simple belief: that great marketing
+                should be accessible to every ambitious business, not just the big players
+                with enormous budgets. We began as a small creative studio with three
+                people and a shared passion for brand storytelling.
+              </p>
+              <p>
+                Over the years, we expanded into performance advertising, social media
+                management, influencer marketing, and production — building a full-service
+                capability that covers every stage of your customer journey. Today, we are
+                a team of 25+ specialists across strategy, creative, media, and analytics.
+              </p>
+              <p>
+                But what has never changed is our core obsession: delivering results that
+                genuinely move the needle for the brands we work with. We do not just run
+                campaigns. We build growth engines.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Founder ── */}
+      <section className="about-founder">
+        <div className="container">
+          <div className="about-founder__grid">
+
+            <div className="about-founder__photo reveal-left">
+              <img src="/founder.jpg" alt="Md Mehedi Hasan (Babla) — Founder & Chief" />
+              <span className="about-founder__photo-accent" aria-hidden="true" />
+            </div>
+
+            <div className="about-founder__content reveal" style={{ '--reveal-delay': '0.12s' }}>
+              <span className="about-founder__badge">Founder &amp; Chief</span>
+              <h2 className="about-founder__name">
+                Md Mehedi Hasan
+                <span className="about-founder__nick"> (Babla)</span>
+              </h2>
+              <div className="about-founder__tags">
+                {['Founder & Chief', 'KIBAN SHOE', 'KIBAN Trade International', 'KTI – Marketing Agency'].map(tag => (
+                  <span key={tag} className="about-founder__tag">{tag}</span>
+                ))}
+              </div>
+              <p>
+                Md Mehedi Hasan (Babla) is a visionary entrepreneur and the founder of
+                KIBAN Trade International and KIBAN SHOE. With a commitment to quality and
+                integrity, he has built a strong reputation in the e-commerce and trading
+                sectors of Bangladesh.
+              </p>
+              <p>
+                Beyond manufacturing and trade, he leads KTI – Marketing Agency,
+                specializing in innovative digital marketing and branding solutions. Based in
+                Mirpur 10, Dhaka, Mehedi is dedicated to creating sustainable business growth
+                and delivering excellence to his clients. He believes in the power of hard work
+                and staying ahead of market trends to build brands that truly resonate with people.
+              </p>
+
+              <div className="about-founder__connect">
+                <h3 className="about-founder__connect-title">
+                  <span aria-hidden="true">📞</span> Connect
+                </h3>
+                <div className="about-founder__connect-grid">
+                  <div className="about-founder__connect-item">
+                    <span className="about-founder__connect-label">Email</span>
+                    <a href="mailto:mehedihasan.babla@gmail.com" className="about-founder__connect-link">
+                      mehedihasan.babla@gmail.com
+                    </a>
+                  </div>
+                  <div className="about-founder__connect-item">
+                    <span className="about-founder__connect-label">Facebook</span>
+                    <a href="https://facebook.com/ktibabla" target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">
+                      facebook.com/ktibabla
+                    </a>
+                  </div>
+                  <div className="about-founder__connect-item">
+                    <span className="about-founder__connect-label">Business Website</span>
+                    <a href="https://www.kibanshoe.com" target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">
+                      www.kibanshoe.com
+                    </a>
+                  </div>
+                  <div className="about-founder__connect-item">
+                    <span className="about-founder__connect-label">Business Website</span>
+                    <a href="https://www.kti.com.bd" target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">
+                      www.kti.com.bd
+                    </a>
+                  </div>
+                  <div className="about-founder__connect-item about-founder__connect-item--full">
+                    <span className="about-founder__connect-label">Address</span>
+                    <span className="about-founder__connect-address">
+                      Suite 1005, 10th Floor (Lift-9), Shah Ali Plaza, Mirpur 10, Dhaka.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="about-cta">
+        <div className="container">
+          <div className="about-cta__inner reveal">
+            <h2>Join the brands growing<br />with <span className="accent">KTI Marketing.</span></h2>
+            <p>Let's build a strategy that turns your marketing into your strongest competitive advantage.</p>
+            <div className="about-cta__actions">
+              <Link to="/contact" className="btn btn-primary">Start Your Project</Link>
+              <Link to="/services" className="btn btn-outline">Explore Services</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  )
+}
