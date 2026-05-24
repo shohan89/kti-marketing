@@ -1,4 +1,35 @@
 /* ── Hero ─────────────────────────────────────────────── */
+.about-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem 0.45rem 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 1.25rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.about-hero__badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+  animation: liveDotPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes liveDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+
 .about-hero {
   padding: 9.5rem 0 7.5rem;
   background:
@@ -151,7 +182,7 @@
 }
 
 .value-card {
-  padding: 3rem;
+  padding: 2.5rem;
   background: var(--gray-50);
   border: 1.5px solid var(--gray-100);
   border-radius: var(--radius-lg);
@@ -181,11 +212,17 @@
   box-shadow: var(--shadow-red);
 }
 
-.value-card__icon {
-  font-size: 2.25rem;
-  display: block;
-  margin-bottom: 1.5rem;
-  line-height: 1;
+.value-card__icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--red-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 1.25rem;
+  flex-shrink: 0;
 }
 
 .value-card__title {
@@ -200,6 +237,20 @@
   color: var(--gray-500);
   line-height: 1.8;
   margin: 0;
+}
+
+/* Story milestone chips */
+.about-story__milestone {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.2rem 0.65rem;
+  background: var(--red-light);
+  color: var(--red);
+  font-size: 0.68rem;
+  font-weight: 800;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /* ── Story ────────────────────────────────────────────── */
@@ -240,7 +291,9 @@
 /* ── Founder ──────────────────────────────────────────── */
 .about-founder {
   padding: 9rem 0;
-  background: var(--gray-50);
+  background:
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(215, 38, 46, 0.07) 0%, transparent 60%),
+    var(--bg-card);
   border-top: 1px solid var(--gray-100);
   border-bottom: 1px solid var(--gray-100);
 }
@@ -257,23 +310,46 @@
   position: relative;
 }
 
-.about-founder__photo img {
-  width: 100%;
-  display: block;
+.about-founder__photo-frame {
+  position: relative;
   border-radius: var(--radius-lg);
-  object-fit: cover;
-  aspect-ratio: 3 / 4;
+  border: 2px solid rgba(215, 38, 46, 0.15);
+  overflow: hidden;
   box-shadow: var(--shadow-lg);
 }
 
-.about-founder__photo-accent {
+.about-founder__photo-frame img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-lg);
+}
+
+.about-founder__since-badge {
   position: absolute;
-  bottom: -14px;
-  left: -14px;
-  width: 72px;
-  height: 72px;
+  bottom: 1.25rem;
+  right: -0.5rem;
   background: var(--red);
-  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(215, 38, 46, 0.45);
+  z-index: 2;
+}
+
+.about-founder__photo-bg {
+  position: absolute;
+  bottom: -20px;
+  left: -20px;
+  width: 80%;
+  height: 80%;
+  background: linear-gradient(135deg, rgba(215, 38, 46, 0.18) 0%, transparent 65%);
+  border-radius: var(--radius-lg);
   z-index: -1;
 }
 
@@ -334,6 +410,19 @@
 
 .about-founder__content > p:last-of-type { margin-bottom: 0; }
 
+/* Founder pull-quote */
+.about-founder__pullquote {
+  border-left: 3px solid var(--red);
+  padding: 0.85rem 1.25rem;
+  margin: 1.75rem 0;
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--gray-600);
+  background: var(--gray-50);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
 /* Connect card */
 .about-founder__connect {
   margin-top: 2rem;
@@ -364,6 +453,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  border-left: 2px solid var(--gray-100);
+  padding-left: 0.85rem;
+  transition: border-color var(--transition);
+}
+
+.about-founder__connect-item:hover {
+  border-left-color: var(--red);
 }
 
 .about-founder__connect-item--full {
@@ -438,6 +534,7 @@
 
   .about-founder__grid { grid-template-columns: 1fr; gap: 3rem; }
   .about-founder__photo { max-width: 420px; }
+  .about-founder__photo-frame { max-width: 420px; }
 }
 
 @media (max-width: 768px) {

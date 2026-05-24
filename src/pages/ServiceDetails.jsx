@@ -1,12 +1,27 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getServiceBySlug } from '../data/servicesData'
+import { caseStudies } from '../data/caseStudies'
+import PageCTA from '../components/PageCTA'
 import './ServiceDetails.css'
 
 export default function ServiceDetails() {
   const { slug } = useParams()
   const service = getServiceBySlug(slug)
   const [openFaq, setOpenFaq] = useState(null)
+
+  const relatedStudies = (() => {
+    if (!service) return []
+    const matched = caseStudies.filter(cs =>
+      cs.services.some(s =>
+        s.toLowerCase().includes(service.title.toLowerCase()) ||
+        service.title.toLowerCase().includes(s.toLowerCase())
+      )
+    )
+    if (matched.length >= 2) return matched.slice(0, 3)
+    const others = caseStudies.filter(cs => !matched.includes(cs))
+    return [...matched, ...others].slice(0, 3)
+  })()
 
   if (!service) {
     return (
@@ -170,25 +185,57 @@ export default function ServiceDetails() {
         </div>
       </section>
 
-      {/* ── 7. Final CTA ── */}
-      <section className="sd-cta">
-        <div className="container">
-          <div className="sd-cta__inner reveal">
-            <p className="eyebrow sd-cta__eyebrow">Ready to Get Started?</p>
-            <h2 className="sd-cta__title">
-              Let's build something<br />great together.
-            </h2>
-            <p className="sd-cta__sub">
-              Tell us about your brand and goals. We'll review your project and
-              get back to you within one business day with a tailored plan.
-            </p>
-            <div className="sd-cta__actions">
-              <Link to="/contact" className="btn btn-white">Start Your Project →</Link>
-              <Link to="/services" className="btn sd-btn-ghost">Explore Other Services</Link>
+      {/* ── 7. Related Case Studies ── */}
+      {relatedStudies.length > 0 && (
+        <section className="sd-case-studies">
+          <div className="container">
+            <div className="sd-section-header reveal">
+              <p className="eyebrow">Proven Results</p>
+              <h2 className="sd-section-title">See It in Action</h2>
+            </div>
+            <div className="sd-cs-grid">
+              {relatedStudies.map(({ slug: csSlug, tag, client, title: csTitle, metrics, services: csServices }, i) => (
+                <Link
+                  key={csSlug}
+                  to={`/case-studies/${csSlug}`}
+                  className="sd-cs-card reveal"
+                  style={{ '--reveal-delay': `${i * 0.1}s` }}
+                >
+                  <div className="sd-cs-card__top">
+                    <span className="sd-cs-tag">{tag}</span>
+                  </div>
+                  <p className="sd-cs-card__client">{client}</p>
+                  <h3 className="sd-cs-card__title">{csTitle}</h3>
+                  <div className="sd-cs-card__metrics">
+                    {metrics.slice(0, 2).map(({ num, label }) => (
+                      <div className="sd-cs-metric" key={label}>
+                        <span className="sd-cs-metric__num">{num}</span>
+                        <span className="sd-cs-metric__lbl">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="sd-cs-card__services">
+                    {csServices.slice(0, 3).map(s => (
+                      <span className="sd-cs-pill" key={s}>{s}</span>
+                    ))}
+                  </div>
+                  <span className="sd-cs-card__arrow">View Case Study →</span>
+                </Link>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* ── 8. Final CTA ── */}
+      <PageCTA
+        eyebrow="Ready to Get Started?"
+        title={<>Let's build something<br />great together.</>}
+        sub="Tell us about your brand and goals. We'll review your project and get back to you within one business day with a tailored plan."
+        primaryLabel="Start Your Project →"
+        secondaryLabel="Explore Other Services"
+        secondaryTo="/services"
+      />
 
     </main>
   )

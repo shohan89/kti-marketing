@@ -5,7 +5,7 @@ export default function useScrollReveal() {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    const elements = document.querySelectorAll('.reveal:not(.revealed)')
+    const elements = document.querySelectorAll('.reveal:not(.revealed), .reveal-left:not(.revealed), .reveal-scale:not(.revealed)')
     if (!elements.length) return
 
     const observer = new IntersectionObserver(

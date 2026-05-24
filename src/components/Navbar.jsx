@@ -1,21 +1,35 @@
-import { useState, useEffect } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { NavLink, Link, useLocation } from 'react-router-dom'
 import useTheme from '../hooks/useTheme'
 import ThemeToggle from './ThemeToggle'
+import { servicesData } from '../data/servicesData'
 import './Navbar.css'
 
 const NAV_LINKS = [
-  { to: '/',         label: 'Home',     end: true },
-  { to: '/about',    label: 'About' },
-  { to: '/services', label: 'Services' },
-  { to: '/contact',  label: 'Contact' },
+  { to: '/',             label: 'Home',         end: true },
+  { to: '/about',        label: 'About' },
+  { to: '/services',     label: 'Services',     dropdown: true },
+  { to: '/case-studies', label: 'Case Studies' },
+  { to: '/contact',      label: 'Contact' },
 ]
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const close = () => setOpen(false)
-  const { theme, toggle } = useTheme()
+  const [open, setOpen]               = useState(false)
+  const [scrolled, setScrolled]       = useState(false)
+  const [svcOpen, setSvcOpen]         = useState(false)
+  const [desktopOpen, setDesktopOpen] = useState(false)
+  const preventOpenRef                = useRef(false)
+  const { theme, toggle }             = useTheme()
+  const { pathname }                  = useLocation()
+
+  const close = () => {
+    setOpen(false)
+    setSvcOpen(false)
+    setDesktopOpen(false)
+    preventOpenRef.current = true
+  }
+
+  useEffect(() => { close() }, [pathname])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -23,6 +37,8 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  const isServicesActive = pathname.startsWith('/services')
 
   return (
     <header className={`navbar${scrolled ? ' navbar--scrolled' : ''}`}>
@@ -35,8 +51,17 @@ export default function Navbar() {
         {/* Desktop nav */}
         <nav className="navbar-nav" aria-label="Main navigation">
           <ul className="navbar-links">
-            {NAV_LINKS.map(({ to, label, end }) => (
-              <li key={to}>
+            {NAV_LINKS.map(({ to, label, end, dropdown }) => (
+              <li
+                key={to}
+                className={[
+                  'nav-item',
+                  dropdown ? 'nav-item--dropdown' : '',
+                  dropdown && desktopOpen ? 'nav-item--open' : '',
+                ].filter(Boolean).join(' ')}
+                onMouseEnter={dropdown ? () => { if (!preventOpenRef.current) setDesktopOpen(true) } : undefined}
+                onMouseLeave={dropdown ? () => { preventOpenRef.current = false; setDesktopOpen(false) } : undefined}
+              >
                 <NavLink
                   to={to}
                   end={end}
@@ -45,17 +70,44 @@ export default function Navbar() {
                   }
                 >
                   {label}
+                  {dropdown && <span className="nav-dropdown-caret" aria-hidden="true">▾</span>}
                 </NavLink>
+
+                {dropdown && (
+                  <div className="nav-dropdown" role="menu">
+                    {servicesData.map(s => (
+                      <Link
+                        key={s.slug}
+                        to={`/services/${s.slug}`}
+                        className="nav-dropdown-item"
+                        role="menuitem"
+                        onClick={close}
+                      >
+                        {s.title}
+                      </Link>
+                    ))}
+                    <div className="nav-dropdown-divider" />
+                    <Link
+                      to="/services"
+                      className="nav-dropdown-item nav-dropdown-item--all"
+                      role="menuitem"
+                      onClick={close}
+                    >
+                      View All Services →
+                    </Link>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
         </nav>
 
-        <Link to="/contact" className="btn btn-primary navbar-cta" onClick={close}>
-          Get Started
-        </Link>
-
-        <ThemeToggle theme={theme} onToggle={toggle} />
+        <div className="navbar-actions">
+          <ThemeToggle theme={theme} onToggle={toggle} />
+          <Link to="/contact" className="btn btn-primary navbar-cta" onClick={close}>
+            Get Started
+          </Link>
+        </div>
 
         {/* Hamburger button — mobile only */}
         <button
@@ -64,9 +116,7 @@ export default function Navbar() {
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
         >
-          <span />
-          <span />
-          <span />
+          <span /><span /><span />
         </button>
 
       </div>
@@ -78,20 +128,50 @@ export default function Navbar() {
       >
         <div className="navbar-mobile-inner">
           <ul className="navbar-mobile-links">
-            {NAV_LINKS.map(({ to, label, end }) => (
-              <li key={to}>
-                <NavLink
-                  to={to}
-                  end={end}
-                  className={({ isActive }) =>
-                    ['mobile-nav-link', isActive ? 'active' : ''].filter(Boolean).join(' ')
-                  }
-                  onClick={close}
-                >
-                  {label}
-                </NavLink>
-              </li>
-            ))}
+            {NAV_LINKS.map(({ to, label, end, dropdown }) =>
+              dropdown ? (
+                <li key={to}>
+                  <button
+                    className={`mobile-nav-link mobile-nav-group-toggle${isServicesActive ? ' active' : ''}`}
+                    onClick={() => setSvcOpen(o => !o)}
+                    aria-expanded={svcOpen}
+                  >
+                    {label}
+                    <span className={`mobile-nav-caret${svcOpen ? ' mobile-nav-caret--open' : ''}`} aria-hidden="true">
+                      ▾
+                    </span>
+                  </button>
+                  <div className={`mobile-nav-sub${svcOpen ? ' mobile-nav-sub--open' : ''}`}>
+                    <Link to="/services" className="mobile-nav-sub-link mobile-nav-sub-link--all" onClick={close}>
+                      All Services
+                    </Link>
+                    {servicesData.map(s => (
+                      <Link
+                        key={s.slug}
+                        to={`/services/${s.slug}`}
+                        className="mobile-nav-sub-link"
+                        onClick={close}
+                      >
+                        {s.title}
+                      </Link>
+                    ))}
+                  </div>
+                </li>
+              ) : (
+                <li key={to}>
+                  <NavLink
+                    to={to}
+                    end={end}
+                    className={({ isActive }) =>
+                      ['mobile-nav-link', isActive ? 'active' : ''].filter(Boolean).join(' ')
+                    }
+                    onClick={close}
+                  >
+                    {label}
+                  </NavLink>
+                </li>
+              )
+            )}
           </ul>
           <Link to="/contact" className="btn btn-primary mobile-cta" onClick={close}>
             Get Started

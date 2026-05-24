@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { servicesData } from '../data/servicesData'
 import './Home.css'
@@ -110,13 +110,15 @@ const TESTIMONIALS = [
     role: 'CEO',
     company: 'Luxe Apparel Co.',
     result: '7.4× follower growth',
+    rating: 5,
   },
   {
-    quote: "Our ROAS jumped from 1.8× to 4.6× within the first quarter. KTI's paid media team understands performance advertising at a level I haven't seen elsewhere.",
+    quote: "Our ROAS jumped from 1.8× to 4.6× within the first quarter. KTI's paid media team understands performance advertising at a level I haven't seen elsewhere. They don't just run ads — they build systems that compound.",
     name: 'Daniel Osei',
     role: 'Head of Growth',
     company: 'TechFlow Inc.',
     result: '4.6× ROAS achieved',
+    rating: 5,
   },
   {
     quote: "287% increase in qualified leads in under 90 days. They don't just promise results — they build systems that deliver them consistently, month after month.",
@@ -124,14 +126,74 @@ const TESTIMONIALS = [
     role: 'Founder',
     company: 'Wellness Hub',
     result: '+287% qualified leads',
+    rating: 5,
+  },
+  {
+    quote: "From day one, KTI understood our brand voice and target customer better than agencies we'd worked with for years. The content they produce actually converts — every piece earns its place.",
+    name: 'Marcus Reid',
+    role: 'CMO',
+    company: 'Nova Skincare',
+    result: '2.8× conversion rate',
+    rating: 5,
+  },
+  {
+    quote: "We hit Q4 revenue six weeks early. The influencer strategy they built was surgical — every creator was perfectly matched to our audience and brand values.",
+    name: 'Sophie Laurent',
+    role: 'Director of Marketing',
+    company: 'Bloom Cosmetics',
+    result: '6 weeks ahead of target',
+    rating: 5,
+  },
+  {
+    quote: "KTI rebuilt our paid search from scratch. CPC dropped 41%, conversion rate doubled, and we're generating more revenue on half the ad spend. The team is proactive, transparent, and deeply accountable — everything you want in a growth partner.",
+    name: 'James Okafor',
+    role: 'CEO',
+    company: 'PeakPro Fitness',
+    result: '-41% CPC · 2× conversions',
+    rating: 5,
+  },
+  {
+    quote: "I was skeptical about bringing on another agency after two disappointing experiences. KTI changed that completely. In five months they rebuilt our brand identity, relaunched our social presence, and drove 5.1× revenue growth. Genuinely transformational.",
+    name: 'Olivia Thornton',
+    role: 'Founder',
+    company: 'Glow Studio',
+    result: '5.1× revenue growth',
+    rating: 5,
+  },
+  {
+    quote: "We needed to generate high-quality inbound leads without burning through our budget. KTI delivered a 210% lift in qualified inbound within the first quarter. Their targeting precision is unlike anything we had experienced before.",
+    name: 'Kwame Mensah',
+    role: 'CEO',
+    company: 'Meridian Capital',
+    result: '+210% inbound leads',
+    rating: 5,
+  },
+  {
+    quote: "Our content was invisible before KTI. They built a full content engine — editorial calendar, SEO strategy, distribution playbook — and we went from almost no organic traffic to 3.8× engagement across every platform in four months.",
+    name: 'Lena Fischer',
+    role: 'Head of Marketing',
+    company: 'Arbor Health',
+    result: '3.8× content engagement',
+    rating: 5,
+  },
+  {
+    quote: "We were spending too much to acquire customers we kept. KTI redesigned the entire funnel from the first ad impression through onboarding, and our CAC dropped 55%. The growth is now sustainable, not just fast.",
+    name: 'Rafael Souza',
+    role: 'Growth Lead',
+    company: 'Stackly',
+    result: '-55% CAC',
+    rating: 5,
   },
 ]
 
 const marqueeText = MARQUEE_ITEMS.map(i => `${i}  ·  `).join('')
 
+const INITIAL_COUNT = 6
+
 export default function Home() {
   const heroRef      = useRef(null)
   const cursorGlowRef = useRef(null)
+  const [expanded, setExpanded] = useState(false)
 
   /* Mouse-follow radial glow — no React state, direct DOM */
   useEffect(() => {
@@ -497,12 +559,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 6. Portfolio ─────────────────────────────────── */}
+      {/* ── 6. Full-Width Video ──────────────────────────── */}
+      <section className="home-video">
+        <div className="container">
+          <div className="home-video__header text-center reveal">
+            <p className="eyebrow" style={{ color: 'rgba(255,255,255,0.45)' }}>See Our Work</p>
+            <h2 className="home-video__title">
+              Campaigns That<br />
+              <span className="home-video__accent">Move People.</span>
+            </h2>
+          </div>
+        </div>
+        <div className="home-video__frame reveal" style={{ '--reveal-delay': '0.1s' }}>
+          <div className="home-video__player" aria-label="KTI Marketing showreel video player">
+            <div className="home-video__grid-bg" aria-hidden="true" />
+            <div className="home-video__glow" aria-hidden="true" />
+            <div className="home-video__bars" aria-hidden="true">
+              {[55,72,40,88,63,45,79,50,67,84,38,72,60,48,76].map((h, i) => (
+                <div key={i} className="home-video__bar" style={{ '--h': `${h}%`, '--d': `${i * 0.06}s` }} />
+              ))}
+            </div>
+            <button className="home-video__play-btn" aria-label="Play showreel">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </button>
+            <div className="home-video__meta" aria-hidden="true">
+              <span className="home-video__meta-dot" />
+              <span>KTI Marketing — Campaign Showreel</span>
+              <span className="home-video__meta-time">2:47</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 7. Case Studies ──────────────────────────────── */}
       <section className="home-portfolio">
         <div className="container">
           <div className="home-portfolio__header">
             <div className="reveal">
-              <p className="eyebrow">Our Work</p>
+              <p className="eyebrow">Case Studies</p>
               <h2 className="home-portfolio__title">
                 Results That<br />
                 <span className="accent">Speak for Themselves.</span>
@@ -537,10 +633,18 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <div className="home-portfolio__footer reveal" style={{ '--reveal-delay': '0.1s' }}>
+            <Link to="/case-studies" className="all-services-link">
+              View all case studies
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── 7. Process ───────────────────────────────────── */}
+      {/* ── 8. Process ───────────────────────────────────── */}
       <section className="home-process">
         <div className="container">
           <div className="home-process__header text-center reveal">
@@ -562,17 +666,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 8. Testimonials ──────────────────────────────── */}
+      {/* ── 9. Testimonials ──────────────────────────────── */}
       <section className="home-testimonials">
         <div className="container">
           <div className="text-center home-testimonials__header reveal">
             <p className="eyebrow">Client Results</p>
             <h2>Don't Take Our Word for It.</h2>
           </div>
-          <div className="testimonials-grid">
-            {TESTIMONIALS.map(({ quote, name, role, company, result }, i) => (
-              <div className="testimonial-card reveal" key={name} style={{ '--reveal-delay': `${i * 0.12}s` }}>
-                <div className="testimonial-card__result">{result}</div>
+          <div className="testimonials-masonry">
+            {TESTIMONIALS.slice(0, INITIAL_COUNT).map(({ quote, name, role, company, result, rating }) => (
+              <div className="testimonial-card" key={name}>
+                <div className="testimonial-card__top">
+                  <div className="testimonial-card__result">{result}</div>
+                  <div className="testimonial-card__stars" aria-label={`${rating} out of 5 stars`}>
+                    {'★'.repeat(rating)}
+                  </div>
+                </div>
                 <p className="testimonial-card__quote">"{quote}"</p>
                 <div className="testimonial-card__author">
                   <div className="testimonial-card__avatar">
@@ -586,10 +695,46 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <div className={`testimonials-extra${expanded ? ' testimonials-extra--visible' : ''}`}>
+            <div className="testimonials-masonry">
+              {TESTIMONIALS.slice(INITIAL_COUNT).map(({ quote, name, role, company, result, rating }) => (
+                <div className="testimonial-card" key={name}>
+                  <div className="testimonial-card__top">
+                    <div className="testimonial-card__result">{result}</div>
+                    <div className="testimonial-card__stars" aria-label={`${rating} out of 5 stars`}>
+                      {'★'.repeat(rating)}
+                    </div>
+                  </div>
+                  <p className="testimonial-card__quote">"{quote}"</p>
+                  <div className="testimonial-card__author">
+                    <div className="testimonial-card__avatar">
+                      {name.charAt(0)}
+                    </div>
+                    <div>
+                      <strong>{name}</strong>
+                      <span>{role} · {company}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="testimonials-show-more">
+            <button
+              className="testimonials-show-more__btn"
+              onClick={() => setExpanded(prev => !prev)}
+              aria-expanded={expanded}
+            >
+              {expanded ? 'Show Less' : 'See More Testimonials'}
+              <span className={`testimonials-show-more__icon${expanded ? ' testimonials-show-more__icon--rotated' : ''}`}>
+                ▾
+              </span>
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* ── 9. Final CTA ─────────────────────────────────── */}
+      {/* ── 10. Final CTA ────────────────────────────────── */}
       <section className="home-final-cta">
         <div className="container">
           <p className="eyebrow" style={{ color: '#f87171' }}>Ready to Grow?</p>

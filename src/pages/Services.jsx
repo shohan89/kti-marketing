@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { servicesData } from '../data/servicesData'
+import PageCTA from '../components/PageCTA'
 import './Services.css'
 
 const SERVICE_ICONS = {
@@ -133,37 +134,14 @@ export default function Services() {
       </section>
 
       {/* ── Bottom CTA ────────────────────────────────────── */}
-      <section className="services-cta">
-        <div className="container">
-          <div className="services-cta__inner reveal">
-            <p className="eyebrow services-cta__eyebrow">Let's Get to Work</p>
-            <h2 className="services-cta__title">
-              Let's Grow<br />Your Brand.
-            </h2>
-            <p className="services-cta__sub">
-              Tell us where you are and where you want to be. We'll build a
-              custom strategy that gets you there — faster than you think.
-            </p>
-            <div className="services-cta__actions">
-              <Link to="/contact" className="btn btn-white">Start Your Project →</Link>
-              <Link to="/about" className="btn btn-outline-white">Meet the Team</Link>
-            </div>
-          </div>
-          <div className="services-cta__stat-strip">
-            {[
-              { num: '120+',  label: 'Brands Grown' },
-              { num: '3.2×',  label: 'Avg. ROI' },
-              { num: '$40M+', label: 'Revenue Generated' },
-              { num: '94%',   label: 'Retention Rate' },
-            ].map(({ num, label }, i) => (
-              <div className="services-cta__stat reveal" key={label} style={{ '--reveal-delay': `${i * 0.08}s` }}>
-                <span className="services-cta__stat-num">{num}</span>
-                <span className="services-cta__stat-label">{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PageCTA
+        eyebrow="Let's Get to Work"
+        title={<>Let's Grow<br />Your Brand.</>}
+        sub="Tell us where you are and where you want to be. We'll build a custom strategy that gets you there — faster than you think."
+        primaryLabel="Start Your Project →"
+        secondaryLabel="Meet the Team"
+        secondaryTo="/about"
+      />
 
     </main>
   )

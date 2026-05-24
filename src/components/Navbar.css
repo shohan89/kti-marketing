@@ -78,6 +78,182 @@
 .navbar--scrolled .nav-link:hover { color: #0F1117; background: #F4F4F5; }
 .navbar--scrolled .nav-link.active { color: #D7262E; background: #FEF2F2; }
 
+/* ── Services Dropdown ────────────────────────────────── */
+.nav-item {
+  position: relative;
+}
+
+.nav-dropdown-caret {
+  display: inline-block;
+  font-size: 0.6rem;
+  margin-left: 0.3rem;
+  vertical-align: middle;
+  transition: transform 0.22s ease;
+  line-height: 1;
+}
+
+.nav-item--open .nav-dropdown-caret,
+.nav-item--dropdown:focus-within .nav-dropdown-caret {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.13);
+  padding: 10px 0.45rem 0.45rem;
+  min-width: 230px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.nav-item--open .nav-dropdown,
+.nav-item--dropdown:focus-within .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.nav-dropdown-item {
+  display: block;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-dropdown-item:hover {
+  background: #FEF2F2;
+  color: #D7262E;
+}
+
+.nav-dropdown-divider {
+  height: 1px;
+  background: #F3F4F6;
+  margin: 0.35rem 0.5rem;
+}
+
+.nav-dropdown-item--all {
+  font-weight: 700;
+  color: #D7262E;
+}
+
+.nav-dropdown-item--all:hover {
+  background: #FEF2F2;
+}
+
+[data-theme="dark"] .nav-dropdown {
+  background: #1a1a1f;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .nav-dropdown-item {
+  color: #9CA3AF;
+}
+
+[data-theme="dark"] .nav-dropdown-item:hover {
+  background: rgba(215, 38, 46, 0.12);
+  color: #f87171;
+}
+
+[data-theme="dark"] .nav-dropdown-divider {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* ── Mobile services sub-menu ─────────────────────────── */
+.mobile-nav-group-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #F4F4F5;
+  cursor: pointer;
+  font-family: inherit;
+  justify-content: space-between;
+}
+
+.mobile-nav-caret {
+  font-size: 0.65rem;
+  transition: transform 0.22s ease;
+  flex-shrink: 0;
+}
+
+.mobile-nav-caret--open {
+  transform: rotate(180deg);
+}
+
+.mobile-nav-sub {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.mobile-nav-sub--open {
+  max-height: 600px;
+}
+
+.mobile-nav-sub-link {
+  display: block;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6B7280;
+  text-decoration: none;
+  border-bottom: 1px solid #F4F4F5;
+  transition: color 0.15s ease;
+}
+
+.mobile-nav-sub-link:last-child { border-bottom: none; }
+.mobile-nav-sub-link:hover { color: #D7262E; }
+
+.mobile-nav-sub-link--all {
+  font-weight: 700;
+  color: #D7262E;
+  background: #FEF2F2;
+}
+
+.mobile-nav-mobile--open {
+  max-height: 900px;
+}
+
+[data-theme="dark"] .mobile-nav-sub {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .mobile-nav-sub-link {
+  color: #6B7280;
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .mobile-nav-sub-link:hover { color: #f87171; }
+
+[data-theme="dark"] .mobile-nav-sub-link--all {
+  color: #f87171;
+  background: rgba(215, 38, 46, 0.1);
+}
+
+/* ── Actions group (ThemeToggle + CTA) ───────────────── */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 /* ── Desktop CTA ──────────────────────────────────────── */
 .navbar-cta {
   flex-shrink: 0;
@@ -135,7 +311,7 @@
 }
 
 .navbar-mobile--open {
-  max-height: 480px;
+  max-height: 900px;
   border-top-color: rgba(0, 0, 0, 0.06);
 }
 
@@ -229,5 +405,9 @@
 
   .navbar-inner {
     padding: 0 1.5rem;
+  }
+
+  .navbar-actions {
+    gap: 0.25rem;
   }
 }
