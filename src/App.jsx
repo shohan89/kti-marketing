@@ -7,6 +7,9 @@ import ServiceDetails from './pages/ServiceDetails'
 import CaseStudies from './pages/CaseStudies'
 import CaseStudy from './pages/CaseStudy'
 import Contact from './pages/Contact'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
+import Pricing from './pages/Pricing'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -21,6 +24,9 @@ export default function App() {
           <Route path="case-studies" element={<CaseStudies />} />
           <Route path="case-studies/:slug" element={<CaseStudy />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="blog" element={<Blog />} />
+          <Route path="blog/:slug" element={<BlogPost />} />
+          <Route path="pricing" element={<Pricing />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

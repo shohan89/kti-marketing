@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { servicesData } from '../data/servicesData'
+import { latestPosts } from '../data/blogData'
+import { SERVICE_ICONS } from '../data/serviceIcons'
 import './Home.css'
 
 const MARQUEE_ITEMS = [
@@ -510,6 +512,9 @@ export default function Home() {
                 className="svc-card reveal"
                 style={{ '--reveal-delay': `${Math.min(i * 0.08, 0.4)}s` }}
               >
+                <div className="svc-card__icon-box" aria-hidden="true">
+                  {SERVICE_ICONS[s.slug]}
+                </div>
                 <h3 className="svc-card__title">{s.title}</h3>
                 <p className="svc-card__desc">{s.description}</p>
                 <span className="svc-card__arrow">→</span>
@@ -734,7 +739,56 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 10. Final CTA ────────────────────────────────── */}
+      {/* ── 10. Blog Preview ─────────────────────────────── */}
+      <section className="home-blog">
+        <div className="container">
+          <div className="home-blog__header">
+            <div>
+              <p className="eyebrow">From the Blog</p>
+              <h2 className="home-blog__title">
+                Ideas That <span className="accent">Drive Growth</span>
+              </h2>
+            </div>
+            <Link to="/blog" className="btn btn-outline">View All Articles →</Link>
+          </div>
+
+          <div className="home-blog__grid">
+            {latestPosts().map((post) => (
+              <article key={post.slug} className="home-blog__card">
+                <div
+                  className="home-blog__card-img"
+                  style={{
+                    background: `linear-gradient(135deg, ${post.gradientFrom} 0%, ${post.gradientTo} 100%)`,
+                  }}
+                >
+                  <span
+                    className="home-blog__badge"
+                    style={{ background: post.accentColor }}
+                  >
+                    {post.category === 'general' ? 'Marketing' : 'E-commerce'}
+                  </span>
+                </div>
+                <div className="home-blog__card-body">
+                  <p className="home-blog__card-meta">
+                    {post.publishDate} <span>·</span> {post.readTime}
+                  </p>
+                  <h3 className="home-blog__card-title">{post.title}</h3>
+                  <p className="home-blog__card-excerpt">{post.excerpt}</p>
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    className="home-blog__card-cta"
+                    style={{ color: post.accentColor }}
+                  >
+                    Read Article →
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 11. Final CTA ────────────────────────────────── */}
       <section className="home-final-cta">
         <div className="container">
           <p className="eyebrow" style={{ color: '#f87171' }}>Ready to Grow?</p>

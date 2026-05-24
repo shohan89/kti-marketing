@@ -183,6 +183,47 @@
   gap: 0.7rem;
 }
 
+/* ── Icon animations ──────────────────────────────────── */
+/* Social Media */
+.service-card:hover .svc-icon__node--1 { animation: nodePopIn 0.9s ease-in-out infinite; }
+.service-card:hover .svc-icon__node--2 { animation: nodePopIn 0.9s ease-in-out 0.2s infinite; }
+.service-card:hover .svc-icon__node--3 { animation: nodePopIn 0.9s ease-in-out 0.4s infinite; }
+.service-card:hover .svc-icon__share-line { animation: lineFlash 0.9s ease-in-out infinite; stroke-dasharray: 12; }
+
+/* Content Creation */
+.service-card:hover .svc-icon__pencil {
+  animation: pencilWobble 0.7s ease-in-out infinite;
+  transform-origin: bottom left;
+}
+
+/* Ads Campaign */
+.service-card:hover .svc-icon__ring--1 { animation: ringPulse 1s ease-in-out infinite; transform-origin: center; }
+.service-card:hover .svc-icon__ring--2 { animation: ringPulse 1s ease-in-out 0.2s infinite; transform-origin: center; }
+.service-card:hover .svc-icon__ring--3 { animation: ringPulse 1s ease-in-out 0.4s infinite; transform-origin: center; }
+
+/* Copywriting */
+.service-card:hover .svc-icon__text-line--1 { animation: lineSlideIn 0.6s ease-out forwards; stroke-dasharray: 20; }
+.service-card:hover .svc-icon__text-line--2 { animation: lineSlideIn 0.6s 0.15s ease-out forwards; stroke-dasharray: 20; }
+.service-card:hover .svc-icon__text-line--3 { animation: lineSlideIn 0.6s 0.3s ease-out forwards; stroke-dasharray: 20; }
+
+/* Product Photography */
+.service-card:hover .svc-icon__camera { animation: shutterClick 0.5s ease-out; transform-origin: center; }
+.service-card:hover .svc-icon__lens   { animation: lensPulse 0.7s ease-in-out infinite; transform-origin: center; }
+
+/* Model Photography */
+.service-card:hover .svc-icon__person { animation: personBounce 0.7s ease-in-out infinite; transform-origin: bottom center; }
+
+/* Video Production */
+.service-card:hover .svc-icon__play { animation: playPulse 0.8s ease-in-out infinite; transform-origin: center; }
+
+/* Influencer Marketing */
+.service-card:hover .svc-icon__person-left  { animation: personLeft  0.8s ease-in-out infinite; transform-origin: center; }
+.service-card:hover .svc-icon__person-right { animation: personRight 0.8s ease-in-out infinite; transform-origin: center; }
+
+/* Website Maintenance */
+.service-card:hover .svc-icon__gear-outer  { animation: gearSpin   1.8s linear infinite; transform-origin: center; }
+.service-card:hover .svc-icon__gear-center { animation: gearCenter 1.8s ease-in-out infinite; transform-origin: center; }
+
 /* ── Bottom CTA ───────────────────────────────────────── */
 .services-cta {
   padding: 7rem 0 0;
