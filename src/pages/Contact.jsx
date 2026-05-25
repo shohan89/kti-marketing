@@ -2,11 +2,11 @@ import { useState } from 'react'
 import './Contact.css'
 
 const BUDGETS = [
-  'Under $1,000 / month',
-  '$1,000 – $3,000 / month',
-  '$3,000 – $7,000 / month',
-  '$7,000 – $15,000 / month',
-  '$15,000+ / month',
+  'Under ৳50,000 / month',
+  '৳50,000 – ৳1,50,000 / month',
+  '৳1,50,000 – ৳5,00,000 / month',
+  '৳5,00,000 – ৳15,00,000 / month',
+  '৳15,00,000+ / month',
 ]
 
 const CONTACT_INFO = [

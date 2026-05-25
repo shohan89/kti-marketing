@@ -92,6 +92,45 @@
 
 .footer-col a:hover { color: var(--red); }
 
+/* ── Hiring badge ─────────────────────────────────────── */
+.footer-nav-item--has-badge {
+  display: flex;
+  align-items: center;
+}
+
+.footer-hiring-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--red);
+  border-radius: 20px;
+  padding: 2px 7px 2px 5px;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.footer-hiring-badge::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  animation: hiring-blink 1.1s ease-in-out infinite;
+}
+
+@keyframes hiring-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.15; }
+}
+
 /* Contact column specifics */
 .footer-contact-list li { display: block; }
 

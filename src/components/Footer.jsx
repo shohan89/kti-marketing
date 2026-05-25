@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { jobListings } from '../data/careersData'
 import './Footer.css'
 
 const SERVICES_LINKS = [
@@ -10,10 +11,11 @@ const SERVICES_LINKS = [
 ]
 
 const COMPANY_LINKS = [
-  { to: '/',        label: 'Home' },
-  { to: '/about',   label: 'About Us' },
+  { to: '/',         label: 'Home' },
+  { to: '/about',    label: 'About Us' },
   { to: '/services', label: 'Services' },
-  { to: '/contact', label: 'Contact' },
+  { to: '/careers',  label: 'Careers', hiring: jobListings.length > 0 },
+  { to: '/contact',  label: 'Contact' },
 ]
 
 export default function Footer() {
@@ -59,8 +61,11 @@ export default function Footer() {
             <div className="footer-col">
               <h4>Company</h4>
               <ul>
-                {COMPANY_LINKS.map(({ to, label }) => (
-                  <li key={to}><Link to={to}>{label}</Link></li>
+                {COMPANY_LINKS.map(({ to, label, hiring }) => (
+                  <li key={to} className={hiring ? 'footer-nav-item--has-badge' : undefined}>
+                    <Link to={to}>{label}</Link>
+                    {hiring && <span className="footer-hiring-badge">Hiring</span>}
+                  </li>
                 ))}
               </ul>
             </div>
