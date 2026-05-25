@@ -12,6 +12,7 @@ import BlogPost from './pages/BlogPost'
 import Pricing from './pages/Pricing'
 import Careers from './pages/Careers'
 import JobPost from './pages/JobPost'
+import OurThemes from './pages/OurThemes'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="pricing" element={<Pricing />} />
           <Route path="careers" element={<Careers />} />
           <Route path="careers/:slug" element={<JobPost />} />
+          <Route path="themes" element={<OurThemes />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

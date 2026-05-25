@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { to: '/case-studies', label: 'Case Studies' },
   { to: '/blog',         label: 'Blog' },
   { to: '/careers',      label: 'Careers' },
+  { to: '/themes',       label: 'Our Themes' },
   { to: '/pricing',      label: 'Pricing' },
   { to: '/contact',      label: 'Contact' },
 ]
