@@ -226,10 +226,6 @@
 .hero-title__highlight {
   color: #D7262E;
   font-style: normal;
-  text-shadow:
-    0 0 20px rgba(215, 38, 46, 0.75),
-    0 0 50px rgba(215, 38, 46, 0.45),
-    0 0 90px rgba(215, 38, 46, 0.2);
 }
 
 /* Subtitle */
