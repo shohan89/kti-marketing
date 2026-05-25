@@ -12,9 +12,23 @@ function fmt(n) {
 /* ── Calculator Tab ──────────────────────────────────── */
 function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal }) {
   const [openCategory, setOpenCategory] = useState('marketing')
+  const [photoQtys, setPhotoQtys] = useState(() =>
+    Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig.defaultQty]))
+  )
 
   function toggleCategory(key) {
     setOpenCategory(prev => (prev === key ? null : key))
+  }
+
+  function calcPhoto(pkg, qty) {
+    const sessions = Math.ceil(qty / pkg.qtyConfig.capacity)
+    const total = sessions * pkg.priceNumeric
+    return { sessions, total }
+  }
+
+  function handleQtyChange(type, raw) {
+    const val = Math.max(1, parseInt(raw) || 1)
+    setPhotoQtys(prev => ({ ...prev, [type]: val }))
   }
 
   const ChevronIcon = () => (
@@ -93,6 +107,8 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal }) {
                 {photoshootPackages.map(pkg => {
                   const itemId = `photo-${pkg.type.replace(/\s+/g, '-').toLowerCase()}`
                   const inCart = cartItems.some(c => c.id === itemId)
+                  const qty = photoQtys[pkg.type]
+                  const { sessions, total } = calcPhoto(pkg, qty)
                   return (
                     <div key={pkg.type} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
                       <div className="calc-pkg-option__info">
@@ -104,12 +120,54 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal }) {
                           {pkg.includes.slice(0, 3).map(item => <li key={item}>{item}</li>)}
                         </ul>
                       </div>
+
+                      <div className="calc-qty-control">
+                        <span className="calc-qty-control__label">{pkg.qtyConfig.inputLabel}</span>
+                        <div className="calc-qty-control__row">
+                          <button
+                            type="button"
+                            className="calc-qty-control__btn"
+                            onClick={() => handleQtyChange(pkg.type, qty - 1)}
+                            aria-label="Decrease quantity"
+                          >−</button>
+                          <input
+                            type="number"
+                            className="calc-qty-control__input"
+                            value={qty}
+                            min="1"
+                            onChange={e => handleQtyChange(pkg.type, e.target.value)}
+                            aria-label={pkg.qtyConfig.inputLabel}
+                          />
+                          <button
+                            type="button"
+                            className="calc-qty-control__btn"
+                            onClick={() => handleQtyChange(pkg.type, qty + 1)}
+                            aria-label="Increase quantity"
+                          >+</button>
+                          <span className="calc-qty-control__unit">{pkg.qtyConfig.unit}</span>
+                        </div>
+                      </div>
+
+                      <p className="calc-qty-preview">
+                        {sessions} {pkg.qtyConfig.sessionLabel}{sessions !== 1 ? 's' : ''}{' '}
+                        × {fmt(pkg.priceNumeric)} = <strong>{fmt(total)}</strong>
+                      </p>
+
                       <button
                         className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`}
-                        onClick={() => !inCart && addToCart({ id: itemId, name: pkg.type, category: 'photoshoot', price: pkg.priceNumeric })}
-                        disabled={inCart}
+                        onClick={() => addToCart({
+                          id: itemId,
+                          name: pkg.type,
+                          category: 'photoshoot',
+                          price: total,
+                          qty,
+                          qtyUnit: pkg.qtyConfig.unit,
+                          sessions,
+                          sessionLabel: pkg.qtyConfig.sessionLabel,
+                          sessionPrice: pkg.priceNumeric,
+                        })}
                       >
-                        {inCart ? '✓ Added' : '+ Add to Cart'}
+                        {inCart ? '✓ Update' : '+ Add to Cart'}
                       </button>
                     </div>
                   )
@@ -136,6 +194,11 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal }) {
                 <li key={item.id} className="cart-item">
                   <div className="cart-item__info">
                     <span className="cart-item__name">{item.name}</span>
+                    {item.sessions != null && (
+                      <span className="cart-item__detail">
+                        {item.qty} {item.qtyUnit} · {item.sessions} {item.sessionLabel}{item.sessions !== 1 ? 's' : ''} × {fmt(item.sessionPrice)}
+                      </span>
+                    )}
                     <span className="cart-item__price">{fmt(item.price)}</span>
                   </div>
                   <button
@@ -220,7 +283,8 @@ export default function Pricing() {
 
   function addToCart(item) {
     setCartItems(prev => {
-      if (prev.find(c => c.id === item.id)) return prev
+      const exists = prev.find(c => c.id === item.id)
+      if (exists) return prev.map(c => c.id === item.id ? item : c)
       return [...prev, item]
     })
   }

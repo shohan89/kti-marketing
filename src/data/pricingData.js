@@ -138,6 +138,13 @@ export const photoshootPackages = [
     unit: 'per session',
     addOn: '৳500 per extra product',
     includes: ['Up to 10 products', 'White & lifestyle backgrounds', 'Basic retouching', 'High-res delivery'],
+    qtyConfig: {
+      inputLabel: 'How many products?',
+      unit: 'products',
+      capacity: 10,
+      sessionLabel: 'session',
+      defaultQty: 10,
+    },
   },
   {
     type: 'Model Photography',
@@ -148,6 +155,13 @@ export const photoshootPackages = [
     unit: 'per session',
     addOn: 'Model fee may apply',
     includes: ['Half-day shoot (4 hrs)', '2 outfit changes', 'Professional model', 'Location or studio'],
+    qtyConfig: {
+      inputLabel: 'How many sessions?',
+      unit: 'sessions',
+      capacity: 1,
+      sessionLabel: 'session',
+      defaultQty: 1,
+    },
   },
   {
     type: 'E-commerce Pack',
@@ -158,6 +172,13 @@ export const photoshootPackages = [
     unit: 'per pack',
     addOn: null,
     includes: ['Up to 20 products', 'Pure white background', 'Multi-angle shots', 'Same-day processing'],
+    qtyConfig: {
+      inputLabel: 'How many products?',
+      unit: 'products',
+      capacity: 20,
+      sessionLabel: 'pack',
+      defaultQty: 20,
+    },
   },
   {
     type: 'Commercial Full-Day',
@@ -168,6 +189,13 @@ export const photoshootPackages = [
     unit: 'per day',
     addOn: 'Travel fees extra',
     includes: ['8-hour shoot', 'Full crew & equipment', 'Styling assistance', 'Advanced retouching', 'Usage rights'],
+    qtyConfig: {
+      inputLabel: 'How many days?',
+      unit: 'days',
+      capacity: 1,
+      sessionLabel: 'day',
+      defaultQty: 1,
+    },
   },
 ]
 

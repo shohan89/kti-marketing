@@ -1223,6 +1223,104 @@
   color: #f87171;
 }
 
+.cart-item__detail {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--gray-500);
+  margin-top: 0.15rem;
+  line-height: 1.4;
+}
+
+/* ── Quantity stepper ─────────────────────────────────── */
+.calc-qty-control {
+  margin: 0.75rem 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.calc-qty-control__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.calc-qty-control__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.calc-qty-control__btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--gray-300);
+  background: var(--bg-card);
+  color: var(--gray-700);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+  flex-shrink: 0;
+}
+
+.calc-qty-control__btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-light);
+}
+
+.calc-qty-control__input {
+  width: 4.5rem;
+  text-align: center;
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--gray-900);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 0.35rem 0.5rem;
+  outline: none;
+  transition: border-color 0.18s ease;
+  -moz-appearance: textfield;
+}
+
+.calc-qty-control__input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(215, 38, 46, 0.12);
+}
+
+.calc-qty-control__input::-webkit-outer-spin-button,
+.calc-qty-control__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.calc-qty-control__unit {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.calc-qty-preview {
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  margin: 0.25rem 0 0.25rem;
+  line-height: 1.5;
+}
+
+.calc-qty-preview strong {
+  color: var(--red);
+  font-weight: 800;
+}
+
 .cart-divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.08);
