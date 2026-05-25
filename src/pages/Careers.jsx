@@ -10,7 +10,7 @@ const FILTERS = ['All', 'Marketing', 'Creative', 'Technology']
 function JobCard({ job }) {
   const dept = DEPT_COLORS[job.department] || DEPT_COLORS.Marketing
   return (
-    <article className="job-card reveal">
+    <article className="job-card">
       <div className="job-card__top">
         <span
           className="job-card__dept"
