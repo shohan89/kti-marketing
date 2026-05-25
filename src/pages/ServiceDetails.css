@@ -214,14 +214,93 @@
 }
 
 .sd-process__steps {
-  max-width: 680px;
+  max-width: 960px;
 }
 
 .sd-process-step {
   display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 0 1.75rem;
-  align-items: start;
+  grid-template-columns: 56px 1fr 220px;
+  gap: 0 2.5rem;
+  align-items: center;
+}
+
+/* ── Illustration column ──────────────────────────────── */
+.sd-process-step__illus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.process-illus {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  color: var(--gray-300);
+}
+
+/* ── Illustration element animations ─────────────────── */
+.illus-draw {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.35s;
+}
+
+.illus-draw-d2 {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.55s;
+}
+
+.illus-draw-d3 {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.75s;
+}
+
+.illus-fade {
+  opacity: 0;
+  transition: opacity 0.5s ease 0.4s;
+}
+
+.illus-scale {
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.5s ease 0.45s, transform 0.5s ease 0.45s;
+}
+
+.illus-fade-d1 { opacity: 0; transition: opacity 0.4s ease 0.5s; }
+.illus-fade-d2 { opacity: 0; transition: opacity 0.4s ease 0.65s; }
+.illus-fade-d3 { opacity: 0; transition: opacity 0.4s ease 0.8s; }
+
+/* Trigger animations when the parent step is revealed */
+.sd-process-step.revealed .illus-draw,
+.sd-process-step.revealed .illus-draw-d2,
+.sd-process-step.revealed .illus-draw-d3 {
+  stroke-dashoffset: 0;
+}
+
+.sd-process-step.revealed .illus-fade,
+.sd-process-step.revealed .illus-fade-d1,
+.sd-process-step.revealed .illus-fade-d2,
+.sd-process-step.revealed .illus-fade-d3 {
+  opacity: 1;
+}
+
+.sd-process-step.revealed .illus-scale {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .illus-draw, .illus-draw-d2, .illus-draw-d3,
+  .illus-fade, .illus-scale,
+  .illus-fade-d1, .illus-fade-d2, .illus-fade-d3 {
+    transition: none;
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
+  }
 }
 
 .sd-process-step__num-col {
@@ -698,6 +777,12 @@
   .sd-cta               { padding: 5.5rem 0; }
   .sd-cs-grid           { grid-template-columns: 1fr; }
   .sd-result-card       { padding: 2rem; }
+}
+
+@media (max-width: 900px) {
+  .sd-process__steps    { max-width: 680px; }
+  .sd-process-step      { grid-template-columns: 56px 1fr; }
+  .sd-process-step__illus { display: none; }
 }
 
 @media (max-width: 640px) {

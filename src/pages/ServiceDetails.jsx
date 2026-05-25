@@ -3,7 +3,22 @@ import { useParams, Link } from 'react-router-dom'
 import { getServiceBySlug } from '../data/servicesData'
 import { caseStudies } from '../data/caseStudies'
 import PageCTA from '../components/PageCTA'
+import {
+  IllusDiscovery,
+  IllusStrategy,
+  IllusProduction,
+  IllusReview,
+  IllusDelivery,
+} from '../components/ProcessIllustrations'
 import './ServiceDetails.css'
+
+const PROCESS_ILLUSTRATIONS = [
+  IllusDiscovery,
+  IllusStrategy,
+  IllusProduction,
+  IllusReview,
+  IllusDelivery,
+]
 
 export default function ServiceDetails() {
   const { slug } = useParams()
@@ -108,20 +123,31 @@ export default function ServiceDetails() {
             <h2 className="sd-section-title">Our Process</h2>
           </div>
           <div className="sd-process__steps">
-            {service.process.map((step, i) => (
-              <div className="sd-process-step reveal" key={step.num} data-last={i === service.process.length - 1} style={{ '--reveal-delay': `${i * 0.1}s` }}>
-                <div className="sd-process-step__num-col">
-                  <div className="sd-process-step__circle">{step.num}</div>
-                  {i < service.process.length - 1 && (
-                    <div className="sd-process-step__line" aria-hidden="true" />
-                  )}
+            {service.process.map((step, i) => {
+              const Illus = PROCESS_ILLUSTRATIONS[i] ?? PROCESS_ILLUSTRATIONS[0]
+              return (
+                <div
+                  className="sd-process-step reveal"
+                  key={step.num}
+                  data-last={i === service.process.length - 1}
+                  style={{ '--reveal-delay': `${i * 0.12}s` }}
+                >
+                  <div className="sd-process-step__num-col">
+                    <div className="sd-process-step__circle">{step.num}</div>
+                    {i < service.process.length - 1 && (
+                      <div className="sd-process-step__line" aria-hidden="true" />
+                    )}
+                  </div>
+                  <div className="sd-process-step__content">
+                    <h3 className="sd-process-step__title">{step.title}</h3>
+                    <p className="sd-process-step__body">{step.body}</p>
+                  </div>
+                  <div className="sd-process-step__illus" aria-hidden="true">
+                    <Illus />
+                  </div>
                 </div>
-                <div className="sd-process-step__content">
-                  <h3 className="sd-process-step__title">{step.title}</h3>
-                  <p className="sd-process-step__body">{step.body}</p>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>

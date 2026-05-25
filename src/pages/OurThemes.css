@@ -101,6 +101,11 @@
 }
 
 /* ── Theme Card ───────────────────────────────────────── */
+@keyframes themeCardIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .theme-card {
   border: 1.5px solid var(--gray-100);
   border-radius: var(--radius-lg);
@@ -108,6 +113,8 @@
   background: var(--bg-card);
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.28s ease, transform 0.22s ease;
+  animation: themeCardIn 0.5s ease both;
+  animation-delay: var(--reveal-delay, 0s);
 }
 
 .theme-card:hover {

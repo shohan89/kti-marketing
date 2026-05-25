@@ -2,6 +2,10 @@ import { Link } from 'react-router-dom'
 import PageCTA from '../components/PageCTA'
 import useScrollReveal from '../hooks/useScrollReveal'
 import './OurThemes.css'
+import theme1 from '../assets/themes/theme-1.png'
+import theme2 from '../assets/themes/theme-2.png'
+import theme3 from '../assets/themes/theme-3.png'
+import theme4 from '../assets/themes/theme-4.png'
 
 const THEMES = [
   {
@@ -9,7 +13,7 @@ const THEMES = [
     name: 'Theme One',
     tags: ['E-commerce', 'Fashion'],
     description: 'Classic store layout with bold category navigation, product grids, and a promotional banner header. Ideal for fashion and apparel brands.',
-    image: '/themes/theme-1.jpg',
+    image: theme1,
     url: 'https://ecom.prodevs.com.bd/public/theme-1',
   },
   {
@@ -17,7 +21,7 @@ const THEMES = [
     name: 'Theme Two',
     tags: ['Boutique', 'Multi-Category'],
     description: 'Modern boutique design featuring circular category icons, curated product sections, and a clean white aesthetic built for conversions.',
-    image: '/themes/theme-2.jpg',
+    image: theme2,
     url: 'https://ecom.prodevs.com.bd/theme-2',
   },
   {
@@ -25,7 +29,7 @@ const THEMES = [
     name: 'Theme Three',
     tags: ['Fashion', 'Multi-Section'],
     description: 'Fashion-forward layout with a full-width hero banner, shop-by-category strip, and multiple product showcase sections for high-volume stores.',
-    image: '/themes/theme-3.jpg',
+    image: theme3,
     url: 'https://ecom.prodevs.com.bd/theme-3',
   },
   {
@@ -33,14 +37,14 @@ const THEMES = [
     name: 'Theme Four',
     tags: ['Department Store', 'Sidebar Nav'],
     description: 'Full-featured department store theme with sidebar category navigation, featured products, and a comprehensive footer for large catalogues.',
-    image: '/themes/theme-4.jpg',
+    image: theme4,
     url: 'https://ecom.prodevs.com.bd/theme-4',
   },
 ]
 
 function ThemeCard({ theme }) {
   return (
-    <div className="theme-card reveal">
+    <div className="theme-card">
 
       {/* Browser chrome */}
       <div className="theme-card__chrome">
