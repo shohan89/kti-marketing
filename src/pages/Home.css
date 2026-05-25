@@ -802,58 +802,6 @@
   letter-spacing: 0.07em;
 }
 
-/* ── Glass stats card ─────────────────────────────────── */
-.hero-glass-stats {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 16px;
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  padding: 1.1rem 0;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 40px rgba(215, 38, 46, 0.04);
-}
-
-.hero-gs__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.22rem;
-  padding: 0 1.5rem;
-  text-align: center;
-}
-
-.hero-gs__item:first-child { padding-left: 1.4rem; }
-.hero-gs__item:last-child  { padding-right: 1.4rem; }
-
-.hero-gs__divider {
-  width: 1px;
-  height: 2.25rem;
-  background: rgba(255, 255, 255, 0.1);
-  flex-shrink: 0;
-}
-
-.hero-gs__num {
-  font-size: 1.35rem;
-  font-weight: 900;
-  color: var(--white);
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-
-.hero-gs__lbl {
-  font-size: 0.67rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.38);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  white-space: nowrap;
-}
 
 /* ── Floating skill badges ────────────────────────────── */
 .hero-skill-badge {

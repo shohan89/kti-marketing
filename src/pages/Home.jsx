@@ -296,22 +296,6 @@ export default function Home() {
                 <Link to="/contact" className="btn btn-primary">Start Growing</Link>
                 <Link to="/contact" className="btn-hero-outline">Book a Strategy Call</Link>
               </div>
-              <div className="hero-glass-stats fade-up-4">
-                <div className="hero-gs__item">
-                  <span className="hero-gs__num">120+</span>
-                  <span className="hero-gs__lbl">Brands Scaled</span>
-                </div>
-                <div className="hero-gs__divider" aria-hidden="true" />
-                <div className="hero-gs__item">
-                  <span className="hero-gs__num">$40M+</span>
-                  <span className="hero-gs__lbl">Revenue Generated</span>
-                </div>
-                <div className="hero-gs__divider" aria-hidden="true" />
-                <div className="hero-gs__item">
-                  <span className="hero-gs__num">94%</span>
-                  <span className="hero-gs__lbl">Client Retention</span>
-                </div>
-              </div>
             </div>
 
             {/* Right column — dashboard visual */}

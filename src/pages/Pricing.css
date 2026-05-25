@@ -1407,7 +1407,7 @@
 }
 
 @media (max-width: 900px) {
-  .pricing-packages__grid { grid-template-columns: 1fr; max-width: 460px; }
+  .pricing-packages__grid { grid-template-columns: 1fr; }
   .pricing-calc__body { grid-template-columns: 1fr; }
   .pricing-calc__summary { position: static; }
   .photo-card { grid-template-columns: 3rem 1fr; }

@@ -2,6 +2,57 @@ import { Link } from 'react-router-dom'
 import PageCTA from '../components/PageCTA'
 import './About.css'
 
+const TEAM = [
+  {
+    name: 'Tanvir Ahmed',
+    role: 'Creative Director',
+    initials: 'TA',
+    gradient: 'linear-gradient(135deg, #D7262E 0%, #9B1C22 100%)',
+    bio: 'Leads all creative output — from campaign concepts to final delivery — ensuring every piece is visually compelling and on-brand.',
+    socials: { linkedin: '#', instagram: '#', email: 'tanvir@ktimarketing.com' },
+  },
+  {
+    name: 'Sadia Islam',
+    role: 'Social Media Strategist',
+    initials: 'SI',
+    gradient: 'linear-gradient(135deg, #7C3AED 0%, #4C1D95 100%)',
+    bio: 'Builds and manages social presence across platforms, crafting content strategies that turn followers into loyal brand communities.',
+    socials: { linkedin: '#', instagram: '#', email: 'sadia@ktimarketing.com' },
+  },
+  {
+    name: 'Rafiqul Islam',
+    role: 'Content & Copy Lead',
+    initials: 'RI',
+    gradient: 'linear-gradient(135deg, #0891B2 0%, #0E4F6B 100%)',
+    bio: 'Crafts persuasive copy and editorial content that resonates with audiences, drives engagement, and supports every stage of the funnel.',
+    socials: { linkedin: '#', instagram: '#', email: 'rafiq@ktimarketing.com' },
+  },
+  {
+    name: 'Nadia Rahman',
+    role: 'Graphic Designer',
+    initials: 'NR',
+    gradient: 'linear-gradient(135deg, #D97706 0%, #92400E 100%)',
+    bio: 'Translates brand identities into striking visuals — from social graphics and ads to packaging and brand guidelines.',
+    socials: { linkedin: '#', instagram: '#', email: 'nadia@ktimarketing.com' },
+  },
+  {
+    name: 'Shahriar Hossain',
+    role: 'Video Editor',
+    initials: 'SH',
+    gradient: 'linear-gradient(135deg, #059669 0%, #065F46 100%)',
+    bio: 'Edits and produces video content for ads, reels, and campaigns — bringing stories to life through motion, pacing, and sound.',
+    socials: { linkedin: '#', instagram: '#', email: 'shahriar@ktimarketing.com' },
+  },
+  {
+    name: 'Rashida Khatun',
+    role: 'Digital Ads Manager',
+    initials: 'RK',
+    gradient: 'linear-gradient(135deg, #DB2777 0%, #831843 100%)',
+    bio: 'Plans and optimises paid campaigns across Meta, Google, and TikTok — maximising ROAS and scaling what works.',
+    socials: { linkedin: '#', instagram: '#', email: 'rashida@ktimarketing.com' },
+  },
+]
+
 const VALUES = [
   {
     icon: '🎯',
@@ -206,6 +257,51 @@ export default function About() {
                 campaigns. We build growth engines.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Team ── */}
+      <section className="about-team">
+        <div className="container">
+          <div className="about-team__header text-center reveal">
+            <p className="eyebrow">The People Behind the Work</p>
+            <h2>Meet Our <span className="accent">Creative Team</span></h2>
+            <p className="about-team__sub">
+              Strategists, designers, writers, and producers — each specialist is
+              hand-picked for their craft and their shared obsession with results.
+            </p>
+          </div>
+          <div className="about-team__grid">
+            {TEAM.map(({ name, role, initials, gradient, bio, socials }, i) => (
+              <div className="team-card reveal" key={name} style={{ '--reveal-delay': `${i * 0.08}s` }}>
+                <div className="team-card__avatar" style={{ background: gradient }}>
+                  {initials}
+                </div>
+                <div className="team-card__body">
+                  <h3 className="team-card__name">{name}</h3>
+                  <span className="team-card__role">{role}</span>
+                  <p className="team-card__bio">{bio}</p>
+                  <div className="team-card__socials">
+                    {socials.linkedin && (
+                      <a href={socials.linkedin} className="team-card__social-link" target="_blank" rel="noopener noreferrer" aria-label={`${name} on LinkedIn`}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                      </a>
+                    )}
+                    {socials.instagram && (
+                      <a href={socials.instagram} className="team-card__social-link" target="_blank" rel="noopener noreferrer" aria-label={`${name} on Instagram`}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                      </a>
+                    )}
+                    {socials.email && (
+                      <a href={`mailto:${socials.email}`} className="team-card__social-link" aria-label={`Email ${name}`}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
