@@ -3,6 +3,8 @@ export const servicesData = [
     title: 'Social Media Management',
     slug: 'social-media-management',
     description: 'Full-service management of your social media presence across all major platforms.',
+    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'We handle everything from strategy and content planning to daily posting, community engagement, and performance tracking. Our team keeps your brand voice consistent, your audience growing, and your feeds active — so you can focus on running your business. Monthly analytics reports keep you informed on what\'s working and where we\'re doubling down.',
     headline: 'Turn Your Social Media Into Your #1 Revenue Channel.',
     deliverables: [
@@ -38,6 +40,8 @@ export const servicesData = [
     title: 'Content Creation',
     slug: 'content-creation',
     description: 'Scroll-stopping content crafted to engage your audience and reinforce your brand.',
+    image: 'https://images.unsplash.com/photo-1542744094-24638eff58bb?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'Great content is the engine behind every successful marketing channel. We produce graphics, carousels, short-form videos, blog posts, and everything in between — all tailored to your brand guidelines and platform requirements. Every piece is built with a clear goal: attract attention, communicate value, and drive action.',
     headline: 'Content That Stops the Scroll and Drives Real Action.',
     deliverables: [
@@ -73,6 +77,8 @@ export const servicesData = [
     title: 'Ads Campaign Management',
     slug: 'ads-campaign-management',
     description: 'Paid advertising campaigns across Meta, Google, and TikTok built to convert.',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'We design, launch, and continuously optimize paid media campaigns that turn ad spend into real revenue. From audience research and creative strategy to A/B testing and bid management, we own the full cycle. You get transparent reporting and a team that treats your budget like their own — focused on the lowest possible cost per result.',
     headline: 'Turn Ad Spend Into Predictable, Scalable Revenue.',
     deliverables: [
@@ -108,6 +114,8 @@ export const servicesData = [
     title: 'Copywriting',
     slug: 'copywriting',
     description: 'Words that sell — from ad copy and landing pages to email sequences and brand messaging.',
+    image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'Every word your brand publishes shapes how people perceive you. Our copywriters craft messaging that speaks directly to your audience\'s needs, objections, and desires. Whether it\'s a punchy ad headline, a high-converting landing page, or a nurture email sequence, we write copy that sounds like you — only sharper and more persuasive.',
     headline: 'Words That Convert Readers Into Buyers.',
     deliverables: [
@@ -143,6 +151,8 @@ export const servicesData = [
     title: 'Product Photography',
     slug: 'product-photography',
     description: 'High-quality product images that make your offerings impossible to scroll past.',
+    image: 'https://images.unsplash.com/photo-1506719040632-7d586470c936?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'First impressions happen in milliseconds. Our product photography sessions are styled, lit, and shot to showcase your products at their very best — whether for e-commerce listings, social media, print, or advertising. We handle art direction, styling, shooting, and post-production retouching, delivering a gallery of assets ready to use across every channel.',
     headline: 'Visuals That Make Your Products Impossible to Ignore.',
     deliverables: [
@@ -178,6 +188,8 @@ export const servicesData = [
     title: 'Model Photography',
     slug: 'model-photography',
     description: 'Lifestyle and model shoots that put a human face on your brand.',
+    image: 'https://images.unsplash.com/photo-1520975916090-7be0e1ae1d4e?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'Connecting products to people drives purchase decisions. Our model photography sessions blend professional talent with thoughtful direction to create authentic, aspirational imagery that resonates with your target audience. From casting and wardrobe coordination to location scouting and post-production, we manage the entire shoot from brief to final delivery.',
     headline: 'Lifestyle Imagery That Connects Products to People.',
     deliverables: [
@@ -213,6 +225,8 @@ export const servicesData = [
     title: 'Video Production',
     slug: 'video-production',
     description: 'Brand films, product videos, and social reels that tell your story with impact.',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'Video is the highest-engagement format across every platform. We produce everything from short-form social reels and product demos to full brand films and testimonial videos. Our production team handles scripting, storyboarding, filming, and editing — delivering polished, platform-optimized videos that capture attention and communicate your message clearly.',
     headline: 'Video That Captures Attention and Drives Real Results.',
     deliverables: [
@@ -248,6 +262,8 @@ export const servicesData = [
     title: 'Influencer Marketing',
     slug: 'influencer-marketing',
     description: 'Strategic influencer partnerships that put your brand in front of the right audiences.',
+    image: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'Word-of-mouth at scale. We identify, vet, and manage relationships with creators whose audiences align with your ideal customer profile — from nano influencers with highly engaged communities to established macro creators. We handle outreach, briefing, contract management, content approval, and post-campaign reporting so every collaboration delivers measurable ROI.',
     headline: 'Put Your Brand in Front of the Right Audience at Scale.',
     deliverables: [
@@ -283,6 +299,8 @@ export const servicesData = [
     title: 'Website Maintenance',
     slug: 'website-maintenance',
     description: 'Ongoing technical care to keep your website fast, secure, and up to date.',
+    image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&w=1600&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     longDescription: 'Your website is your most valuable digital asset — and it needs consistent attention to stay that way. We provide ongoing maintenance covering software and plugin updates, security monitoring, performance optimization, uptime checks, content updates, and regular backups. You get peace of mind knowing your site is in safe hands, with a dedicated team on call when you need changes made fast.',
     headline: 'Keep Your Website Fast, Secure, and Always Working.',
     deliverables: [

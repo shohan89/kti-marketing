@@ -1,10 +1,23 @@
+import { useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { servicesData } from '../data/servicesData'
-import { SERVICE_ICONS } from '../data/serviceIcons'
 import PageCTA from '../components/PageCTA'
+import ServiceVideoModal from '../components/ServiceVideoModal'
 import './Services.css'
 
 export default function Services() {
+  const [activeIndex, setActiveIndex] = useState(null)
+  const [modalService, setModalService] = useState(null)
+
+  const handleCardEnter = useCallback((i) => setActiveIndex(i), [])
+  const handleCardLeave = useCallback(() => setActiveIndex(null), [])
+  const handleCardFocus = useCallback((i) => setActiveIndex(i), [])
+  const handleCardBlur  = useCallback((e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) setActiveIndex(null)
+  }, [])
+  const openModal  = useCallback((service) => setModalService(service), [])
+  const closeModal = useCallback(() => setModalService(null), [])
+
   return (
     <main className="services-page">
 
@@ -44,29 +57,67 @@ export default function Services() {
 
       {/* ── Services grid ─────────────────────────────────── */}
       <section className="services-grid-section">
+
+        {/* Crossfade background image layers */}
+        <div className="services-bg-layers" aria-hidden="true">
+          {servicesData.map((svc, i) => (
+            <div
+              key={svc.slug}
+              className={`services-bg-layer${activeIndex === i ? ' services-bg-layer--active' : ''}`}
+              style={{ backgroundImage: `url(${svc.image})` }}
+            />
+          ))}
+          <div className="services-bg-overlay" />
+        </div>
+
         <div className="container">
           <div className="services-grid">
             {servicesData.map((service, i) => (
-              <Link
+              <div
                 key={service.slug}
-                to={`/services/${service.slug}`}
                 className="service-card reveal"
                 style={{ '--reveal-delay': `${Math.min(i * 0.07, 0.4)}s` }}
+                onMouseEnter={() => handleCardEnter(i)}
+                onMouseLeave={handleCardLeave}
+                onFocus={() => handleCardFocus(i)}
+                onBlur={handleCardBlur}
               >
-                <div className="service-card__icon-box" aria-hidden="true">
-                  {SERVICE_ICONS[service.slug]}
-                </div>
+                {/* Image thumbnail strip */}
+                <div
+                  className="service-card__thumb"
+                  style={{ backgroundImage: `url(${service.image})` }}
+                  aria-hidden="true"
+                />
+
                 <div className="service-card__content">
                   <h3 className="service-card__title">{service.title}</h3>
                   <p className="service-card__desc">{service.description}</p>
                 </div>
-                <span className="service-card__cta">
-                  Explore service
-                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
-              </Link>
+
+                <div className="service-card__footer">
+                  <button
+                    className="service-card__play-btn"
+                    onClick={() => openModal(service)}
+                    aria-label={`Watch ${service.title} overview video`}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <path d="M4 2l10 6-10 6V2z"/>
+                    </svg>
+                    Watch Overview
+                  </button>
+
+                  <Link
+                    to={`/services/${service.slug}`}
+                    className="service-card__cta"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Explore service
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -81,6 +132,11 @@ export default function Services() {
         secondaryLabel="Meet the Team"
         secondaryTo="/about"
       />
+
+      {/* ── Video modal ───────────────────────────────────── */}
+      {modalService && (
+        <ServiceVideoModal service={modalService} onClose={closeModal} />
+      )}
 
     </main>
   )

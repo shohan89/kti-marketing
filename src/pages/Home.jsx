@@ -2,7 +2,6 @@ import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { servicesData } from '../data/servicesData'
 import { latestPosts } from '../data/blogData'
-import { SERVICE_ICONS } from '../data/serviceIcons'
 import './Home.css'
 
 const MARQUEE_ITEMS = [
@@ -512,9 +511,6 @@ export default function Home() {
                 className="svc-card reveal"
                 style={{ '--reveal-delay': `${Math.min(i * 0.08, 0.4)}s` }}
               >
-                <div className="svc-card__icon-box" aria-hidden="true">
-                  {SERVICE_ICONS[s.slug]}
-                </div>
                 <h3 className="svc-card__title">{s.title}</h3>
                 <p className="svc-card__desc">{s.description}</p>
                 <span className="svc-card__arrow">→</span>
