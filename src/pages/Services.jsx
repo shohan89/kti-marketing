@@ -6,14 +6,14 @@ import ServiceVideoModal from '../components/ServiceVideoModal'
 import './Services.css'
 
 export default function Services() {
-  const [activeIndex, setActiveIndex] = useState(null)
+  const [activeIndex, setActiveIndex] = useState(0)
   const [modalService, setModalService] = useState(null)
 
   const handleCardEnter = useCallback((i) => setActiveIndex(i), [])
-  const handleCardLeave = useCallback(() => setActiveIndex(null), [])
+  const handleCardLeave = useCallback(() => setActiveIndex(0), [])
   const handleCardFocus = useCallback((i) => setActiveIndex(i), [])
   const handleCardBlur  = useCallback((e) => {
-    if (!e.currentTarget.contains(e.relatedTarget)) setActiveIndex(null)
+    if (!e.currentTarget.contains(e.relatedTarget)) setActiveIndex(0)
   }, [])
   const openModal  = useCallback((service) => setModalService(service), [])
   const closeModal = useCallback(() => setModalService(null), [])
@@ -82,13 +82,6 @@ export default function Services() {
                 onFocus={() => handleCardFocus(i)}
                 onBlur={handleCardBlur}
               >
-                {/* Image thumbnail strip */}
-                <div
-                  className="service-card__thumb"
-                  style={{ backgroundImage: `url(${service.image})` }}
-                  aria-hidden="true"
-                />
-
                 <div className="service-card__content">
                   <h3 className="service-card__title">{service.title}</h3>
                   <p className="service-card__desc">{service.description}</p>
