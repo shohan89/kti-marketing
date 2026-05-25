@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { servicesData } from '../data/servicesData'
 import PageCTA from '../components/PageCTA'
 import ServiceVideoModal from '../components/ServiceVideoModal'
+import ScheduleForm from '../components/ScheduleForm'
 import './Services.css'
 
 export default function Services() {
@@ -115,6 +116,9 @@ export default function Services() {
           </div>
         </div>
       </section>
+
+      {/* ── Schedule Form ─────────────────────────────────── */}
+      <ScheduleForm />
 
       {/* ── Bottom CTA ────────────────────────────────────── */}
       <PageCTA
