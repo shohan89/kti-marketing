@@ -86,7 +86,7 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
         <div className="container">
           <div className="sd-section-header reveal"><p className="eyebrow">What&apos;s Included</p><h2 className="sd-section-title">What You Get</h2></div>
           <ul className="sd-deliverables__grid" role="list">
-            {service.deliverables.map((item, i) => (
+            {service.deliverables.map((item: string, i: number) => (
               <li key={item} className="sd-deliverable-item reveal" style={{ '--reveal-delay': `${Math.min(i * 0.05, 0.35)}s` } as React.CSSProperties}>
                 <span className="sd-deliverable-item__check" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
                 {item}
@@ -100,7 +100,7 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
         <div className="container">
           <div className="sd-section-header reveal"><p className="eyebrow">How It Works</p><h2 className="sd-section-title">Our Process</h2></div>
           <div className="sd-process__steps">
-            {service.process.map((step, i) => {
+            {service.process.map((step: { num: string; title: string; body: string }, i: number) => {
               const Illus = PROCESS_ILLUSTRATIONS[i] ?? PROCESS_ILLUSTRATIONS[0]
               return (
                 <div className="sd-process-step reveal" key={step.num} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>

@@ -79,22 +79,22 @@ export default async function JobPostPage({ params }: { params: Promise<{ slug: 
             </div>
             <div className="jp-section reveal">
               <h2 className="jp-section__heading">Responsibilities</h2>
-              <ul className="jp-list">{job.responsibilities.map((item, i) => (<li key={i}>{item}</li>))}</ul>
+              <ul className="jp-list">{job.responsibilities.map((item: string, i: number) => (<li key={i}>{item}</li>))}</ul>
             </div>
             <div className="jp-section reveal">
               <h2 className="jp-section__heading">Requirements</h2>
-              <ul className="jp-list">{job.requirements.map((item, i) => (<li key={i}>{item}</li>))}</ul>
+              <ul className="jp-list">{job.requirements.map((item: string, i: number) => (<li key={i}>{item}</li>))}</ul>
             </div>
             {job.niceToHave && job.niceToHave.length > 0 && (
               <div className="jp-section reveal">
                 <h2 className="jp-section__heading">Nice to Have</h2>
-                <ul className="jp-list jp-list--secondary">{job.niceToHave.map((item, i) => (<li key={i}>{item}</li>))}</ul>
+                <ul className="jp-list jp-list--secondary">{job.niceToHave.map((item: string, i: number) => (<li key={i}>{item}</li>))}</ul>
               </div>
             )}
             {job.benefits && job.benefits.length > 0 && (
               <div className="jp-section reveal">
                 <h2 className="jp-section__heading">What We Offer</h2>
-                <ul className="jp-list">{job.benefits.map((item, i) => (<li key={i}>{item}</li>))}</ul>
+                <ul className="jp-list">{job.benefits.map((item: string, i: number) => (<li key={i}>{item}</li>))}</ul>
               </div>
             )}
             <div className="jp-article__footer reveal">

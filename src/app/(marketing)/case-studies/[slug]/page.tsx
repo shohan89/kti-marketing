@@ -166,7 +166,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <Link href="/contact" className="btn btn-primary">Get the Same for Your Brand →</Link>
           </div>
           <ul className="csd-deliverables__list">
-            {deliverables.map((item, i) => (
+            {deliverables.map((item: string, i: number) => (
               <li className="csd-deliverable-item" key={i}><span className="csd-deliverable-item__check" aria-hidden="true">✓</span><span>{item}</span></li>
             ))}
           </ul>

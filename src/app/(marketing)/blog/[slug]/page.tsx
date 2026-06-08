@@ -104,10 +104,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <section className="bp-content">
         <div className="container bp-content__grid">
           <article className="bp-article">
-            {post.body.map((section, i) => (
+            {post.body.map((section: { heading?: string; paragraphs: string[] }, i: number) => (
               <div key={i} className="bp-section reveal">
                 {section.heading && <h2 className="bp-section__heading">{section.heading}</h2>}
-                {section.paragraphs.map((p, j) => <p key={j} className="bp-section__para">{p}</p>)}
+                {section.paragraphs.map((p: string, j: number) => <p key={j} className="bp-section__para">{p}</p>)}
               </div>
             ))}
             {post.callout && (
@@ -117,7 +117,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               <div className="bp-takeaways reveal">
                 <h3 className="bp-takeaways__title">Key Takeaways</h3>
                 <ul className="bp-takeaways__list">
-                  {post.takeaways.map((item, i) => (
+                  {post.takeaways.map((item: string, i: number) => (
                     <li key={i} className="bp-takeaways__item"><span className="bp-check" style={{ color: post.accentColor }} aria-hidden="true">✓</span>{item}</li>
                   ))}
                 </ul>
