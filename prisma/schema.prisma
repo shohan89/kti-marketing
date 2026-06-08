@@ -1,0 +1,318 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Auth ─────────────────────────────────────────────
+model AdminUser {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  supabaseId String    @unique
+  role       AdminRole @default(EDITOR)
+  createdAt  DateTime  @default(now())
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  EDITOR
+}
+
+// ── Services ─────────────────────────────────────────
+model Service {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  description     String   @db.Text
+  longDescription String   @db.Text
+  headline        String
+  imageUrl        String?
+  videoUrl        String?
+  sortOrder       Int      @default(0)
+  isPublished     Boolean  @default(true)
+  deliverables    String[]
+  processSteps    Json     // {num, title, body}[]
+  results         Json     // {stat, label, description}[]
+  faqs            Json     // {q, a}[]
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  ogImageUrl      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ── Blog ─────────────────────────────────────────────
+model BlogPost {
+  id              String       @id @default(cuid())
+  slug            String       @unique
+  title           String
+  category        BlogCategory @default(GENERAL)
+  excerpt         String       @db.Text
+  readTime        String
+  publishDate     String
+  author          String       @default("KTI Marketing Team")
+  tags            String[]
+  featured        Boolean      @default(false)
+  isPublished     Boolean      @default(true)
+  accentColor     String?
+  gradientFrom    String?
+  gradientTo      String?
+  callout         String?      @db.Text
+  takeaways       String[]
+  body            Json         // {heading, paragraphs: string[]}[]
+  coverImageUrl   String?
+  metaTitle       String?
+  metaDescription String?      @db.Text
+  ogImageUrl      String?
+  canonicalUrl    String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+enum BlogCategory {
+  GENERAL
+  ECOMMERCE
+}
+
+// ── Case Studies ─────────────────────────────────────
+model CaseStudy {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  tag           String
+  category      String
+  industry      String
+  client        String
+  title         String
+  subtitle      String   @db.Text
+  challenge     String   @db.Text
+  solution      String   @db.Text
+  body          String   @db.Text
+  phases        Json     // {num, title, body}[]
+  deliverables  String[]
+  metrics       Json     // {num, label}[]
+  duration      String
+  services      String[]
+  quote         String?  @db.Text
+  quoteName     String?
+  quoteRole     String?
+  quoteCompany  String?
+  quoteResult   String?
+  coverImageUrl String?
+  isPublished   Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  metaTitle       String?
+  metaDescription String? @db.Text
+  ogImageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ── Pricing ───────────────────────────────────────────
+model MarketingPackage {
+  id           String   @id @default(cuid())
+  name         String
+  price        Int
+  badge        String?
+  highlight    Boolean  @default(false)
+  description  String   @db.Text
+  platforms    String[]
+  deliverables String[]
+  cta          String   @default("Get Started")
+  sortOrder    Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PhotoshootPackage {
+  id           String   @id @default(cuid())
+  type         String
+  icon         String?
+  description  String   @db.Text
+  price        String
+  priceNumeric Int
+  unit         String
+  addOn        String?
+  includes     String[]
+  qtyConfig    Json     // {inputLabel, unit, capacity, sessionLabel, defaultQty}
+  sortOrder    Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model CalculatorService {
+  id         String   @id @default(cuid())
+  group      String
+  label      String
+  unitLabel  String
+  unitPrice  Int
+  defaultQty Int
+  fixedQty   Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ── Careers ───────────────────────────────────────────
+model JobListing {
+  id               String         @id @default(cuid())
+  slug             String         @unique
+  title            String
+  department       String
+  location         String
+  type             String
+  salary           String?
+  excerpt          String         @db.Text
+  description      String         @db.Text
+  responsibilities String[]
+  requirements     String[]
+  niceToHave       String[]
+  benefits         String[]
+  isPublished      Boolean        @default(true)
+  posted           String?
+  postedAt         DateTime       @default(now())
+  expiresAt        DateTime?
+  metaTitle        String?
+  metaDescription  String?        @db.Text
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  applications     JobApplication[]
+}
+
+// ── Forms / Inbox ──────────────────────────────────────
+model ContactSubmission {
+  id        String           @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  budget    String?
+  message   String           @db.Text
+  status    SubmissionStatus @default(NEW)
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+enum SubmissionStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+model JobApplication {
+  id           String            @id @default(cuid())
+  job          JobListing        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId        String
+  name         String
+  email        String
+  phone        String?
+  coverLetter  String            @db.Text
+  cvUrl        String?
+  portfolioUrl String?
+  status       ApplicationStatus @default(NEW)
+  notes        String?           @db.Text
+  ipAddress    String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+enum ApplicationStatus {
+  NEW
+  REVIEWING
+  SHORTLISTED
+  REJECTED
+  HIRED
+}
+
+// ── Supporting Content ────────────────────────────────
+model Testimonial {
+  id          String   @id @default(cuid())
+  quote       String   @db.Text
+  name        String
+  role        String
+  company     String
+  result      String?
+  rating      Int      @default(5)
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  bio         String?  @db.Text
+  imageUrl    String?
+  linkedinUrl String?
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── Site Settings ──────────────────────────────────────
+model SiteSetting {
+  key       String   @id
+  value     String   @db.Text
+  label     String?
+  group     String?
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+// ── SEO Manager ────────────────────────────────────────
+model PageSeo {
+  id              String      @id @default(cuid())
+  pageKey         String      @unique
+  pageLabel       String
+
+  // Meta Tags
+  focusKeyword    String?
+  metaTitle       String?
+  metaDescription String?     @db.Text
+  canonicalUrl    String?
+
+  // Open Graph
+  ogTitle         String?
+  ogDescription   String?     @db.Text
+  ogImage         String?
+  ogUrl           String?
+  ogType          String      @default("website")
+
+  // Twitter Card
+  twitterTitle       String?
+  twitterDescription String?  @db.Text
+  twitterImage       String?
+  twitterCard        String   @default("summary_large_image")
+
+  // Advanced SEO
+  robotsIndex  Boolean  @default(true)
+  robotsFollow Boolean  @default(true)
+  priority     Float    @default(0.5)
+  changeFreq   String   @default("monthly")
+
+  schemas      SeoSchema[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SeoSchema {
+  id         String   @id @default(cuid())
+  pageId     String
+  page       PageSeo  @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  schemaType String
+  label      String?
+  data       Json
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
