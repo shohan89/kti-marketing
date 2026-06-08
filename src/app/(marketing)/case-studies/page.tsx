@@ -62,7 +62,7 @@ export default async function CaseStudiesPage() {
                 <div className="cs-block"><h4 className="cs-block__label">The Challenge</h4><p className="cs-block__body">{featured.challenge}</p></div>
                 <div className="cs-block"><h4 className="cs-block__label">Our Approach</h4><p className="cs-block__body">{featured.solution}</p></div>
               </div>
-              <div className="cs-featured__services">{featured.services.map(s => (<span className="cs-service-pill" key={s}>{s}</span>))}</div>
+              <div className="cs-featured__services">{featured.services.map((s: string) => (<span className="cs-service-pill" key={s}>{s}</span>))}</div>
               <div className="cs-featured__actions">
                 <Link href={`/case-studies/${featured.slug}`} className="btn btn-primary">Read Full Case Study →</Link>
                 <Link href="/contact" className="btn btn-outline cs-featured__cta">Start a Similar Project</Link>
@@ -73,7 +73,7 @@ export default async function CaseStudiesPage() {
                 <p className="cs-metrics-panel__label">Campaign Results</p>
                 <div className="cs-metrics-panel__duration"><span>Duration</span><strong>{featured.duration}</strong></div>
                 <div className="cs-metrics-grid">
-                  {featured.metrics.map(({ num, label }) => (
+                  {featured.metrics.map(({ num, label }: { num: string; label: string }) => (
                     <div className="cs-metric" key={label}><span className="cs-metric__num">{num}</span><span className="cs-metric__label">{label}</span></div>
                   ))}
                 </div>
@@ -100,12 +100,12 @@ export default async function CaseStudiesPage() {
                   <div className="cs-block"><h4 className="cs-block__label">Approach</h4><p className="cs-block__body">{solution}</p></div>
                 </div>
                 <div className="cs-card__metrics">
-                  {metrics.map(({ num, label }) => (
+                  {metrics.map(({ num, label }: { num: string; label: string }) => (
                     <div className="cs-metric cs-metric--sm" key={label}><span className="cs-metric__num">{num}</span><span className="cs-metric__label">{label}</span></div>
                   ))}
                 </div>
                 <div className="cs-card__footer">
-                  <div className="cs-card__services">{services.map(s => (<span className="cs-service-pill cs-service-pill--sm" key={s}>{s}</span>))}</div>
+                  <div className="cs-card__services">{services.map((s: string) => (<span className="cs-service-pill cs-service-pill--sm" key={s}>{s}</span>))}</div>
                   <span className="cs-card__duration">{duration}</span>
                 </div>
                 <Link href={`/case-studies/${slug}`} className="cs-card__cta">Read Full Case Study →</Link>

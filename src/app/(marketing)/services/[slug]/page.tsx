@@ -121,7 +121,7 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
         <div className="container">
           <div className="sd-results__header reveal"><p className="eyebrow sd-results__eyebrow">What to Expect</p><h2 className="sd-results__title">Outcomes That Matter.</h2></div>
           <div className="sd-results__grid">
-            {service.results.map(({ stat, label, description }, i) => (
+            {service.results.map(({ stat, label, description }: { stat: string; label: string; description: string }, i: number) => (
               <div className="sd-result-card reveal" key={label} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>
                 <span className="sd-result-card__stat">{stat}</span>
                 <h3 className="sd-result-card__label">{label}</h3>

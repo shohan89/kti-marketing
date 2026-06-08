@@ -65,7 +65,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           <h1 className="csd-hero__title">{title}</h1>
           <p className="csd-hero__sub">{subtitle}</p>
           <div className="csd-hero__metrics">
-            {metrics.map(({ num, label }) => (
+            {metrics.map(({ num, label }: { num: string; label: string }) => (
               <div className="csd-hero__metric" key={label}><span className="csd-hero__metric-num">{num}</span><span className="csd-hero__metric-lbl">{label}</span></div>
             ))}
           </div>
@@ -89,7 +89,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <div className="csd-meta-row"><span className="csd-meta-label">Duration</span><span className="csd-meta-value">{duration}</span></div>
             <div className="csd-meta-row csd-meta-row--services">
               <span className="csd-meta-label">Services</span>
-              <div className="csd-meta-pills">{services.map(s => (<span className="csd-pill" key={s}>{s}</span>))}</div>
+              <div className="csd-meta-pills">{services.map((s: string) => (<span className="csd-pill" key={s}>{s}</span>))}</div>
             </div>
             <Link href="/contact" className="btn btn-primary csd-meta-cta">Start a Similar Project →</Link>
           </aside>
@@ -130,7 +130,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <p className="csd-approach__sub">Every engagement follows a disciplined three-phase system. Each phase builds on the last to deliver results that compound — not just a one-time spike.</p>
           </div>
           <div className="csd-phases">
-            {phases.map(({ num, title: phaseTitle, body }, i) => (
+            {phases.map(({ num, title: phaseTitle, body }: { num: string; title: string; body: string }, i: number) => (
               <div className="csd-phase" key={num}>
                 <div className="csd-phase__num">{num}</div>
                 <div className="csd-phase__content"><h3 className="csd-phase__title">{phaseTitle}</h3><p className="csd-phase__body">{body}</p></div>
@@ -149,7 +149,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <h2 className="csd-results__title">Numbers That<br /><span className="csd-results__accent">Changed the Business.</span></h2>
           </div>
           <div className="csd-results__grid">
-            {metrics.map(({ num, label }) => (
+            {metrics.map(({ num, label }: { num: string; label: string }) => (
               <div className="csd-result-card" key={label}><span className="csd-result-card__num">{num}</span><span className="csd-result-card__label">{label}</span></div>
             ))}
           </div>
