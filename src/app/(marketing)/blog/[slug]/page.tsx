@@ -97,7 +97,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <h1 className="bp-hero__title reveal">{post.title}</h1>
           <div className="bp-hero__meta reveal"><span>{post.author}</span><span className="bp-dot" aria-hidden="true">·</span><span>{post.publishDate}</span><span className="bp-dot" aria-hidden="true">·</span><span>{post.readTime}</span></div>
           <p className="bp-hero__excerpt reveal">{post.excerpt}</p>
-          <div className="bp-hero__tags reveal">{post.tags.map(tag => (<span key={tag} className="bp-tag">{tag}</span>))}</div>
+          <div className="bp-hero__tags reveal">{post.tags.map((tag: string) => (<span key={tag} className="bp-tag">{tag}</span>))}</div>
         </div>
       </section>
 
@@ -138,7 +138,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 <li><span className="bp-sidebar-info__key">Read time</span><span className="bp-sidebar-info__val">{post.readTime}</span></li>
                 <li><span className="bp-sidebar-info__key">Author</span><span className="bp-sidebar-info__val">{post.author}</span></li>
               </ul>
-              <div className="bp-sidebar-tags">{post.tags.map(tag => (<span key={tag} className="bp-tag bp-tag--sm">{tag}</span>))}</div>
+              <div className="bp-sidebar-tags">{post.tags.map((tag: string) => (<span key={tag} className="bp-tag bp-tag--sm">{tag}</span>))}</div>
             </div>
             <div className="bp-sidebar-card bp-sidebar-card--cta">
               <p className="bp-sidebar-cta__eyebrow">Ready to grow?</p>
