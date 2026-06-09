@@ -16,9 +16,13 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
   const [photoQtys, setPhotoQtys] = useState<Record<string, number>>(() =>
     Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig.defaultQty]))
   )
-  function calcPhoto(pkg: PhotoshootPackage, qty: number) {
+  const [photoImages, setPhotoImages] = useState<Record<string, number>>(() =>
+    Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig.imagesConfig.defaultImages]))
+  )
+  function calcPhoto(pkg: PhotoshootPackage, qty: number, images: number) {
     const sessions = Math.ceil(qty / pkg.qtyConfig.capacity)
-    return { sessions, total: sessions * pkg.priceNumeric }
+    const imageCost = images * pkg.qtyConfig.imagesConfig.pricePerImage
+    return { sessions, imageCost, total: sessions * pkg.priceNumeric + imageCost }
   }
   return (
     <div className="calc-tab-body">
@@ -62,7 +66,9 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
               <div className="calc-pkg-grid">
                 {photoshootPackages.map(pkg => {
                   const itemId = `photo-${pkg.type.replace(/\s+/g, '-').toLowerCase()}`; const inCart = cartItems.some(c => c.id === itemId)
-                  const qty = photoQtys[pkg.type]; const { sessions, total } = calcPhoto(pkg, qty)
+                  const qty = photoQtys[pkg.type]; const images = photoImages[pkg.type]
+                  const { sessions, imageCost, total } = calcPhoto(pkg, qty, images)
+                  const ppi = pkg.qtyConfig.imagesConfig.pricePerImage
                   return (
                     <div key={pkg.type} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
                       <div className="calc-pkg-option__info">
@@ -78,8 +84,21 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
                           <span className="calc-qty-control__unit">{pkg.qtyConfig.unit}</span>
                         </div>
                       </div>
-                      <p className="calc-qty-preview">{sessions} {pkg.qtyConfig.sessionLabel}{sessions !== 1 ? 's' : ''} × {fmt(pkg.priceNumeric)} = <strong>{fmt(total)}</strong></p>
-                      <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => addToCart({ id: itemId, name: pkg.type, category: 'photoshoot', price: total, qty, qtyUnit: pkg.qtyConfig.unit, sessions, sessionLabel: pkg.qtyConfig.sessionLabel, sessionPrice: pkg.priceNumeric })}>
+                      <div className="calc-qty-control">
+                        <span className="calc-qty-control__label">How many images?</span>
+                        <div className="calc-qty-control__row">
+                          <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoImages(prev => ({ ...prev, [pkg.type]: Math.max(1, (prev[pkg.type] || 1) - 1) }))} aria-label="Decrease images">−</button>
+                          <input type="number" className="calc-qty-control__input" value={images} min="1" onChange={e => setPhotoImages(prev => ({ ...prev, [pkg.type]: Math.max(1, parseInt(e.target.value) || 1) }))} aria-label="How many images?" />
+                          <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoImages(prev => ({ ...prev, [pkg.type]: (prev[pkg.type] || 1) + 1 }))} aria-label="Increase images">+</button>
+                          <span className="calc-qty-control__unit">images</span>
+                        </div>
+                      </div>
+                      <p className="calc-qty-preview">
+                        {sessions} {pkg.qtyConfig.sessionLabel}{sessions !== 1 ? 's' : ''} × {fmt(pkg.priceNumeric)}
+                        {imageCost > 0 && <> + {images} images × {fmt(ppi)}</>}
+                        {' '}= <strong>{fmt(total)}</strong>
+                      </p>
+                      <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => addToCart({ id: itemId, name: pkg.type, category: 'photoshoot', price: total, qty, qtyUnit: pkg.qtyConfig.unit, sessions, sessionLabel: pkg.qtyConfig.sessionLabel, sessionPrice: pkg.priceNumeric, images, pricePerImage: ppi })}>
                         {inCart ? '✓ Update' : '+ Add to Cart'}
                       </button>
                     </div>
@@ -101,7 +120,12 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
                 <li key={item.id} className="cart-item">
                   <div className="cart-item__info">
                     <span className="cart-item__name">{item.name}</span>
-                    {item.sessions != null && <span className="cart-item__detail">{item.qty} {item.qtyUnit} · {item.sessions} {item.sessionLabel}{item.sessions !== 1 ? 's' : ''} × {fmt(item.sessionPrice!)}</span>}
+                    {item.sessions != null && (
+                      <span className="cart-item__detail">
+                        {item.qty} {item.qtyUnit} · {item.sessions} {item.sessionLabel}{item.sessions !== 1 ? 's' : ''} × {fmt(item.sessionPrice!)}
+                        {item.images != null && item.pricePerImage ? ` + ${item.images} images × ${fmt(item.pricePerImage)}` : ''}
+                      </span>
+                    )}
                     <span className="cart-item__price">{fmt(item.price)}</span>
                   </div>
                   <button className="cart-item__remove" onClick={() => removeFromCart(item.id)} aria-label={`Remove ${item.name}`}>×</button>
@@ -119,7 +143,7 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
   )
 }
 
-interface CartItem { id: string; name: string; category: string; price: number; qty?: number; qtyUnit?: string; sessions?: number; sessionLabel?: string; sessionPrice?: number }
+interface CartItem { id: string; name: string; category: string; price: number; qty?: number; qtyUnit?: string; sessions?: number; sessionLabel?: string; sessionPrice?: number; images?: number; pricePerImage?: number }
 
 export default function PricingClient({ marketingPackages, photoshootPackages, FAQS }: { marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]; FAQS: { q: string; a: string }[] }) {
   const [activeTab, setActiveTab] = useState('marketing')

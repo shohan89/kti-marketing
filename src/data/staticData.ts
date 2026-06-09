@@ -41,7 +41,10 @@ export interface MarketingPackage {
 export interface PhotoshootPackage {
   type: string; icon: string; description: string; price: string; priceNumeric: number
   unit: string; addOn: string | null; includes: string[]
-  qtyConfig: { inputLabel: string; unit: string; capacity: number; sessionLabel: string; defaultQty: number }
+  qtyConfig: {
+    inputLabel: string; unit: string; capacity: number; sessionLabel: string; defaultQty: number
+    imagesConfig: { defaultImages: number; pricePerImage: number }
+  }
 }
 
 export const DEPT_COLORS: Record<string, { bg: string; text: string }> = {
@@ -496,10 +499,10 @@ export const marketingPackages: MarketingPackage[] = [
 ]
 
 export const photoshootPackages: PhotoshootPackage[] = [
-  { type: 'Product Photography', icon: '📦', description: 'Professional studio shots for individual products on white or branded backgrounds.', price: '৳8,000', priceNumeric: 8000, unit: 'per session', addOn: '৳500 per extra product', includes: ['Up to 10 products', 'White & lifestyle backgrounds', 'Basic retouching', 'High-res delivery'], qtyConfig: { inputLabel: 'How many products?', unit: 'products', capacity: 10, sessionLabel: 'session', defaultQty: 10 } },
-  { type: 'Model Photography', icon: '👤', description: 'Lifestyle and fashion shoots featuring professional models.', price: '৳15,000', priceNumeric: 15000, unit: 'per session', addOn: 'Model fee may apply', includes: ['Half-day shoot (4 hrs)', '2 outfit changes', 'Professional model', 'Location or studio'], qtyConfig: { inputLabel: 'How many sessions?', unit: 'sessions', capacity: 1, sessionLabel: 'session', defaultQty: 1 } },
-  { type: 'E-commerce Pack', icon: '🛒', description: 'High-volume product photography package for sellers on Daraz, Amazon, or direct-to-consumer stores.', price: '৳18,000', priceNumeric: 18000, unit: 'per pack', addOn: null, includes: ['Up to 20 products', 'Pure white background', 'Multi-angle shots', 'Same-day processing'], qtyConfig: { inputLabel: 'How many products?', unit: 'products', capacity: 20, sessionLabel: 'pack', defaultQty: 20 } },
-  { type: 'Commercial Full-Day', icon: '🎬', description: 'Full production day with professional crew, studio access, styling, and comprehensive post-processing.', price: '৳45,000', priceNumeric: 45000, unit: 'per day', addOn: 'Travel fees extra', includes: ['8-hour shoot', 'Full crew & equipment', 'Styling assistance', 'Advanced retouching', 'Usage rights'], qtyConfig: { inputLabel: 'How many days?', unit: 'days', capacity: 1, sessionLabel: 'day', defaultQty: 1 } },
+  { type: 'Product Photography', icon: '📦', description: 'Professional studio shots for individual products on white or branded backgrounds.', price: '৳8,000', priceNumeric: 8000, unit: 'per session', addOn: '৳500 per extra product', includes: ['Up to 10 products', 'White & lifestyle backgrounds', 'Basic retouching', 'High-res delivery'], qtyConfig: { inputLabel: 'How many products?', unit: 'products', capacity: 10, sessionLabel: 'session', defaultQty: 10, imagesConfig: { defaultImages: 30, pricePerImage: 150 } } },
+  { type: 'Model Photography', icon: '👤', description: 'Lifestyle and fashion shoots featuring professional models.', price: '৳15,000', priceNumeric: 15000, unit: 'per session', addOn: 'Model fee may apply', includes: ['Half-day shoot (4 hrs)', '2 outfit changes', 'Professional model', 'Location or studio'], qtyConfig: { inputLabel: 'How many sessions?', unit: 'sessions', capacity: 1, sessionLabel: 'session', defaultQty: 1, imagesConfig: { defaultImages: 50, pricePerImage: 200 } } },
+  { type: 'E-commerce Pack', icon: '🛒', description: 'High-volume product photography package for sellers on Daraz, Amazon, or direct-to-consumer stores.', price: '৳18,000', priceNumeric: 18000, unit: 'per pack', addOn: null, includes: ['Up to 20 products', 'Pure white background', 'Multi-angle shots', 'Same-day processing'], qtyConfig: { inputLabel: 'How many products?', unit: 'products', capacity: 20, sessionLabel: 'pack', defaultQty: 20, imagesConfig: { defaultImages: 60, pricePerImage: 150 } } },
+  { type: 'Commercial Full-Day', icon: '🎬', description: 'Full production day with professional crew, studio access, styling, and comprehensive post-processing.', price: '৳45,000', priceNumeric: 45000, unit: 'per day', addOn: 'Travel fees extra', includes: ['8-hour shoot', 'Full crew & equipment', 'Styling assistance', 'Advanced retouching', 'Usage rights'], qtyConfig: { inputLabel: 'How many days?', unit: 'days', capacity: 1, sessionLabel: 'day', defaultQty: 1, imagesConfig: { defaultImages: 100, pricePerImage: 250 } } },
 ]
 
 export const FAQS = [
