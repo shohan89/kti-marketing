@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { jobListings, getJobBySlug, DEPT_COLORS } from '@/data/staticData'
 import PageCTA from '@/components/ui/PageCTA'
 import { prisma } from '@/lib/prisma'
+import ApplyModal from './ApplyModal'
 import './JobPost.css'
 
 export const dynamic = 'force-dynamic'
@@ -99,7 +100,7 @@ export default async function JobPostPage({ params }: { params: Promise<{ slug: 
             )}
             <div className="jp-article__footer reveal">
               <Link href="/careers" className="btn btn-outline">← Back to Careers</Link>
-              <Link href="/contact" className="btn">Apply Now →</Link>
+              {job.id ? <ApplyModal jobId={job.id} jobTitle={job.title} /> : <Link href="/contact" className="btn">Apply Now →</Link>}
             </div>
           </article>
 
@@ -118,7 +119,7 @@ export default async function JobPostPage({ params }: { params: Promise<{ slug: 
               <p className="jp-sidebar-cta__eyebrow">Interested in this role?</p>
               <h3 className="jp-sidebar-cta__title">Ready to Apply?</h3>
               <p className="jp-sidebar-cta__body">Send us your CV and a short cover letter via our contact page. Tell us why you are the right fit — we read every application personally.</p>
-              <Link href="/contact" className="btn jp-sidebar-cta__btn">Apply Now →</Link>
+              {job.id ? <ApplyModal jobId={job.id} jobTitle={job.title} variant="sidebar" /> : <Link href="/contact" className="btn jp-sidebar-cta__btn">Apply Now →</Link>}
             </div>
           </aside>
         </div>
