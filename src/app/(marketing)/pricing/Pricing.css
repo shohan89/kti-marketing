@@ -4,6 +4,7 @@
 
 /* ── 1. Hero ──────────────────────────────────────────── */
 .pricing-hero {
+  text-align: center;
   position: relative;
   padding: 10rem 0 7rem;
   background:

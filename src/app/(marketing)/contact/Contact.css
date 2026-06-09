@@ -1,5 +1,6 @@
 /* ── Hero ─────────────────────────────────────────────── */
 .contact-hero {
+  text-align: center;
   padding: 9.5rem 0 7.5rem;
   background:
     radial-gradient(ellipse 60% 55% at 90% 0%,  rgba(215, 38, 46, 0.11) 0%, transparent 60%),

@@ -8,6 +8,7 @@
 }
 
 .cs-hero {
+  text-align: center;
   position: relative;
   background:
     radial-gradient(ellipse 55% 50% at 85% 10%, rgba(215, 38, 46, 0.1) 0%, transparent 65%),
