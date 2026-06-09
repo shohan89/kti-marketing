@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { createSupabaseServiceClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
+
+function getStorageClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,9 +28,13 @@ export async function POST(request: NextRequest) {
     let cvUrl: string | null = null
 
     if (cvFile && cvFile.size > 0) {
-      const supabase = await createSupabaseServiceClient()
+      const supabase = getStorageClient()
+      // Create bucket if it doesn't exist (idempotent)
+      await supabase.storage.createBucket('applications', { public: true }).catch(() => {})
+
       const ext = cvFile.name.split('.').pop() || 'pdf'
-      const path = `applications/${jobId}/${Date.now()}-${name.replace(/\s+/g, '-')}.${ext}`
+      const safeName = name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+      const path = `${jobId}/${Date.now()}-${safeName}.${ext}`
 
       const { error: uploadError } = await supabase.storage
         .from('applications')
