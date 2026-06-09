@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminSession } from '@/lib/auth'
-import { createSupabaseServiceClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
+
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function POST(request: NextRequest) {
   const unauth = await requireAdminSession()
@@ -15,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    const supabase = await createSupabaseServiceClient()
+    const supabase = getServiceClient()
 
     // Create bucket if it doesn't exist (idempotent — silently ignores "already exists")
     await supabase.storage.createBucket(bucket, { public: true }).catch(() => {})
@@ -23,11 +30,15 @@ export async function POST(request: NextRequest) {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
     const path = `${Date.now()}-${safeName}`
 
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+
     const { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(path, file, { contentType: file.type, upsert: true })
+      .upload(path, buffer, { contentType: file.type, upsert: true })
 
     if (uploadError) {
+      console.error('Supabase upload error:', uploadError)
       return NextResponse.json({ error: uploadError.message }, { status: 500 })
     }
 
@@ -36,6 +47,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: publicUrl })
   } catch (error) {
     console.error('Upload error:', error)
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+    return NextResponse.json({ error: String(error) }, { status: 500 })
   }
 }

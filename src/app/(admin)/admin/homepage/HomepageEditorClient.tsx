@@ -122,6 +122,7 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
   const [brandsError, setBrandsError] = useState<string | null>(null)
   const [uploading, setUploading] = useState<number | null>(null)
   const [uploadStatus, setUploadStatus] = useState<Record<number, 'ok' | 'err'>>({})
+  const [uploadError, setUploadError] = useState<Record<number, string>>({})
 
   async function saveBrands() {
     setBrandsSaving(true); setBrandsSaved(false); setBrandsError(null)
@@ -133,24 +134,26 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
   async function uploadLogo(index: number, file: File) {
     setUploading(index)
     setUploadStatus(s => { const n = { ...s }; delete n[index]; return n })
+    setUploadError(s => { const n = { ...s }; delete n[index]; return n })
     try {
       const fd = new FormData()
       fd.append('file', file)
       fd.append('folder', 'brand-logos')
       const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      const body = await res.json().catch(() => ({}))
       if (res.ok) {
-        const { url } = await res.json()
-        setBrands(b => b.map((x, i) => i === index ? { ...x, logoUrl: url } : x))
+        setBrands(b => b.map((x, i) => i === index ? { ...x, logoUrl: body.url } : x))
         setUploadStatus(s => ({ ...s, [index]: 'ok' }))
         setTimeout(() => setUploadStatus(s => { const n = { ...s }; delete n[index]; return n }), 4000)
       } else {
-        const body = await res.json().catch(() => ({}))
         console.error('Upload failed:', body)
         setUploadStatus(s => ({ ...s, [index]: 'err' }))
+        setUploadError(s => ({ ...s, [index]: body.error || 'Unknown error' }))
       }
     } catch (e) {
       console.error('Upload error:', e)
       setUploadStatus(s => ({ ...s, [index]: 'err' }))
+      setUploadError(s => ({ ...s, [index]: String(e) }))
     } finally {
       setUploading(null)
     }
@@ -389,7 +392,7 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
                 <p style={{ margin: 0, fontSize: '0.78rem', color: '#4ade80' }}>✓ Logo uploaded — click <strong>Save Section</strong> to publish it.</p>
               )}
               {uploadStatus[i] === 'err' && (
-                <p style={{ margin: 0, fontSize: '0.78rem', color: '#f87171' }}>✗ Upload failed. Make sure the <strong>brand-logos</strong> bucket exists in Supabase Storage with <em>Public</em> access, then try again.</p>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#f87171' }}>✗ Upload failed: {uploadError[i] || 'Unknown error'}</p>
               )}
             </div>
           ))}
