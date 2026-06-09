@@ -13,6 +13,13 @@ export async function POST(request: NextRequest) {
   const unauth = await requireAdminSession()
   if (unauth) return unauth
 
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    return NextResponse.json(
+      { error: 'SUPABASE_SERVICE_ROLE_KEY is not configured in environment variables.' },
+      { status: 500 }
+    )
+  }
+
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -30,12 +37,9 @@ export async function POST(request: NextRequest) {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
     const path = `${Date.now()}-${safeName}`
 
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
     const { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(path, buffer, { contentType: file.type, upsert: true })
+      .upload(path, file, { contentType: file.type, upsert: true })
 
     if (uploadError) {
       console.error('Supabase upload error:', uploadError)
