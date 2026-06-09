@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
-import { servicesData, blogPosts, caseStudies, jobListings } from '@/data/staticData'
+import { servicesData, blogPosts, jobListings } from '@/data/staticData'
 
 const BASE = 'https://ktimarketing.com'
 
@@ -21,26 +21,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let serviceUrls: MetadataRoute.Sitemap = []
   let blogUrls: MetadataRoute.Sitemap = []
-  let caseUrls: MetadataRoute.Sitemap = []
+  let portfolioUrls: MetadataRoute.Sitemap = []
   let jobUrls: MetadataRoute.Sitemap = []
 
   try {
-    const [services, posts, cases, jobs] = await Promise.all([
+    const [services, posts, portfolio, jobs] = await Promise.all([
       prisma.service.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }),
       prisma.blogPost.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }),
-      prisma.caseStudy.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }),
+      prisma.portfolioItem.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }),
       prisma.jobListing.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }),
     ])
     serviceUrls = services.map(s => ({ url: `${BASE}/services/${s.slug}`, lastModified: s.updatedAt, changeFrequency: 'monthly' as const, priority: 0.7 }))
     blogUrls = posts.map(p => ({ url: `${BASE}/blog/${p.slug}`, lastModified: p.updatedAt, changeFrequency: 'weekly' as const, priority: 0.6 }))
-    caseUrls = cases.map(c => ({ url: `${BASE}/portfolio/${c.slug}`, lastModified: c.updatedAt, changeFrequency: 'monthly' as const, priority: 0.6 }))
+    portfolioUrls = portfolio.map(p => ({ url: `${BASE}/portfolio/${p.slug}`, lastModified: p.updatedAt, changeFrequency: 'monthly' as const, priority: 0.6 }))
     jobUrls = jobs.map(j => ({ url: `${BASE}/careers/${j.slug}`, lastModified: j.updatedAt, changeFrequency: 'weekly' as const, priority: 0.5 }))
   } catch {
     serviceUrls = servicesData.map(s => ({ url: `${BASE}/services/${s.slug}`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.7 }))
     blogUrls = blogPosts.map(p => ({ url: `${BASE}/blog/${p.slug}`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.6 }))
-    caseUrls = caseStudies.map(c => ({ url: `${BASE}/portfolio/${c.slug}`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.6 }))
     jobUrls = jobListings.map(j => ({ url: `${BASE}/careers/${j.slug}`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.5 }))
   }
 
-  return [...staticPages, ...serviceUrls, ...blogUrls, ...caseUrls, ...jobUrls]
+  return [...staticPages, ...serviceUrls, ...blogUrls, ...portfolioUrls, ...jobUrls]
 }

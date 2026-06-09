@@ -1,55 +1,79 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
-import { caseStudies } from '@/data/staticData'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = { title: 'Portfolio — KTI Admin' }
 
-type DbCaseStudy = { id: string; slug: string; client: string; title: string; tag: string; isPublished: boolean }
+type DbPortfolioItem = {
+  id: string; slug: string; title: string; category: string | null
+  imageUrls: unknown; isPublished: boolean; sortOrder: number
+}
 
-async function getCaseStudies(): Promise<DbCaseStudy[]> {
+async function getPortfolioItems(): Promise<DbPortfolioItem[]> {
   try {
-    return await prisma.caseStudy.findMany({ orderBy: { createdAt: 'desc' } }) as unknown as DbCaseStudy[]
+    return await prisma.portfolioItem.findMany({ orderBy: { sortOrder: 'asc' } }) as unknown as DbPortfolioItem[]
   } catch {
-    return caseStudies.map((cs, i) => ({ id: String(i), slug: cs.slug, client: cs.client, title: cs.title, tag: cs.tag, isPublished: true }))
+    return []
   }
 }
 
+function getFirstImage(imageUrls: unknown): string | null {
+  if (Array.isArray(imageUrls) && imageUrls.length > 0) return String(imageUrls[0])
+  return null
+}
+
 export default async function AdminPortfolioPage() {
-  const studies = await getCaseStudies()
+  const items = await getPortfolioItems()
 
   return (
     <>
       <div className="admin-page-header">
-        <div><h1 className="admin-page-title">Portfolio</h1><p className="admin-page-sub">{studies.length} portfolio items</p></div>
+        <div><h1 className="admin-page-title">Portfolio</h1><p className="admin-page-sub">{items.length} item{items.length !== 1 ? 's' : ''}</p></div>
         <Link href="/admin/portfolio/new" className="admin-btn admin-btn--primary">+ New Portfolio Item</Link>
       </div>
 
-      <div className="admin-card admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr><th>Client</th><th>Title</th><th>Tag</th><th>Status</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
-            {studies.map(cs => (
-              <tr key={cs.id}>
-                <td style={{ fontWeight: 500, color: '#fff' }}>{cs.client}</td>
-                <td style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cs.title}</td>
-                <td style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>{cs.tag}</td>
-                <td><span className={`admin-badge admin-badge--${cs.isPublished ? 'green' : 'gray'}`}>{cs.isPublished ? 'Published' : 'Draft'}</span></td>
-                <td>
-                  <div className="admin-actions">
-                    <Link href={`/admin/portfolio/${cs.id}/edit`} className="admin-btn admin-btn--outline admin-btn--sm">Edit</Link>
-                    <Link href={`/portfolio/${cs.slug}`} className="admin-btn admin-btn--outline admin-btn--sm" target="_blank">View ↗</Link>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {items.length === 0 ? (
+        <div className="admin-card" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '1rem' }}>No portfolio items yet.</p>
+          <Link href="/admin/portfolio/new" className="admin-btn admin-btn--primary">Create Your First Item</Link>
+        </div>
+      ) : (
+        <div className="admin-card admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr><th>Thumbnail</th><th>Title</th><th>Category</th><th>Order</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              {items.map(item => {
+                const thumb = getFirstImage(item.imageUrls)
+                return (
+                  <tr key={item.id}>
+                    <td>
+                      {thumb ? (
+                        <img src={thumb} alt="" style={{ width: '60px', height: '45px', objectFit: 'cover', borderRadius: '4px', display: 'block' }} />
+                      ) : (
+                        <div style={{ width: '60px', height: '45px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: 'rgba(255,255,255,0.2)' }}>🖼</div>
+                      )}
+                    </td>
+                    <td style={{ fontWeight: 500, color: '#fff' }}>{item.title}</td>
+                    <td style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>{item.category ?? '—'}</td>
+                    <td style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>{item.sortOrder}</td>
+                    <td><span className={`admin-badge admin-badge--${item.isPublished ? 'green' : 'gray'}`}>{item.isPublished ? 'Published' : 'Draft'}</span></td>
+                    <td>
+                      <div className="admin-actions">
+                        <Link href={`/admin/portfolio/${item.id}/edit`} className="admin-btn admin-btn--outline admin-btn--sm">Edit</Link>
+                        <Link href={`/portfolio/${item.slug}`} className="admin-btn admin-btn--outline admin-btn--sm" target="_blank">View ↗</Link>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </>
   )
 }

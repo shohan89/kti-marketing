@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import CaseStudyForm from '../CaseStudyForm'
+import PortfolioItemForm from '../PortfolioItemForm'
 
 export const metadata: Metadata = { title: 'New Portfolio Item — KTI Admin' }
 
-export default function NewCaseStudyPage() {
-  return <CaseStudyForm initialData={null} />
+export default function NewPortfolioItemPage() {
+  return <PortfolioItemForm initialData={null} />
 }

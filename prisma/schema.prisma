@@ -77,6 +77,21 @@ enum BlogCategory {
   ECOMMERCE
 }
 
+// ── Portfolio ─────────────────────────────────────────
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?  @db.Text
+  category    String?
+  imageUrls   Json     @default("[]")  // String[]
+  youtubeUrl  String?
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 // ── Case Studies ─────────────────────────────────────
 model CaseStudy {
   id            String   @id @default(cuid())
