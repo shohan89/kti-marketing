@@ -5,8 +5,16 @@ import Link from 'next/link'
 import { servicesData, latestPosts } from '@/data/staticData'
 import './Home.css'
 
+// ── Default hardcoded data (used as fallbacks when CMS has no value) ────────
+
 const MARQUEE_ITEMS = ['Social Media Management', 'Content Creation', 'Ads Campaign Management', 'Copywriting', 'Product Photography', 'Model Photography', 'Video Production', 'Influencer Marketing', 'Website Maintenance']
 const CLIENT_BRANDS = ['Luxe Apparel Co.', 'TechFlow Inc.', 'Wellness Hub', 'Nova Skincare', 'Urban Eats', 'PeakPro Fitness', 'Elevate Realty', 'Bloom Cosmetics']
+const DEFAULT_STATS = [
+  { num: '120+', label: 'Brands Grown' },
+  { num: '3.2×', label: 'Average ROI' },
+  { num: '$40M+', label: 'Revenue Generated' },
+  { num: '94%', label: 'Client Retention' },
+]
 const WHY_PILLARS = [
   { icon: '📈', title: 'Results, Not Excuses', body: 'Every engagement has clear KPIs from day one. We report on revenue, ROAS, leads, and conversions — not vanity metrics like impressions and reach.' },
   { icon: '🎨', title: 'Bold Creative Thinking', body: 'Great creative is your biggest competitive advantage. Our in-house team builds campaigns that stop the scroll and demand attention.' },
@@ -19,8 +27,8 @@ const PORTFOLIO = [
   { tag: 'Health & Wellness', category: 'Influencer + Content Strategy', client: 'Wellness Hub', title: '287% More Leads in 90 Days', body: 'Launched an influencer campaign across micro and macro creators, paired with a content engine that tripled organic reach and filled the pipeline with qualified leads.', metrics: [{ num: '+287%', label: 'Qualified Leads' }, { num: '3.1M', label: 'Organic Impressions' }] },
 ]
 const PROCESS_STEPS = [
-  { num: '01', title: 'Strategy', body: "We audit your brand, analyze competitors, and build a tailored go-to-market plan with clear KPIs, channel priorities, and creative direction." },
-  { num: '02', title: 'Execution', body: "Our team launches campaigns across every relevant channel — moving fast, testing constantly, and iterating relentlessly to maximize performance." },
+  { num: '01', title: 'Strategy', body: 'We audit your brand, analyze competitors, and build a tailored go-to-market plan with clear KPIs, channel priorities, and creative direction.' },
+  { num: '02', title: 'Execution', body: 'Our team launches campaigns across every relevant channel — moving fast, testing constantly, and iterating relentlessly to maximize performance.' },
   { num: '03', title: 'Growth', body: "We double down on what works, eliminate what doesn't, and scale your most profitable channels to deliver compounding returns month over month." },
 ]
 const TESTIMONIALS = [
@@ -36,43 +44,92 @@ const TESTIMONIALS = [
   { quote: "KTI redesigned the entire funnel from the first ad impression through onboarding, and our CAC dropped 55%. The growth is now sustainable, not just fast.", name: 'Rafael Souza', role: 'Growth Lead', company: 'Stackly', result: '-55% CAC', rating: 5 },
 ]
 
-const marqueeText = MARQUEE_ITEMS.map(i => `${i}  ·  `).join('')
 const INITIAL_COUNT = 6
 
-export default function HomeClient() {
+// ── Types ────────────────────────────────────────────────────────────────────
+
+interface StatItem { num: string; label: string }
+interface PillarItem { icon: string; title: string; body: string }
+interface PortfolioItem { tag: string; category: string; client: string; title: string; body: string; metrics: { num: string; label: string }[] }
+interface ProcessStep { num: string; title: string; body: string }
+interface TestimonialItem { quote: string; name: string; role: string; company: string; result: string; rating: number }
+
+export interface HomepageContent {
+  hero?: { badge?: string; headline?: string; subheadline?: string; cta1Text?: string; cta1Url?: string; cta2Text?: string; cta2Url?: string }
+  stats?: StatItem[]
+  brands?: string[]
+  marquee?: string[]
+  services?: { eyebrow?: string; title?: string; subtitle?: string }
+  why?: { eyebrow?: string; title?: string; body?: string; pillars?: PillarItem[] }
+  video?: { eyebrow?: string; title?: string }
+  portfolio?: { eyebrow?: string; title?: string; subtitle?: string }
+  process?: { eyebrow?: string; title?: string; steps?: ProcessStep[] }
+  testimonials?: { eyebrow?: string; title?: string }
+  blog?: { eyebrow?: string; title?: string }
+  cta?: { eyebrow?: string; title?: string; body?: string; btnText?: string; btnUrl?: string; subtext?: string }
+}
+
+interface Props {
+  content?: HomepageContent
+  testimonials?: TestimonialItem[]
+  caseStudies?: PortfolioItem[]
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function renderLines(text: string) {
+  return text.split('\n').map((line, i, arr) => (
+    <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+  ))
+}
+
+// ── Component ────────────────────────────────────────────────────────────────
+
+export default function HomeClient({ content = {}, testimonials: dbTestimonials, caseStudies: dbCaseStudies }: Props) {
   const heroRef       = useRef<HTMLElement>(null)
   const cursorGlowRef = useRef<HTMLDivElement>(null)
   const [expanded, setExpanded] = useState(false)
 
+  // ── Merge CMS values with defaults ────────────────────────────────────────
+  const hero   = content.hero ?? {}
+  const heroStats     = content.stats?.length      ? content.stats      : DEFAULT_STATS
+  const brands        = content.brands?.length     ? content.brands     : CLIENT_BRANDS
+  const marqueeItems  = content.marquee?.length    ? content.marquee    : MARQUEE_ITEMS
+  const pillars       = content.why?.pillars?.length ? content.why.pillars : WHY_PILLARS
+  const portfolioItems: PortfolioItem[] = dbCaseStudies?.length ? dbCaseStudies : PORTFOLIO
+  const processSteps  = content.process?.steps?.length ? content.process.steps : PROCESS_STEPS
+  const testimonialList: TestimonialItem[] = dbTestimonials?.length ? dbTestimonials : TESTIMONIALS
+  const marqueeStr    = marqueeItems.map(i => `${i}  ·  `).join('')
+  const posts         = latestPosts()
+
   useEffect(() => {
-    const hero = heroRef.current; const glow = cursorGlowRef.current
-    if (!hero || !glow) return
+    const heroEl = heroRef.current; const glow = cursorGlowRef.current
+    if (!heroEl || !glow) return
     const onMove = (e: MouseEvent) => {
-      const rect = hero.getBoundingClientRect()
+      const rect = heroEl.getBoundingClientRect()
       glow.style.transform = `translate(${e.clientX - rect.left}px, ${e.clientY - rect.top}px) translate(-50%, -50%)`
     }
     const show = () => { glow.style.opacity = '1' }
     const hide = () => { glow.style.opacity = '0' }
-    hero.addEventListener('mousemove', onMove, { passive: true })
-    hero.addEventListener('mouseenter', show)
-    hero.addEventListener('mouseleave', hide)
-    return () => { hero.removeEventListener('mousemove', onMove); hero.removeEventListener('mouseenter', show); hero.removeEventListener('mouseleave', hide) }
+    heroEl.addEventListener('mousemove', onMove, { passive: true })
+    heroEl.addEventListener('mouseenter', show)
+    heroEl.addEventListener('mouseleave', hide)
+    return () => { heroEl.removeEventListener('mousemove', onMove); heroEl.removeEventListener('mouseenter', show); heroEl.removeEventListener('mouseleave', hide) }
   }, [])
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const hero = heroRef.current; if (!hero) return
-    const layers = hero.querySelectorAll<HTMLElement>('.hero-parallax')
+    const heroEl = heroRef.current; if (!heroEl) return
+    const layers = heroEl.querySelectorAll<HTMLElement>('.hero-parallax')
     let rafId: number
-    const onScroll = () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(() => { const sy = window.scrollY; if (hero.getBoundingClientRect().bottom < 0) return; layers.forEach(layer => { const speed = parseFloat(layer.dataset.speed || '0.08'); layer.style.transform = `translateY(${sy * speed}px)` }) }) }
+    const onScroll = () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(() => { const sy = window.scrollY; if (heroEl.getBoundingClientRect().bottom < 0) return; layers.forEach(layer => { const speed = parseFloat(layer.dataset.speed || '0.08'); layer.style.transform = `translateY(${sy * speed}px)` }) }) }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(rafId) }
   }, [])
 
-  const posts = latestPosts()
-
   return (
     <main className="home">
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="home-hero" ref={heroRef}>
         <div className="home-hero__bg" aria-hidden="true">
           <div className="hero-cursor-glow" ref={cursorGlowRef} />
@@ -85,12 +142,21 @@ export default function HomeClient() {
         <div className="container home-hero__container">
           <div className="home-hero__layout">
             <div className="home-hero__left">
-              <div className="hero-eyebrow-badge fade-up"><span className="hero-eyebrow-badge__dot" aria-hidden="true" />Full-Service Growth Agency</div>
-              <h1 className="home-hero__title fade-up-1">Bold Strategy.<br />Real{' '}<span className="hero-title__highlight">Revenue.</span><br />Zero Compromises.</h1>
-              <p className="home-hero__sub fade-up-2">We build performance campaigns and bold creative for ambitious brands ready to stop blending in — and start owning their market.</p>
+              <div className="hero-eyebrow-badge fade-up">
+                <span className="hero-eyebrow-badge__dot" aria-hidden="true" />
+                {hero.badge ?? 'Full-Service Growth Agency'}
+              </div>
+              {hero.headline ? (
+                <h1 className="home-hero__title fade-up-1">{renderLines(hero.headline)}</h1>
+              ) : (
+                <h1 className="home-hero__title fade-up-1">Bold Strategy.<br />Real{' '}<span className="hero-title__highlight">Revenue.</span><br />Zero Compromises.</h1>
+              )}
+              <p className="home-hero__sub fade-up-2">
+                {hero.subheadline ?? 'We build performance campaigns and bold creative for ambitious brands ready to stop blending in — and start owning their market.'}
+              </p>
               <div className="home-hero__cta fade-up-3">
-                <Link href="/contact" className="btn btn-primary">Start Growing</Link>
-                <Link href="/contact" className="btn-hero-outline">Book a Strategy Call</Link>
+                <Link href={hero.cta1Url ?? '/contact'} className="btn btn-primary">{hero.cta1Text ?? 'Start Growing'}</Link>
+                <Link href={hero.cta2Url ?? '/contact'} className="btn-hero-outline">{hero.cta2Text ?? 'Book a Strategy Call'}</Link>
               </div>
             </div>
             <div className="home-hero__right fade-up-2" aria-hidden="true">
@@ -147,7 +213,7 @@ export default function HomeClient() {
         <div className="home-hero__stats fade-up-5">
           <div className="container">
             <div className="hero-stats-row">
-              {[{ num: '120+', label: 'Brands Grown' }, { num: '3.2×', label: 'Average ROI' }, { num: '$40M+', label: 'Revenue Generated' }, { num: '94%', label: 'Client Retention' }].map(({ num, label }) => (
+              {heroStats.map(({ num, label }) => (
                 <div className="hero-stat" key={label}><span className="hero-stat__num">{num}</span><span className="hero-stat__label">{label}</span></div>
               ))}
             </div>
@@ -155,22 +221,34 @@ export default function HomeClient() {
         </div>
       </section>
 
+      {/* ── Client Brands ────────────────────────────────────────────── */}
       <section className="home-clients">
         <div className="container">
           <p className="home-clients__label reveal">Trusted by ambitious brands</p>
           <div className="clients-strip reveal" style={{ '--reveal-delay': '0.1s' } as React.CSSProperties}>
-            {CLIENT_BRANDS.map(brand => <span className="clients-strip__brand" key={brand}>{brand}</span>)}
+            {brands.map(brand => <span className="clients-strip__brand" key={brand}>{brand}</span>)}
           </div>
         </div>
       </section>
 
-      <div className="marquee-band" aria-hidden="true"><div className="marquee-track"><span className="marquee-content">{marqueeText}{marqueeText}</span></div></div>
+      {/* ── Marquee ──────────────────────────────────────────────────── */}
+      <div className="marquee-band" aria-hidden="true"><div className="marquee-track"><span className="marquee-content">{marqueeStr}{marqueeStr}</span></div></div>
 
+      {/* ── Services ─────────────────────────────────────────────────── */}
       <section className="home-services">
         <div className="container">
           <div className="home-services__header">
-            <div className="reveal"><p className="eyebrow">What We Do</p><h2 className="home-services__title">Every Service You Need.<br /><span className="accent">All Under One Roof.</span></h2></div>
-            <p className="home-services__sub reveal" style={{ '--reveal-delay': '0.12s' } as React.CSSProperties}>From brand strategy to performance ads, content creation to influencer marketing — we own every channel of your growth.</p>
+            <div className="reveal">
+              <p className="eyebrow">{content.services?.eyebrow ?? 'What We Do'}</p>
+              {content.services?.title ? (
+                <h2 className="home-services__title">{content.services.title}</h2>
+              ) : (
+                <h2 className="home-services__title">Every Service You Need.<br /><span className="accent">All Under One Roof.</span></h2>
+              )}
+            </div>
+            <p className="home-services__sub reveal" style={{ '--reveal-delay': '0.12s' } as React.CSSProperties}>
+              {content.services?.subtitle ?? 'From brand strategy to performance ads, content creation to influencer marketing — we own every channel of your growth.'}
+            </p>
           </div>
           <div className="home-services__grid">
             {servicesData.slice(0, 6).map((s, i) => (
@@ -187,11 +265,20 @@ export default function HomeClient() {
         </div>
       </section>
 
+      {/* ── Why KTI ──────────────────────────────────────────────────── */}
       <section className="home-why">
         <div className="container">
-          <div className="home-why__header reveal"><p className="eyebrow">Why KTI Marketing</p><h2 className="home-why__title">We Don't Chase Metrics.<br /><span className="accent">We Chase Revenue.</span></h2><p className="home-why__body">Most agencies show you follower counts and impression graphs. We show you pipeline growth, conversion rates, and ROI.</p></div>
+          <div className="home-why__header reveal">
+            <p className="eyebrow">{content.why?.eyebrow ?? 'Why KTI Marketing'}</p>
+            {content.why?.title ? (
+              <h2 className="home-why__title">{content.why.title}</h2>
+            ) : (
+              <h2 className="home-why__title">We Don&apos;t Chase Metrics.<br /><span className="accent">We Chase Revenue.</span></h2>
+            )}
+            <p className="home-why__body">{content.why?.body ?? 'Most agencies show you follower counts and impression graphs. We show you pipeline growth, conversion rates, and ROI.'}</p>
+          </div>
           <div className="why-pillars">
-            {WHY_PILLARS.map(({ icon, title, body }, i) => (
+            {pillars.map(({ icon, title, body }, i) => (
               <div className="why-pillar reveal" key={title} style={{ '--reveal-delay': `${i * 0.1}s` } as React.CSSProperties}>
                 <span className="why-pillar__icon" aria-hidden="true">{icon}</span>
                 <h3 className="why-pillar__title">{title}</h3>
@@ -206,8 +293,15 @@ export default function HomeClient() {
         </div>
       </section>
 
+      {/* ── Video ────────────────────────────────────────────────────── */}
       <section className="home-video">
-        <div className="container"><div className="home-video__header text-center reveal"><p className="eyebrow" style={{ color: 'rgba(255,255,255,0.45)' }}>See Our Work</p><h2 className="home-video__title">Campaigns That<br /><span className="home-video__accent">Move People.</span></h2></div></div>
+        <div className="container"><div className="home-video__header text-center reveal"><p className="eyebrow" style={{ color: 'rgba(255,255,255,0.45)' }}>{content.video?.eyebrow ?? 'See Our Work'}</p>
+          {content.video?.title ? (
+            <h2 className="home-video__title">{content.video.title}</h2>
+          ) : (
+            <h2 className="home-video__title">Campaigns That<br /><span className="home-video__accent">Move People.</span></h2>
+          )}
+        </div></div>
         <div className="home-video__frame reveal" style={{ '--reveal-delay': '0.1s' } as React.CSSProperties}>
           <div className="home-video__player" aria-label="KTI Marketing showreel video player">
             <div className="home-video__grid-bg" aria-hidden="true" />
@@ -223,14 +317,24 @@ export default function HomeClient() {
         </div>
       </section>
 
+      {/* ── Portfolio / Case Studies ─────────────────────────────────── */}
       <section className="home-portfolio">
         <div className="container">
           <div className="home-portfolio__header">
-            <div className="reveal"><p className="eyebrow">Case Studies</p><h2 className="home-portfolio__title">Results That<br /><span className="accent">Speak for Themselves.</span></h2></div>
-            <p className="home-portfolio__sub reveal" style={{ '--reveal-delay': '0.12s' } as React.CSSProperties}>We don't believe in case studies that only show the highlights. Here are real campaigns with real numbers from real clients.</p>
+            <div className="reveal">
+              <p className="eyebrow">{content.portfolio?.eyebrow ?? 'Case Studies'}</p>
+              {content.portfolio?.title ? (
+                <h2 className="home-portfolio__title">{content.portfolio.title}</h2>
+              ) : (
+                <h2 className="home-portfolio__title">Results That<br /><span className="accent">Speak for Themselves.</span></h2>
+              )}
+            </div>
+            <p className="home-portfolio__sub reveal" style={{ '--reveal-delay': '0.12s' } as React.CSSProperties}>
+              {content.portfolio?.subtitle ?? "We don't believe in case studies that only show the highlights. Here are real campaigns with real numbers from real clients."}
+            </p>
           </div>
           <div className="portfolio-grid">
-            {PORTFOLIO.map(({ tag, category, client, title, body, metrics }, i) => (
+            {portfolioItems.map(({ tag, category, client, title, body, metrics }, i) => (
               <div className="portfolio-card reveal" key={client} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>
                 <div className="portfolio-card__top"><span className="portfolio-card__tag">{tag}</span><span className="portfolio-card__category">{category}</span></div>
                 <h3 className="portfolio-card__title">{title}</h3>
@@ -247,28 +351,44 @@ export default function HomeClient() {
         </div>
       </section>
 
+      {/* ── Process ──────────────────────────────────────────────────── */}
       <section className="home-process">
         <div className="container">
-          <div className="home-process__header text-center reveal"><p className="eyebrow">How We Work</p><h2>A Proven <span className="accent">3-Step Growth System</span></h2></div>
+          <div className="home-process__header text-center reveal">
+            <p className="eyebrow">{content.process?.eyebrow ?? 'How We Work'}</p>
+            {content.process?.title ? (
+              <h2>{content.process.title}</h2>
+            ) : (
+              <h2>A Proven <span className="accent">3-Step Growth System</span></h2>
+            )}
+          </div>
           <div className="process-grid">
-            {PROCESS_STEPS.map((step, i) => (
+            {processSteps.map((step, i) => (
               <div className="process-step reveal" key={step.num} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>
                 <span className="process-step__num">{step.num}</span>
                 <h3 className="process-step__title">{step.title}</h3>
                 <p className="process-step__body">{step.body}</p>
-                {i < PROCESS_STEPS.length - 1 && <span className="process-step__connector" aria-hidden="true" />}
+                {i < processSteps.length - 1 && <span className="process-step__connector" aria-hidden="true" />}
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ── Testimonials ─────────────────────────────────────────────── */}
       <section className="home-testimonials">
         <div className="container">
-          <div className="text-center home-testimonials__header reveal"><p className="eyebrow">Client Results</p><h2>Don't Take Our Word for It.</h2></div>
+          <div className="text-center home-testimonials__header reveal">
+            <p className="eyebrow">{content.testimonials?.eyebrow ?? 'Client Results'}</p>
+            {content.testimonials?.title ? (
+              <h2>{content.testimonials.title}</h2>
+            ) : (
+              <h2>Don&apos;t Take Our Word for It.</h2>
+            )}
+          </div>
           <div className="testimonials-masonry">
-            {TESTIMONIALS.slice(0, INITIAL_COUNT).map(({ quote, name, role, company, result, rating }) => (
-              <div className="testimonial-card" key={name}>
+            {testimonialList.slice(0, INITIAL_COUNT).map(({ quote, name, role, company, result, rating }, i) => (
+              <div className="testimonial-card" key={name || i}>
                 <div className="testimonial-card__top"><div className="testimonial-card__result">{result}</div><div className="testimonial-card__stars" aria-label={`${rating} out of 5 stars`}>{'★'.repeat(rating)}</div></div>
                 <p className="testimonial-card__quote">&ldquo;{quote}&rdquo;</p>
                 <div className="testimonial-card__author"><div className="testimonial-card__avatar">{name.charAt(0)}</div><div><strong>{name}</strong><span>{role} · {company}</span></div></div>
@@ -277,8 +397,8 @@ export default function HomeClient() {
           </div>
           <div className={`testimonials-extra${expanded ? ' testimonials-extra--visible' : ''}`}>
             <div className="testimonials-masonry">
-              {TESTIMONIALS.slice(INITIAL_COUNT).map(({ quote, name, role, company, result, rating }) => (
-                <div className="testimonial-card" key={name}>
+              {testimonialList.slice(INITIAL_COUNT).map(({ quote, name, role, company, result, rating }, i) => (
+                <div className="testimonial-card" key={name || i}>
                   <div className="testimonial-card__top"><div className="testimonial-card__result">{result}</div><div className="testimonial-card__stars" aria-label={`${rating} out of 5 stars`}>{'★'.repeat(rating)}</div></div>
                   <p className="testimonial-card__quote">&ldquo;{quote}&rdquo;</p>
                   <div className="testimonial-card__author"><div className="testimonial-card__avatar">{name.charAt(0)}</div><div><strong>{name}</strong><span>{role} · {company}</span></div></div>
@@ -295,10 +415,18 @@ export default function HomeClient() {
         </div>
       </section>
 
+      {/* ── Blog ─────────────────────────────────────────────────────── */}
       <section className="home-blog">
         <div className="container">
           <div className="home-blog__header">
-            <div><p className="eyebrow">From the Blog</p><h2 className="home-blog__title">Ideas That <span className="accent">Drive Growth</span></h2></div>
+            <div>
+              <p className="eyebrow">{content.blog?.eyebrow ?? 'From the Blog'}</p>
+              {content.blog?.title ? (
+                <h2 className="home-blog__title">{content.blog.title}</h2>
+              ) : (
+                <h2 className="home-blog__title">Ideas That <span className="accent">Drive Growth</span></h2>
+              )}
+            </div>
             <Link href="/blog" className="btn btn-outline">View All Articles →</Link>
           </div>
           <div className="home-blog__grid">
@@ -319,13 +447,24 @@ export default function HomeClient() {
         </div>
       </section>
 
+      {/* ── Final CTA ────────────────────────────────────────────────── */}
       <section className="home-final-cta">
         <div className="container">
-          <p className="eyebrow" style={{ color: '#f87171' }}>Ready to Grow?</p>
-          <h2 className="home-final-cta__title">Stop Leaving Revenue<br />on the Table.</h2>
-          <p className="home-final-cta__sub">Let's build a custom growth strategy that turns your marketing into your most powerful competitive advantage. No fluff. No vanity metrics. Just results.</p>
-          <Link href="/contact" className="btn btn-white">Get a Free Strategy Call →</Link>
-          <p className="home-final-cta__note">No commitment required · Strategy session is 100% free</p>
+          <p className="eyebrow" style={{ color: '#f87171' }}>{content.cta?.eyebrow ?? 'Ready to Grow?'}</p>
+          {content.cta?.title ? (
+            <h2 className="home-final-cta__title">{renderLines(content.cta.title)}</h2>
+          ) : (
+            <h2 className="home-final-cta__title">Stop Leaving Revenue<br />on the Table.</h2>
+          )}
+          <p className="home-final-cta__sub">
+            {content.cta?.body ?? "Let's build a custom growth strategy that turns your marketing into your most powerful competitive advantage. No fluff. No vanity metrics. Just results."}
+          </p>
+          <Link href={content.cta?.btnUrl ?? '/contact'} className="btn btn-white">
+            {content.cta?.btnText ?? 'Get a Free Strategy Call →'}
+          </Link>
+          <p className="home-final-cta__note">
+            {content.cta?.subtext ?? 'No commitment required · Strategy session is 100% free'}
+          </p>
         </div>
       </section>
     </main>
