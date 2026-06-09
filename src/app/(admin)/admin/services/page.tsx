@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { servicesData } from '@/data/staticData'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = { title: 'Services — KTI Admin' }
 
 async function getServices() {

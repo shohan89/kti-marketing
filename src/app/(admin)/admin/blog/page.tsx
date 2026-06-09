@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { blogPosts } from '@/data/staticData'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = { title: 'Blog — KTI Admin' }
 
 type DbBlogPost = { id: string; slug: string; title: string; category: string; author: string; isPublished: boolean; publishDate: string }

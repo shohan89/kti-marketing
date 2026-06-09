@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { marketingPackages } from '@/data/staticData'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = { title: 'Pricing — KTI Admin' }
 
 type DbPackage = { id: string; name: string; price: number; badge: string | null; highlight: boolean; isPublished: boolean; sortOrder: number }

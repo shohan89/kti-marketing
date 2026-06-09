@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { caseStudies } from '@/data/staticData'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = { title: 'Case Studies — KTI Admin' }
 
 type DbCaseStudy = { id: string; slug: string; client: string; title: string; tag: string; isPublished: boolean }
