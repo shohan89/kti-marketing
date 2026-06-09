@@ -121,6 +121,7 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
   const [brandsSaved, setBrandsSaved] = useState(false)
   const [brandsError, setBrandsError] = useState<string | null>(null)
   const [uploading, setUploading] = useState<number | null>(null)
+  const [uploadStatus, setUploadStatus] = useState<Record<number, 'ok' | 'err'>>({})
 
   async function saveBrands() {
     setBrandsSaving(true); setBrandsSaved(false); setBrandsError(null)
@@ -131,6 +132,7 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function uploadLogo(index: number, file: File) {
     setUploading(index)
+    setUploadStatus(s => { const n = { ...s }; delete n[index]; return n })
     try {
       const fd = new FormData()
       fd.append('file', file)
@@ -139,7 +141,16 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
       if (res.ok) {
         const { url } = await res.json()
         setBrands(b => b.map((x, i) => i === index ? { ...x, logoUrl: url } : x))
+        setUploadStatus(s => ({ ...s, [index]: 'ok' }))
+        setTimeout(() => setUploadStatus(s => { const n = { ...s }; delete n[index]; return n }), 4000)
+      } else {
+        const body = await res.json().catch(() => ({}))
+        console.error('Upload failed:', body)
+        setUploadStatus(s => ({ ...s, [index]: 'err' }))
       }
+    } catch (e) {
+      console.error('Upload error:', e)
+      setUploadStatus(s => ({ ...s, [index]: 'err' }))
     } finally {
       setUploading(null)
     }
@@ -336,31 +347,50 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
             Upload a logo or paste an external image URL. Brands without a logo fall back to displaying the name as text.
           </p>
           {brands.map((brand, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '48px 1fr 1fr auto', gap: '0.75rem', alignItems: 'center', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.5rem', padding: '0.75rem' }}>
-              <div style={{ width: 48, height: 48, borderRadius: '0.35rem', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                {brand.logoUrl
-                  ? <img src={brand.logoUrl} alt={brand.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
-                  : <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)', textAlign: 'center', lineHeight: 1.2 }}>No logo</span>}
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.5rem', padding: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '64px 1fr 1fr auto', gap: '0.75rem', alignItems: 'center' }}>
+                {/* Logo preview */}
+                <div style={{ width: 64, height: 64, borderRadius: '0.35rem', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }}>
+                  {brand.logoUrl
+                    ? <img
+                        src={brand.logoUrl}
+                        alt={brand.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }}
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.removeAttribute('style') }}
+                      />
+                    : null}
+                  <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.25)', textAlign: 'center', lineHeight: 1.3, display: brand.logoUrl ? 'none' : 'block' }}>No logo</span>
+                </div>
+                {/* Name */}
+                <input
+                  style={inputStyle}
+                  value={brand.name}
+                  onChange={e => setBrands(b => b.map((x, j) => j === i ? { ...x, name: e.target.value } : x))}
+                  placeholder="Brand name"
+                />
+                {/* URL */}
+                <input
+                  style={inputStyle}
+                  value={brand.logoUrl}
+                  onChange={e => setBrands(b => b.map((x, j) => j === i ? { ...x, logoUrl: e.target.value } : x))}
+                  placeholder="Paste image URL here"
+                />
+                {/* Upload + Remove */}
+                <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                  <label title="Upload image file" style={{ cursor: uploading !== null ? 'not-allowed' : 'pointer', padding: '0.45rem 0.7rem', background: uploading === i ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.35rem', fontSize: '0.75rem', color: '#fff', whiteSpace: 'nowrap', userSelect: 'none' }}>
+                    {uploading === i ? '…' : '↑ Upload'}
+                    <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading !== null} onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(i, f); e.target.value = '' }} />
+                  </label>
+                  <button type="button" title="Remove" onClick={() => setBrands(b => b.filter((_, j) => j !== i))} style={{ padding: '0.45rem 0.65rem', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '0.35rem', color: '#f87171', cursor: 'pointer', fontSize: '0.9rem', lineHeight: 1 }}>×</button>
+                </div>
               </div>
-              <input
-                style={inputStyle}
-                value={brand.name}
-                onChange={e => setBrands(b => b.map((x, j) => j === i ? { ...x, name: e.target.value } : x))}
-                placeholder="Brand name"
-              />
-              <input
-                style={inputStyle}
-                value={brand.logoUrl}
-                onChange={e => setBrands(b => b.map((x, j) => j === i ? { ...x, logoUrl: e.target.value } : x))}
-                placeholder="Logo URL (or use Upload →)"
-              />
-              <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
-                <label title="Upload image" style={{ cursor: 'pointer', padding: '0.45rem 0.7rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.35rem', fontSize: '0.75rem', color: '#fff', whiteSpace: 'nowrap', userSelect: 'none' }}>
-                  {uploading === i ? '…' : '↑'}
-                  <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading !== null} onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(i, f); e.target.value = '' }} />
-                </label>
-                <button type="button" title="Remove brand" onClick={() => setBrands(b => b.filter((_, j) => j !== i))} style={{ padding: '0.45rem 0.65rem', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '0.35rem', color: '#f87171', cursor: 'pointer', fontSize: '0.9rem', lineHeight: 1 }}>×</button>
-              </div>
+              {/* Upload status row */}
+              {uploadStatus[i] === 'ok' && (
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#4ade80' }}>✓ Logo uploaded — click <strong>Save Section</strong> to publish it.</p>
+              )}
+              {uploadStatus[i] === 'err' && (
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#f87171' }}>✗ Upload failed. Make sure the <strong>brand-logos</strong> bucket exists in Supabase Storage with <em>Public</em> access, then try again.</p>
+              )}
             </div>
           ))}
           <button type="button" onClick={() => setBrands(b => [...b, { name: '', logoUrl: '' }])} style={{ alignSelf: 'flex-start', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.4rem', color: 'rgba(255,255,255,0.65)', cursor: 'pointer', fontSize: '0.8rem' }}>

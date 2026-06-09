@@ -235,7 +235,17 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
             {brands.map(brand => (
               <span className="clients-strip__brand" key={brand.name}>
                 {brand.logoUrl
-                  ? <img src={brand.logoUrl} alt={brand.name} className="clients-strip__logo" />
+                  ? <img
+                      src={brand.logoUrl}
+                      alt={brand.name}
+                      className="clients-strip__logo"
+                      onError={e => {
+                        const img = e.target as HTMLImageElement
+                        img.style.display = 'none'
+                        const span = img.parentElement
+                        if (span) span.textContent = brand.name
+                      }}
+                    />
                   : brand.name}
               </span>
             ))}
