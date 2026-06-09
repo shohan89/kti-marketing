@@ -207,7 +207,7 @@ export default function SeoOverview({ staticPages }: Props) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           {[
             { label: 'Blog Posts', path: '/admin/blog', note: 'Meta title, description, OG image & canonical URL per post' },
-            { label: 'Case Studies', path: '/admin/case-studies', note: 'Meta title, description & OG image per case study' },
+            { label: 'Portfolio', path: '/admin/portfolio', note: 'Meta title, description & OG image per portfolio item' },
             { label: 'Services', path: '/admin/services', note: 'Meta title, description & OG image per service' },
             { label: 'Job Listings', path: '/admin/jobs', note: 'Meta title & description per job listing' },
           ].map(item => (

@@ -64,7 +64,7 @@ export const STATIC_PAGES = [
   { key: 'contact',       label: 'Contact',       path: '/contact' },
   { key: 'services',      label: 'Services',      path: '/services' },
   { key: 'blog',          label: 'Blog',          path: '/blog' },
-  { key: 'case-studies',  label: 'Case Studies',  path: '/case-studies' },
+  { key: 'portfolio',  label: 'Portfolio',  path: '/portfolio' },
   { key: 'pricing',       label: 'Pricing',       path: '/pricing' },
   { key: 'careers',       label: 'Careers',       path: '/careers' },
   { key: 'themes',        label: 'Themes',        path: '/themes' },

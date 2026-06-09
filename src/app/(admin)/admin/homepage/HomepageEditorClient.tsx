@@ -470,7 +470,7 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
         {/* ── Portfolio Section ────────────────────────────────────────── */}
         <SectionCard title="Case Studies Section Header">
           <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
-            The 3 case study cards are pulled from <Link href="/admin/case-studies" style={{ color: '#D7262E' }}>Case Studies →</Link> (latest 3 published). Edit their content there.
+            The 3 portfolio cards are pulled from <Link href="/admin/portfolio" style={{ color: '#D7262E' }}>Portfolio →</Link> (latest 3 published). Edit their content there.
           </p>
           <Field label="Eyebrow">
             <input style={inputStyle} value={portfolio.eyebrow} onChange={e => setPortfolio(p => ({ ...p, eyebrow: e.target.value }))} placeholder="Case Studies" />

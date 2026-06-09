@@ -101,6 +101,8 @@ model CaseStudy {
   quoteCompany  String?
   quoteResult   String?
   coverImageUrl String?
+  imageUrls     Json?    // String[] of uploaded work image URLs
+  youtubeUrl    String?  // YouTube watch URL for work video
   isPublished   Boolean  @default(true)
   sortOrder     Int      @default(0)
   metaTitle       String?

@@ -150,7 +150,7 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
             <div className="sd-section-header reveal"><p className="eyebrow">Proven Results</p><h2 className="sd-section-title">See It in Action</h2></div>
             <div className="sd-cs-grid">
               {relatedStudies.map(({ slug: csSlug, tag, client, title: csTitle, metrics, services: csServices }, i) => (
-                <Link key={csSlug} href={`/case-studies/${csSlug}`} className="sd-cs-card reveal" style={{ '--reveal-delay': `${i * 0.1}s` } as React.CSSProperties}>
+                <Link key={csSlug} href={`/portfolio/${csSlug}`} className="sd-cs-card reveal" style={{ '--reveal-delay': `${i * 0.1}s` } as React.CSSProperties}>
                   <div className="sd-cs-card__top"><span className="sd-cs-tag">{tag}</span></div>
                   <p className="sd-cs-card__client">{client}</p>
                   <h3 className="sd-cs-card__title">{csTitle}</h3>

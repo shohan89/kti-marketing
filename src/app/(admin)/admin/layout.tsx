@@ -10,7 +10,7 @@ const NAV = [
   { href: '/admin/homepage', label: 'Homepage', icon: '⌂' },
   { href: '/admin/services', label: 'Services', icon: '⚙' },
   { href: '/admin/blog', label: 'Blog', icon: '✎' },
-  { href: '/admin/case-studies', label: 'Case Studies', icon: '◉' },
+  { href: '/admin/portfolio', label: 'Portfolio', icon: '◉' },
   { href: '/admin/pricing', label: 'Pricing', icon: '৳' },
   { href: '/admin/jobs', label: 'Jobs', icon: '◎' },
   { href: '/admin/team', label: 'Team', icon: '◉' },

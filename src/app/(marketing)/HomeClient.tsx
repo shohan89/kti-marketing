@@ -368,7 +368,7 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
             ))}
           </div>
           <div className="home-portfolio__footer reveal" style={{ '--reveal-delay': '0.1s' } as React.CSSProperties}>
-            <Link href="/case-studies" className="all-services-link">View all case studies<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg></Link>
+            <Link href="/portfolio" className="all-services-link">View all portfolio<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg></Link>
           </div>
         </div>
       </section>

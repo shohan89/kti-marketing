@@ -3,7 +3,7 @@ import { revalidateTag as nextRevalidateTag } from 'next/cache'
 export type CacheTag =
   | 'services'
   | 'blog'
-  | 'case-studies'
+  | 'portfolio'
   | 'jobs'
   | 'pricing'
   | 'testimonials'

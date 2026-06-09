@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { to: '/',             label: 'Home' },
   { to: '/about',        label: 'About' },
   { to: '/services',     label: 'Services', dropdown: true },
-  { to: '/case-studies', label: 'Case Studies' },
+  { to: '/portfolio', label: 'Portfolio' },
   { to: '/blog',         label: 'Blog' },
   { to: '/careers',      label: 'Careers' },
   { to: '/themes',       label: 'Our Themes' },

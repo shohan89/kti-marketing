@@ -40,7 +40,7 @@ export default async function AdminDashboard() {
   const STAT_CARDS = [
     { label: 'Services', num: stats.services, href: '/admin/services', color: '#f87171' },
     { label: 'Blog Posts', num: stats.blog, href: '/admin/blog', color: '#60a5fa' },
-    { label: 'Case Studies', num: stats.caseStudies, href: '/admin/case-studies', color: '#a78bfa' },
+    { label: 'Portfolio', num: stats.caseStudies, href: '/admin/portfolio', color: '#a78bfa' },
     { label: 'Open Jobs', num: stats.jobs, href: '/admin/jobs', color: '#34d399' },
     { label: 'New Messages', num: stats.inbox, href: '/admin/inbox', color: '#fbbf24' },
     { label: 'New Applications', num: stats.applications, href: '/admin/applications', color: '#f472b6' },
@@ -110,7 +110,7 @@ export default async function AdminDashboard() {
           {[
             { label: '+ New Service', href: '/admin/services/new' },
             { label: '+ New Blog Post', href: '/admin/blog/new' },
-            { label: '+ New Case Study', href: '/admin/case-studies/new' },
+            { label: '+ New Portfolio Item', href: '/admin/portfolio/new' },
             { label: '+ New Job', href: '/admin/jobs/new' },
             { label: 'Edit Pricing', href: '/admin/pricing' },
             { label: 'Site Settings', href: '/admin/settings' },

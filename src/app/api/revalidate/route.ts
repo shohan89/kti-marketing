@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const VALID_TAGS = ['services', 'blog', 'case-studies', 'jobs', 'pricing', 'testimonials', 'team', 'settings', 'home'] as const
+const VALID_TAGS = ['services', 'blog', 'portfolio', 'jobs', 'pricing', 'testimonials', 'team', 'settings', 'home'] as const
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const revalidate = (tag: string) => { try { const { revalidateTag } = require('next/cache'); revalidateTag(tag) } catch {} }
