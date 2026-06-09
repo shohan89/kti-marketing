@@ -26,7 +26,16 @@ const DEFAULTS = {
     { num: '$40M+', label: 'Revenue Generated' },
     { num: '94%', label: 'Client Retention' },
   ],
-  brands: ['Luxe Apparel Co.', 'TechFlow Inc.', 'Wellness Hub', 'Nova Skincare', 'Urban Eats', 'PeakPro Fitness', 'Elevate Realty', 'Bloom Cosmetics'],
+  brands: [
+    { name: 'Luxe Apparel Co.', logoUrl: '' },
+    { name: 'TechFlow Inc.', logoUrl: '' },
+    { name: 'Wellness Hub', logoUrl: '' },
+    { name: 'Nova Skincare', logoUrl: '' },
+    { name: 'Urban Eats', logoUrl: '' },
+    { name: 'PeakPro Fitness', logoUrl: '' },
+    { name: 'Elevate Realty', logoUrl: '' },
+    { name: 'Bloom Cosmetics', logoUrl: '' },
+  ],
   marquee: ['Social Media Management', 'Content Creation', 'Ads Campaign Management', 'Copywriting', 'Product Photography', 'Model Photography', 'Video Production', 'Influencer Marketing', 'Website Maintenance'],
   services: { eyebrow: 'What We Do', title: 'Every Service You Need. All Under One Roof.', subtitle: 'From brand strategy to performance ads, content creation to influencer marketing — we own every channel of your growth.' },
   why: {
@@ -73,7 +82,12 @@ export default async function HomepageAdminPage() {
     data = {
       hero:         safeJson(map['homepage_hero'],         DEFAULTS.hero),
       stats:        safeJson(map['homepage_stats'],        DEFAULTS.stats),
-      brands:       safeJson(map['homepage_brands'],       DEFAULTS.brands),
+      brands:       (() => {
+        const raw = safeJson<unknown[]>(map['homepage_brands'], DEFAULTS.brands)
+        return Array.isArray(raw)
+          ? raw.map((b) => typeof b === 'string' ? { name: b, logoUrl: '' } : b as { name: string; logoUrl: string })
+          : DEFAULTS.brands
+      })(),
       marquee:      safeJson(map['homepage_marquee'],      DEFAULTS.marquee),
       services:     safeJson(map['homepage_services'],     DEFAULTS.services),
       why:          safeJson(map['homepage_why'],          DEFAULTS.why),

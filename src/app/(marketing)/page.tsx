@@ -37,7 +37,11 @@ export default async function HomePage() {
     content = {
       hero:         safeJson(map['homepage_hero'], {}),
       stats:        safeJson(map['homepage_stats'], undefined),
-      brands:       safeJson(map['homepage_brands'], undefined),
+      brands:       (() => {
+        const raw = safeJson<unknown[] | undefined>(map['homepage_brands'], undefined)
+        if (!raw) return undefined
+        return raw.map(b => typeof b === 'string' ? { name: b as string, logoUrl: '' } : b as { name: string; logoUrl: string })
+      })(),
       marquee:      safeJson(map['homepage_marquee'], undefined),
       services:     safeJson(map['homepage_services'], {}),
       why:          safeJson(map['homepage_why'], {}),

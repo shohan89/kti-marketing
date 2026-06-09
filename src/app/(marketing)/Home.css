@@ -918,6 +918,22 @@
 
 .clients-strip__brand:hover { color: var(--gray-500); }
 
+.clients-strip__logo {
+  max-height: 32px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  display: block;
+  filter: grayscale(100%) brightness(1.5) contrast(0.85);
+  opacity: 0.55;
+  transition: opacity 0.25s, filter 0.25s;
+}
+
+.clients-strip__brand:hover .clients-strip__logo {
+  opacity: 1;
+  filter: grayscale(0%) brightness(1) contrast(1);
+}
+
 /* ── 3. Marquee ───────────────────────────────────────── */
 .marquee-band {
   background: var(--red);

@@ -8,12 +8,13 @@ import Link from 'next/link'
 
 interface Hero { badge: string; headline: string; subheadline: string; cta1Text: string; cta1Url: string; cta2Text: string; cta2Url: string }
 interface StatItem { num: string; label: string }
+interface BrandItem { name: string; logoUrl: string }
 interface PillarItem { icon: string; title: string; body: string }
 interface ProcessStep { num: string; title: string; body: string }
 interface HomepageData {
   hero: Hero
   stats: StatItem[]
-  brands: string[]
+  brands: BrandItem[]
   marquee: string[]
   services: { eyebrow: string; title: string; subtitle: string }
   why: { eyebrow: string; title: string; body: string; pillars: PillarItem[] }
@@ -115,17 +116,33 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
   }
 
   // ── Brands ────────────────────────────────────────────────────────────────
-  const [brandsText, setBrandsText] = useState(data.brands.join('\n'))
+  const [brands, setBrands] = useState<BrandItem[]>(data.brands)
   const [brandsSaving, setBrandsSaving] = useState(false)
   const [brandsSaved, setBrandsSaved] = useState(false)
   const [brandsError, setBrandsError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState<number | null>(null)
 
   async function saveBrands() {
     setBrandsSaving(true); setBrandsSaved(false); setBrandsError(null)
-    const arr = brandsText.split('\n').map(s => s.trim()).filter(Boolean)
-    const ok = await saveSection('homepage_brands', arr)
+    const ok = await saveSection('homepage_brands', brands)
     setBrandsSaving(false)
     if (ok) { setBrandsSaved(true); setTimeout(() => setBrandsSaved(false), 3000) } else { setBrandsError('Save failed') }
+  }
+
+  async function uploadLogo(index: number, file: File) {
+    setUploading(index)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'brand-logos')
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      if (res.ok) {
+        const { url } = await res.json()
+        setBrands(b => b.map((x, i) => i === index ? { ...x, logoUrl: url } : x))
+      }
+    } finally {
+      setUploading(null)
+    }
   }
 
   // ── Marquee ───────────────────────────────────────────────────────────────
@@ -314,10 +331,41 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
         </SectionCard>
 
         {/* ── Client Brands ────────────────────────────────────────────── */}
-        <SectionCard title="Client Brands (scrolling strip)">
-          <Field label="Brand names — one per line">
-            <textarea style={{ ...taStyle, minHeight: '130px' }} value={brandsText} onChange={e => setBrandsText(e.target.value)} placeholder={'Luxe Apparel Co.\nTechFlow Inc.\nWellness Hub'} />
-          </Field>
+        <SectionCard title="Client Brands (scrolling logo strip)">
+          <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+            Upload a logo or paste an external image URL. Brands without a logo fall back to displaying the name as text.
+          </p>
+          {brands.map((brand, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '48px 1fr 1fr auto', gap: '0.75rem', alignItems: 'center', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.5rem', padding: '0.75rem' }}>
+              <div style={{ width: 48, height: 48, borderRadius: '0.35rem', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                {brand.logoUrl
+                  ? <img src={brand.logoUrl} alt={brand.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} />
+                  : <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.2)', textAlign: 'center', lineHeight: 1.2 }}>No logo</span>}
+              </div>
+              <input
+                style={inputStyle}
+                value={brand.name}
+                onChange={e => setBrands(b => b.map((x, j) => j === i ? { ...x, name: e.target.value } : x))}
+                placeholder="Brand name"
+              />
+              <input
+                style={inputStyle}
+                value={brand.logoUrl}
+                onChange={e => setBrands(b => b.map((x, j) => j === i ? { ...x, logoUrl: e.target.value } : x))}
+                placeholder="Logo URL (or use Upload →)"
+              />
+              <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                <label title="Upload image" style={{ cursor: 'pointer', padding: '0.45rem 0.7rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.35rem', fontSize: '0.75rem', color: '#fff', whiteSpace: 'nowrap', userSelect: 'none' }}>
+                  {uploading === i ? '…' : '↑'}
+                  <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading !== null} onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(i, f); e.target.value = '' }} />
+                </label>
+                <button type="button" title="Remove brand" onClick={() => setBrands(b => b.filter((_, j) => j !== i))} style={{ padding: '0.45rem 0.65rem', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '0.35rem', color: '#f87171', cursor: 'pointer', fontSize: '0.9rem', lineHeight: 1 }}>×</button>
+              </div>
+            </div>
+          ))}
+          <button type="button" onClick={() => setBrands(b => [...b, { name: '', logoUrl: '' }])} style={{ alignSelf: 'flex-start', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.4rem', color: 'rgba(255,255,255,0.65)', cursor: 'pointer', fontSize: '0.8rem' }}>
+            + Add Brand
+          </button>
           <SaveBtn saving={brandsSaving} saved={brandsSaved} error={brandsError} onClick={saveBrands} />
         </SectionCard>
 

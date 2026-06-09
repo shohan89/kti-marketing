@@ -8,7 +8,12 @@ import './Home.css'
 // ── Default hardcoded data (used as fallbacks when CMS has no value) ────────
 
 const MARQUEE_ITEMS = ['Social Media Management', 'Content Creation', 'Ads Campaign Management', 'Copywriting', 'Product Photography', 'Model Photography', 'Video Production', 'Influencer Marketing', 'Website Maintenance']
-const CLIENT_BRANDS = ['Luxe Apparel Co.', 'TechFlow Inc.', 'Wellness Hub', 'Nova Skincare', 'Urban Eats', 'PeakPro Fitness', 'Elevate Realty', 'Bloom Cosmetics']
+export interface BrandItem { name: string; logoUrl?: string }
+const CLIENT_BRANDS: BrandItem[] = [
+  { name: 'Luxe Apparel Co.' }, { name: 'TechFlow Inc.' }, { name: 'Wellness Hub' },
+  { name: 'Nova Skincare' }, { name: 'Urban Eats' }, { name: 'PeakPro Fitness' },
+  { name: 'Elevate Realty' }, { name: 'Bloom Cosmetics' },
+]
 const DEFAULT_STATS = [
   { num: '120+', label: 'Brands Grown' },
   { num: '3.2×', label: 'Average ROI' },
@@ -57,7 +62,7 @@ interface TestimonialItem { quote: string; name: string; role: string; company: 
 export interface HomepageContent {
   hero?: { badge?: string; headline?: string; subheadline?: string; cta1Text?: string; cta1Url?: string; cta2Text?: string; cta2Url?: string }
   stats?: StatItem[]
-  brands?: string[]
+  brands?: BrandItem[]
   marquee?: string[]
   services?: { eyebrow?: string; title?: string; subtitle?: string }
   why?: { eyebrow?: string; title?: string; body?: string; pillars?: PillarItem[] }
@@ -93,7 +98,8 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
   // ── Merge CMS values with defaults ────────────────────────────────────────
   const hero   = content.hero ?? {}
   const heroStats     = content.stats?.length      ? content.stats      : DEFAULT_STATS
-  const brands        = content.brands?.length     ? content.brands     : CLIENT_BRANDS
+  const rawBrands = content.brands?.length ? content.brands : CLIENT_BRANDS
+  const brands: BrandItem[] = rawBrands.map(b => typeof b === 'string' ? { name: b as string } : b)
   const marqueeItems  = content.marquee?.length    ? content.marquee    : MARQUEE_ITEMS
   const pillars       = content.why?.pillars?.length ? content.why.pillars : WHY_PILLARS
   const portfolioItems: PortfolioItem[] = dbCaseStudies?.length ? dbCaseStudies : PORTFOLIO
@@ -226,7 +232,13 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
         <div className="container">
           <p className="home-clients__label reveal">Trusted by ambitious brands</p>
           <div className="clients-strip reveal" style={{ '--reveal-delay': '0.1s' } as React.CSSProperties}>
-            {brands.map(brand => <span className="clients-strip__brand" key={brand}>{brand}</span>)}
+            {brands.map(brand => (
+              <span className="clients-strip__brand" key={brand.name}>
+                {brand.logoUrl
+                  ? <img src={brand.logoUrl} alt={brand.name} className="clients-strip__logo" />
+                  : brand.name}
+              </span>
+            ))}
           </div>
         </div>
       </section>
