@@ -32,7 +32,7 @@
   line-height: 1.08;
   color: var(--white);
   max-width: 680px;
-  margin: 0 0 1.25rem;
+  margin: 0 auto 1.25rem;
 }
 
 .careers-hero__sub {
@@ -40,13 +40,14 @@
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.8;
   max-width: 560px;
-  margin: 0 0 2.25rem;
+  margin: 0 auto 2.25rem;
 }
 
 /* Badges */
 .careers-hero__badges {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.65rem;
 }
 

@@ -34,7 +34,7 @@
   line-height: 1.08;
   color: var(--white);
   max-width: 640px;
-  margin: 0 0 1.25rem;
+  margin: 0 auto 1.25rem;
 }
 
 .contact-hero__sub {
@@ -42,7 +42,7 @@
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.8;
   max-width: 520px;
-  margin: 0;
+  margin: 0 auto;
 }
 
 /* ── Body ─────────────────────────────────────────────── */
