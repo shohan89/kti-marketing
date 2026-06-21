@@ -40,6 +40,7 @@ async function loadSettings() {
                          { id: '3', platform: 'linkedin',  url: 'https://linkedin.com/company/ktimarketing' },
                        ]
                      ),
+    mapEmbedUrl:     map['map_embed_url']             ?? '',
     seoTitle:        map['seo_default_title']        ?? 'KTI Marketing — Bold Strategy. Real Revenue.',
     seoDescription:  map['seo_default_description']  ?? 'Full-service growth agency for ambitious brands.',
   }

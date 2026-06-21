@@ -35,7 +35,7 @@
   font-size: 0.9rem;
   color: rgba(255,255,255,0.45);
   line-height: 1.8;
-  margin: 0 0 2rem;
+  margin: 0 0 1.25rem;
   max-width: 280px;
 }
 
@@ -131,14 +131,78 @@
   50%       { opacity: 0.15; }
 }
 
-/* Contact column specifics */
-.footer-contact-list li { display: block; }
+/* ── Contact items in brand column ───────────────────── */
+.footer-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 0.65rem;
+}
 
-.footer-address {
-  font-size: 0.875rem;
-  color: rgba(255,255,255,0.35);
-  line-height: 1.6;
-  margin-top: 0.25rem;
+.footer-contact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(215, 38, 46, 0.12);
+  color: var(--red);
+  margin-top: 1px;
+}
+
+.footer-contact-link {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  line-height: 1.5;
+  word-break: break-all;
+  transition: color 0.18s ease;
+}
+
+.footer-contact-link:hover { color: var(--red); }
+
+.footer-contact-text {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+}
+
+.footer-social { margin-top: 1.5rem; }
+
+/* ── Map column ───────────────────────────────────────── */
+.footer-map-col { display: flex; flex-direction: column; }
+
+.footer-map {
+  flex: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 1.25rem;
+  min-height: 180px;
+}
+
+.footer-map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  border: none;
+  filter: grayscale(0.3) invert(0.9) hue-rotate(180deg) brightness(0.85);
+}
+
+.footer-map--placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.2);
+  font-size: 0.78rem;
+  text-align: center;
+  padding: 1.5rem;
 }
 
 .footer-cta-btn {

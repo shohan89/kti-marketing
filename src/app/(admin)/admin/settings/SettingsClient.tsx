@@ -9,7 +9,7 @@ interface Social  { id: string; platform: string; url: string }
 
 interface Initial {
   siteName: string; tagline: string; logoUrl: string; faviconUrl: string
-  address: string; businessHours: string
+  address: string; businessHours: string; mapEmbedUrl: string
   phones: Phone[]; emails: Email[]; socials: Social[]
   seoTitle: string; seoDescription: string
 }
@@ -90,6 +90,7 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
   const [faviconUrl, setFaviconUrl]   = useState(initial.faviconUrl)
   const [address, setAddress]         = useState(initial.address)
   const [hours, setHours]             = useState(initial.businessHours)
+  const [mapEmbedUrl, setMapEmbedUrl] = useState(initial.mapEmbedUrl)
   const [phones, setPhones]           = useState<Phone[]>(initial.phones)
   const [emails, setEmails]           = useState<Email[]>(initial.emails)
   const [socials, setSocials]         = useState<Social[]>(initial.socials)
@@ -112,6 +113,7 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
       business_hours:         hours,
       contact_phones:         JSON.stringify(phones),
       contact_emails:         JSON.stringify(emails),
+      map_embed_url:          mapEmbedUrl,
       social_links:           JSON.stringify(socials),
       seo_default_title:      seoTitle,
       seo_default_description: seoDesc,
@@ -296,7 +298,7 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
           </div>
 
           {/* Office Info */}
-          <div className="admin-card">
+          <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
             <SubLabel>Office Info</SubLabel>
             <div className="admin-field" style={{ marginBottom: '1rem' }}>
               <label className="admin-label">Physical Address</label>
@@ -306,6 +308,33 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
               <label className="admin-label">Business Hours</label>
               <input className="admin-input" value={hours} onChange={e => setHours(e.target.value)} placeholder="Sun – Thu: 9 AM – 6 PM" />
             </div>
+          </div>
+
+          {/* Map Embed */}
+          <div className="admin-card">
+            <SubLabel>Footer Map</SubLabel>
+            <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1rem', lineHeight: 1.6 }}>
+              Paste a Google Maps embed URL. To get it: open Google Maps → find your location → Share → Embed a map → copy the <code style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 3, padding: '1px 5px' }}>src</code> value from the iframe code.
+            </p>
+            <div className="admin-field" style={{ marginBottom: '1rem' }}>
+              <label className="admin-label">Google Maps Embed URL</label>
+              <input
+                className="admin-input"
+                value={mapEmbedUrl}
+                onChange={e => setMapEmbedUrl(e.target.value)}
+                placeholder="https://www.google.com/maps/embed?pb=..."
+              />
+            </div>
+            {mapEmbedUrl && (
+              <div style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', height: 200 }}>
+                <iframe
+                  src={mapEmbedUrl}
+                  title="Map preview"
+                  style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                  loading="lazy"
+                />
+              </div>
+            )}
           </div>
         </>
       )}
