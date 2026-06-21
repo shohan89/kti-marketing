@@ -23,13 +23,13 @@ function safeJson<T>(str: string | undefined, fallback: T): T {
 export default async function HomePage() {
   let content: HomepageContent = {}
   let testimonials: { quote: string; name: string; role: string; company: string; result: string; rating: number }[] | undefined
-  let caseStudies: { tag: string; category: string; client: string; title: string; body: string; metrics: { num: string; label: string }[] }[] | undefined
+  let portfolioItems: { slug: string; tag: string; category: string; client: string; title: string; body: string; metrics: { num: string; label: string }[] }[] | undefined
 
   try {
-    const [rows, dbTestimonials, dbCaseStudies] = await Promise.all([
+    const [rows, dbTestimonials, dbPortfolio] = await Promise.all([
       prisma.siteSetting.findMany({ where: { key: { startsWith: 'homepage_' } } }),
       prisma.testimonial.findMany({ where: { isPublished: true }, orderBy: { sortOrder: 'asc' } }),
-      prisma.caseStudy.findMany({ where: { isPublished: true }, orderBy: { createdAt: 'desc' }, take: 3 }),
+      prisma.portfolioItem.findMany({ where: { isPublished: true }, orderBy: { sortOrder: 'asc' }, take: 3 }),
     ])
 
     const map = Object.fromEntries(rows.map(r => [r.key, r.value]))
@@ -60,11 +60,17 @@ export default async function HomePage() {
       }))
     }
 
-    if (dbCaseStudies.length > 0) {
-      caseStudies = dbCaseStudies.map(cs => ({
-        tag: cs.tag, category: cs.category, client: cs.client,
-        title: cs.title, body: cs.body,
-        metrics: (cs.metrics as { num: string; label: string }[]) ?? [],
+    if (dbPortfolio.length > 0) {
+      portfolioItems = dbPortfolio.map(p => ({
+        slug: p.slug,
+        tag: p.category ?? 'Portfolio',
+        category: Array.isArray(p.services) && (p.services as string[]).length > 0 ? (p.services as string[])[0] : (p.category ?? ''),
+        client: p.client ?? '',
+        title: p.title,
+        body: p.description ?? '',
+        metrics: Array.isArray(p.results)
+          ? (p.results as { stat: string; label: string }[]).slice(0, 2).map(r => ({ num: r.stat, label: r.label }))
+          : [],
       }))
     }
   } catch {
@@ -74,7 +80,7 @@ export default async function HomePage() {
   return (
     <>
       <PageSchemas pageKey="home" />
-      <HomeClient content={content} testimonials={testimonials} caseStudies={caseStudies} />
+      <HomeClient content={content} testimonials={testimonials} portfolioItems={portfolioItems} />
     </>
   )
 }

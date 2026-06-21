@@ -3,32 +3,49 @@ import SettingsClient from './SettingsClient'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
-
 export const metadata: Metadata = { title: 'Settings — KTI Admin' }
 
-const DEFAULT_SETTINGS = [
-  { key: 'contact_email', value: 'hello@ktimarketing.com', label: 'Contact Email', group: 'Contact' },
-  { key: 'contact_phone', value: '+880 1234 567890', label: 'Phone Number', group: 'Contact' },
-  { key: 'contact_address', value: 'Dhaka, Bangladesh', label: 'Address', group: 'Contact' },
-  { key: 'social_facebook', value: 'https://facebook.com/ktimarketing', label: 'Facebook URL', group: 'Social' },
-  { key: 'social_instagram', value: 'https://instagram.com/ktimarketing', label: 'Instagram URL', group: 'Social' },
-  { key: 'social_linkedin', value: 'https://linkedin.com/company/ktimarketing', label: 'LinkedIn URL', group: 'Social' },
-  { key: 'seo_default_title', value: 'KTI Marketing — Bold Strategy. Real Revenue.', label: 'Default SEO Title', group: 'SEO' },
-  { key: 'seo_default_description', value: 'Full-service growth agency for ambitious brands.', label: 'Default SEO Description', group: 'SEO' },
-]
+function safeParse<T>(val: string | undefined, fallback: T): T {
+  if (!val) return fallback
+  try { return JSON.parse(val) as T } catch { return fallback }
+}
 
-async function getSettings() {
+async function loadSettings() {
+  let map: Record<string, string> = {}
   try {
     const rows = await prisma.siteSetting.findMany()
-    const map = Object.fromEntries(rows.map(r => [r.key, r.value]))
-    return DEFAULT_SETTINGS.map(d => ({ ...d, value: map[d.key] ?? d.value }))
-  } catch {
-    return DEFAULT_SETTINGS
+    map = Object.fromEntries(rows.map(r => [r.key, r.value]))
+  } catch {}
+
+  return {
+    siteName:        map['site_name']            ?? 'KTI Marketing',
+    tagline:         map['site_tagline']         ?? 'Bold Strategy. Real Revenue.',
+    logoUrl:         map['site_logo_url']        ?? '',
+    faviconUrl:      map['site_favicon_url']     ?? '',
+    address:         map['contact_address']      ?? 'Dhaka, Bangladesh',
+    businessHours:   map['business_hours']       ?? 'Sun – Thu: 9 AM – 6 PM',
+    phones:          safeParse<{id:string;label:string;number:string}[]>(
+                       map['contact_phones'],
+                       [{ id: '1', label: 'Main', number: '+880 1234 567890' }]
+                     ),
+    emails:          safeParse<{id:string;label:string;address:string}[]>(
+                       map['contact_emails'],
+                       [{ id: '1', label: 'General', address: 'hello@ktimarketing.com' }]
+                     ),
+    socials:         safeParse<{id:string;platform:string;url:string}[]>(
+                       map['social_links'],
+                       [
+                         { id: '1', platform: 'facebook',  url: 'https://facebook.com/ktimarketing' },
+                         { id: '2', platform: 'instagram', url: 'https://instagram.com/ktimarketing' },
+                         { id: '3', platform: 'linkedin',  url: 'https://linkedin.com/company/ktimarketing' },
+                       ]
+                     ),
+    seoTitle:        map['seo_default_title']        ?? 'KTI Marketing — Bold Strategy. Real Revenue.',
+    seoDescription:  map['seo_default_description']  ?? 'Full-service growth agency for ambitious brands.',
   }
 }
 
 export default async function SettingsPage() {
-  const settings = await getSettings()
-  const groups = [...new Set(settings.map(s => s.group))]
-  return <SettingsClient settings={settings} groups={groups} />
+  const initial = await loadSettings()
+  return <SettingsClient initial={initial} />
 }

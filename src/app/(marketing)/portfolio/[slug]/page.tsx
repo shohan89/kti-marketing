@@ -30,6 +30,9 @@ function toEmbedUrl(url: string): string {
   return url
 }
 
+type Phase = { num?: string; title?: string; body?: string }
+type Result = { stat?: string; label?: string }
+
 export default async function PortfolioDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
@@ -40,10 +43,20 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
   if (!item || !item.isPublished) notFound()
 
   const images: string[] = Array.isArray(item.imageUrls) ? (item.imageUrls as string[]) : []
-  const embedUrl = item.youtubeUrl ? toEmbedUrl(item.youtubeUrl) : null
-  const hasGallery = images.length > 0
-  const hasVideo = !!embedUrl
-  const hasDetails = !!(item.description || item.category)
+
+  // Merge videoUrls + legacy youtubeUrl
+  const rawVideos: string[] = Array.isArray(item.videoUrls) ? (item.videoUrls as string[]) : []
+  const videos = rawVideos.length > 0
+    ? rawVideos
+    : item.youtubeUrl ? [item.youtubeUrl] : []
+  const embedUrls = videos.map(toEmbedUrl).filter(Boolean)
+
+  const phases: Phase[] = Array.isArray(item.phases) ? (item.phases as Phase[]) : []
+  const results: Result[] = Array.isArray(item.results) ? (item.results as Result[]) : []
+  const services: string[] = Array.isArray(item.services) ? item.services : []
+  const deliverables: string[] = Array.isArray(item.deliverables) ? item.deliverables : []
+
+  const hasCaseStudy = !!(item.challenge || item.solution || phases.length || results.length || services.length || deliverables.length || item.quote)
 
   return (
     <main className="portfolio-detail">
@@ -61,20 +74,21 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
             <span aria-hidden="true">›</span>
             <span>{item.title}</span>
           </nav>
-          {item.category && <span className="pd-hero__tag">{item.category}</span>}
+          <div className="pd-hero__meta-row">
+            {item.category && <span className="pd-hero__tag">{item.category}</span>}
+            {item.client && <span className="pd-hero__client">Client: <strong>{item.client}</strong></span>}
+          </div>
           <h1 className="pd-hero__title">{item.title}</h1>
-          {item.description && (
-            <p className="pd-hero__description">{item.description}</p>
-          )}
+          {item.description && <p className="pd-hero__description">{item.description}</p>}
         </div>
       </section>
 
-      {/* ── 2. Gallery ──────────────────────────────────── */}
-      {hasGallery && (
+      {/* ── 2. Image Gallery ────────────────────────────── */}
+      {images.length > 0 && (
         <section className="pd-gallery-section">
           <div className="container">
             <div className="pd-section-header">
-              <p className="pd-section-eyebrow">Gallery</p>
+              <p className="pd-section-eyebrow">Image Gallery</p>
               <h2 className="pd-section-title">The Work, <span>Up Close.</span></h2>
             </div>
             <div className="pd-gallery">
@@ -99,76 +113,130 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
         </section>
       )}
 
-      {/* ── 3. Project Details ──────────────────────────── */}
-      {hasDetails && (
-        <section className="pd-details-section">
-          <div className="container pd-details-grid">
-
-            {/* Left */}
-            <div className="pd-details-body">
-              <p className="pd-section-eyebrow">About the Project</p>
-              <h2 className="pd-section-title" style={{ color: '#fff', marginBottom: '1.75rem' }}>
-                Behind the <span>Campaign.</span>
-              </h2>
-              {item.description && (
-                <p className="pd-details-text">{item.description}</p>
-              )}
-              <div className="pd-details-cta-inline">
-                <div>
-                  <p>Have a similar project in mind?</p>
-                  <span>We offer a free 30-minute strategy session — no pitch, just clarity.</span>
-                </div>
-                <Link href="/contact" className="btn btn-primary" style={{ flexShrink: 0 }}>Book a Free Call</Link>
-              </div>
+      {/* ── 3. Video Gallery ────────────────────────────── */}
+      {embedUrls.length > 0 && (
+        <section className="pd-video-gallery-section">
+          <div className="container">
+            <div className="pd-section-header" style={{ textAlign: 'center' }}>
+              <p className="pd-section-eyebrow">Video Gallery</p>
+              <h2 className="pd-section-title">Watch It <span>Come to Life.</span></h2>
             </div>
-
-            {/* Right: meta card */}
-            <aside className="pd-meta-card">
-              <p className="pd-meta-card__label">Project Info</p>
-              {item.category && (
-                <div className="pd-meta-row">
-                  <span className="pd-meta-key">Category</span>
-                  <span className="pd-meta-val">{item.category}</span>
+            <div className={`pd-video-gallery pd-video-gallery--${embedUrls.length === 1 ? 'single' : 'grid'}`}>
+              {embedUrls.map((src, i) => (
+                <div key={i} className="pd-video-item">
+                  <div className="pd-video-glow" aria-hidden="true" />
+                  <div className="pd-video-frame-outer">
+                    <div className="pd-video-frame">
+                      <iframe
+                        src={src}
+                        title={`${item.title} — video ${i + 1}`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
-              <div className="pd-meta-row">
-                <span className="pd-meta-key">Agency</span>
-                <span className="pd-meta-val">KTI Marketing</span>
-              </div>
-              <div className="pd-meta-row">
-                <span className="pd-meta-key">Media</span>
-                <span className="pd-meta-val">
-                  {[hasGallery && `${images.length} image${images.length !== 1 ? 's' : ''}`, hasVideo && 'Video'].filter(Boolean).join(' · ') || '—'}
-                </span>
-              </div>
-              <Link href="/contact" className="btn btn-primary">Start a Similar Project →</Link>
-            </aside>
-
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* ── 4. Video ────────────────────────────────────── */}
-      {hasVideo && (
-        <section className="pd-video-section">
-          <div className="container pd-video-inner">
-            <div className="pd-section-header">
-              <p className="pd-section-eyebrow">Video</p>
-              <h2 className="pd-section-title">Watch It <span>Come to Life.</span></h2>
+      {/* ── 4. Case Study ───────────────────────────────── */}
+      {hasCaseStudy && (
+        <section className="pd-case-section">
+          <div className="pd-case-section__bg" aria-hidden="true" />
+          <div className="container">
+
+            <div className="pd-section-header" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+              <p className="pd-section-eyebrow">Case Study</p>
+              <h2 className="pd-section-title">How We <span>Made It Happen.</span></h2>
             </div>
-            <div className="pd-video-wrap">
-              <div className="pd-video-glow" aria-hidden="true" />
-              <div className="pd-video-frame-outer">
-                <div className="pd-video-frame">
-                  <iframe
-                    src={embedUrl!}
-                    title={`${item.title} — video`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+
+            {/* Challenge & Solution */}
+            {(item.challenge || item.solution) && (
+              <div className="pd-cs-two-col">
+                {item.challenge && (
+                  <div className="pd-cs-block pd-cs-block--challenge">
+                    <div className="pd-cs-block__icon">⚡</div>
+                    <h3 className="pd-cs-block__title">The Challenge</h3>
+                    <p className="pd-cs-block__body">{item.challenge}</p>
+                  </div>
+                )}
+                {item.solution && (
+                  <div className="pd-cs-block pd-cs-block--solution">
+                    <div className="pd-cs-block__icon">✦</div>
+                    <h3 className="pd-cs-block__title">The Solution</h3>
+                    <p className="pd-cs-block__body">{item.solution}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Results */}
+            {results.length > 0 && (
+              <div className="pd-results">
+                {results.map((r, i) => (
+                  <div key={i} className="pd-result-card">
+                    <span className="pd-result-card__stat">{r.stat}</span>
+                    <span className="pd-result-card__label">{r.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Process Phases */}
+            {phases.length > 0 && (
+              <div className="pd-phases">
+                <h3 className="pd-phases__heading">Our Process</h3>
+                <div className="pd-phases__list">
+                  {phases.map((p, i) => (
+                    <div key={i} className="pd-phase">
+                      <div className="pd-phase__num">{p.num ?? String(i + 1).padStart(2, '0')}</div>
+                      <div className="pd-phase__content">
+                        <h4 className="pd-phase__title">{p.title}</h4>
+                        {p.body && <p className="pd-phase__body">{p.body}</p>}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Services & Deliverables */}
+            {(services.length > 0 || deliverables.length > 0) && (
+              <div className="pd-sd-grid">
+                {services.length > 0 && (
+                  <div className="pd-sd-col">
+                    <h3 className="pd-sd-col__title">Services Provided</h3>
+                    <ul className="pd-sd-list">
+                      {services.map((s, i) => <li key={i}>{s}</li>)}
+                    </ul>
+                  </div>
+                )}
+                {deliverables.length > 0 && (
+                  <div className="pd-sd-col">
+                    <h3 className="pd-sd-col__title">Deliverables</h3>
+                    <ul className="pd-sd-list">
+                      {deliverables.map((d, i) => <li key={i}>{d}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Testimonial */}
+            {item.quote && (
+              <figure className="pd-testimonial">
+                <blockquote className="pd-testimonial__quote">&ldquo;{item.quote}&rdquo;</blockquote>
+                <figcaption className="pd-testimonial__author">
+                  {item.quoteName && <strong>{item.quoteName}</strong>}
+                  {item.quoteRole && <span>{item.quoteRole}</span>}
+                  {item.quoteCompany && <span>{item.quoteCompany}</span>}
+                </figcaption>
+              </figure>
+            )}
+
           </div>
         </section>
       )}

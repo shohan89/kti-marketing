@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { servicesData, caseStudies, getServiceBySlug } from '@/data/staticData'
+import { servicesData, getServiceBySlug } from '@/data/staticData'
 import PageCTA from '@/components/ui/PageCTA'
 import { PROCESS_ILLUSTRATIONS } from '@/components/ui/ProcessIllustrations'
 import ServiceFAQ from './ServiceFAQ'
@@ -9,6 +9,19 @@ import { prisma } from '@/lib/prisma'
 import './ServiceDetails.css'
 
 export const dynamic = 'force-dynamic'
+
+function toEmbedUrl(url: string): string {
+  if (!url) return ''
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  if (m) return `https://www.youtube.com/embed/${m[1]}`
+  if (url.includes('youtube.com/embed/')) return url
+  return ''
+}
+
+function videoId(url: string): string {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  return m ? m[1] : ''
+}
 
 export async function generateStaticParams() {
   return servicesData.map(s => ({ slug: s.slug }))
@@ -40,16 +53,34 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
   let service: any = null
   try {
     const db = await prisma.service.findUnique({ where: { slug } })
-    if (db) service = { ...db, image: db.imageUrl ?? '', process: db.processSteps ?? [] }
+    if (db) service = {
+      ...db,
+      image: db.imageUrl ?? '',
+      process: db.processSteps ?? [],
+      imageGallery: Array.isArray(db.imageGallery) ? db.imageGallery : [],
+      videoGallery: Array.isArray(db.videoGallery) ? db.videoGallery : [],
+    }
   } catch {}
   if (!service) service = getServiceBySlug(slug)
   if (!service) notFound()
 
-  const relatedStudies = (() => {
-    const matched = caseStudies.filter(cs => cs.services.some(s => s.toLowerCase().includes(service.title.toLowerCase()) || service.title.toLowerCase().includes(s.toLowerCase())))
-    if (matched.length >= 2) return matched.slice(0, 3)
-    return [...matched, ...caseStudies.filter(cs => !matched.includes(cs))].slice(0, 3)
-  })()
+  let relatedStudies: { slug: string; tag: string; client: string; title: string; metrics: { num: string; label: string }[]; services: string[] }[] = []
+  try {
+    const allPortfolio = await prisma.portfolioItem.findMany({ where: { isPublished: true }, orderBy: { sortOrder: 'asc' } })
+    const mapped = allPortfolio.map(p => ({
+      slug: p.slug,
+      tag: p.category ?? 'Portfolio',
+      client: p.client ?? '',
+      title: p.title,
+      metrics: Array.isArray(p.results)
+        ? (p.results as { stat: string; label: string }[]).slice(0, 2).map(r => ({ num: r.stat, label: r.label }))
+        : [],
+      services: Array.isArray(p.services) ? (p.services as string[]) : [],
+    }))
+    const svcTitle = service.title.toLowerCase()
+    const matched = mapped.filter(p => p.services.some(s => s.toLowerCase().includes(svcTitle) || svcTitle.includes(s.toLowerCase())))
+    relatedStudies = matched.length >= 2 ? matched.slice(0, 3) : [...matched, ...mapped.filter(p => !matched.includes(p))].slice(0, 3)
+  } catch { relatedStudies = [] }
 
   return (
     <main className="sd-page">
@@ -81,6 +112,43 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
           </div>
         </div>
       </section>
+
+      {(service.imageGallery?.length > 0 || service.videoGallery?.length > 0) && (
+        <section className="sd-gallery">
+          <div className="container">
+            {service.imageGallery?.length > 0 && (
+              <div className="sd-gallery__images">
+                {service.imageGallery.map((url: string, i: number) => (
+                  <div key={i} className="sd-gallery__img-wrap reveal" style={{ '--reveal-delay': `${Math.min(i * 0.07, 0.42)}s` } as React.CSSProperties}>
+                    <img src={url} alt={`${service.title} gallery image ${i + 1}`} loading="lazy" />
+                  </div>
+                ))}
+              </div>
+            )}
+            {service.videoGallery?.length > 0 && (
+              <div className="sd-gallery__videos">
+                {service.videoGallery.map((url: string, i: number) => {
+                  const embed = toEmbedUrl(url)
+                  const vid = videoId(url)
+                  if (!embed) return null
+                  return (
+                    <div key={i} className="sd-gallery__video-wrap reveal" style={{ '--reveal-delay': `${Math.min(i * 0.1, 0.4)}s` } as React.CSSProperties}>
+                      {vid && <img className="sd-gallery__video-thumb" src={`https://img.youtube.com/vi/${vid}/hqdefault.jpg`} alt="" aria-hidden="true" />}
+                      <iframe
+                        src={embed}
+                        title={`${service.title} video ${i + 1}`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        loading="lazy"
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="sd-deliverables">
         <div className="container">
@@ -156,7 +224,7 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
                   <h3 className="sd-cs-card__title">{csTitle}</h3>
                   <div className="sd-cs-card__metrics">{metrics.slice(0, 2).map(({ num, label }) => (<div className="sd-cs-metric" key={label}><span className="sd-cs-metric__num">{num}</span><span className="sd-cs-metric__lbl">{label}</span></div>))}</div>
                   <div className="sd-cs-card__services">{csServices.slice(0, 3).map(s => (<span className="sd-cs-pill" key={s}>{s}</span>))}</div>
-                  <span className="sd-cs-card__arrow">View Case Study →</span>
+                  <span className="sd-cs-card__arrow">View Project →</span>
                 </Link>
               ))}
             </div>

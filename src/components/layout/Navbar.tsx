@@ -37,7 +37,12 @@ export default function Navbar({ services }: { services: ServiceLink[] }) {
     preventOpenRef.current = true
   }
 
-  useEffect(() => { close() }, [pathname])
+  useEffect(() => {
+    setOpen(false)
+    setSvcOpen(false)
+    setDesktopOpen(false)
+    preventOpenRef.current = false
+  }, [pathname])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)

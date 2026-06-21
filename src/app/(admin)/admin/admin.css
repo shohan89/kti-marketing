@@ -284,6 +284,8 @@
 
 .admin-input:focus, .admin-select:focus, .admin-textarea:focus { border-color: rgba(248,113,113,0.5); }
 .admin-textarea { resize: vertical; min-height: 100px; }
+.admin-input[type="date"] { color-scheme: dark; cursor: pointer; }
+.admin-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) brightness(0.7); cursor: pointer; }
 
 .admin-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 

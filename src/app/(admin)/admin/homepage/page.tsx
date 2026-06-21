@@ -19,6 +19,8 @@ const DEFAULTS = {
     cta1Url: '/contact',
     cta2Text: 'Book a Strategy Call',
     cta2Url: '/contact',
+    heroImageUrl: '',
+    heroVideoUrl: '',
   },
   stats: [
     { num: '120+', label: 'Brands Grown' },
@@ -49,7 +51,7 @@ const DEFAULTS = {
       { icon: '🤝', title: 'Relentless Support', body: 'A dedicated account team, weekly updates, and a direct line to the people doing the work — no middlemen passing messages.' },
     ],
   },
-  video: { eyebrow: 'See Our Work', title: 'Campaigns That Move People.' },
+  video: { eyebrow: 'See Our Work', title: 'Campaigns That Move People.', youtubeUrl: '' },
   portfolio: { eyebrow: 'Case Studies', title: 'Results That Speak for Themselves.', subtitle: "We don't believe in case studies that only show the highlights. Here are real campaigns with real numbers from real clients." },
   process: {
     eyebrow: 'How We Work',
@@ -80,7 +82,7 @@ export default async function HomepageAdminPage() {
     const map = Object.fromEntries(rows.map(r => [r.key, r.value]))
 
     data = {
-      hero:         safeJson(map['homepage_hero'],         DEFAULTS.hero),
+      hero:         { ...DEFAULTS.hero, ...safeJson(map['homepage_hero'], DEFAULTS.hero) },
       stats:        safeJson(map['homepage_stats'],        DEFAULTS.stats),
       brands:       (() => {
         const raw = safeJson<unknown[]>(map['homepage_brands'], DEFAULTS.brands)
@@ -91,7 +93,7 @@ export default async function HomepageAdminPage() {
       marquee:      safeJson(map['homepage_marquee'],      DEFAULTS.marquee),
       services:     safeJson(map['homepage_services'],     DEFAULTS.services),
       why:          safeJson(map['homepage_why'],          DEFAULTS.why),
-      video:        safeJson(map['homepage_video'],        DEFAULTS.video),
+      video:        { ...DEFAULTS.video, ...safeJson(map['homepage_video'], DEFAULTS.video) },
       portfolio:    safeJson(map['homepage_portfolio'],    DEFAULTS.portfolio),
       process:      safeJson(map['homepage_process'],      DEFAULTS.process),
       testimonials: safeJson(map['homepage_testimonials'], DEFAULTS.testimonials),

@@ -24,6 +24,8 @@ export async function POST(req: NextRequest) {
     const processSteps = Array.isArray(body.processSteps) ? body.processSteps : []
     const results = Array.isArray(body.results) ? body.results : []
     const faqs = Array.isArray(body.faqs) ? body.faqs : []
+    const imageGallery = Array.isArray(body.imageGallery) ? body.imageGallery : []
+    const videoGallery = Array.isArray(body.videoGallery) ? body.videoGallery : []
     const service = await prisma.service.create({
       data: {
         slug: body.slug,
@@ -33,6 +35,8 @@ export async function POST(req: NextRequest) {
         headline: body.headline ?? '',
         imageUrl: body.imageUrl || null,
         videoUrl: body.videoUrl || null,
+        imageGallery,
+        videoGallery,
         sortOrder: Number(body.sortOrder) || 0,
         isPublished: body.isPublished ?? true,
         deliverables,

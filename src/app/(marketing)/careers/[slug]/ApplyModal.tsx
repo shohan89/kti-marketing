@@ -57,7 +57,7 @@ export default function ApplyModal({ jobId, jobTitle, variant = 'primary' }: Pro
     <>
       <button
         type="button"
-        className={variant === 'sidebar' ? 'btn jp-sidebar-cta__btn' : 'btn'}
+        className={variant === 'sidebar' ? 'btn jp-sidebar-cta__btn' : 'btn btn-outline'}
         onClick={() => setOpen(true)}
       >
         Apply Now →
@@ -104,7 +104,7 @@ export default function ApplyModal({ jobId, jobTitle, variant = 'primary' }: Pro
                 </div>
 
                 <div className="apply-modal__field">
-                  <label htmlFor="am-cover">Why are you a great fit? <span aria-hidden="true">*</span></label>
+                  <label htmlFor="am-cover">Cover Letter <span aria-hidden="true">*</span></label>
                   <textarea id="am-cover" name="coverLetter" rows={5} placeholder="Tell us about your experience and why you'd be great for this role..." required />
                 </div>
 

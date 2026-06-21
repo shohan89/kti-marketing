@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-interface Hero { badge: string; headline: string; subheadline: string; cta1Text: string; cta1Url: string; cta2Text: string; cta2Url: string }
+interface Hero { badge: string; headline: string; subheadline: string; cta1Text: string; cta1Url: string; cta2Text: string; cta2Url: string; heroImageUrl: string; heroVideoUrl: string }
 interface StatItem { num: string; label: string }
 interface BrandItem { name: string; logoUrl: string }
 interface PillarItem { icon: string; title: string; body: string }
@@ -18,7 +18,7 @@ interface HomepageData {
   marquee: string[]
   services: { eyebrow: string; title: string; subtitle: string }
   why: { eyebrow: string; title: string; body: string; pillars: PillarItem[] }
-  video: { eyebrow: string; title: string }
+  video: { eyebrow: string; title: string; youtubeUrl: string }
   portfolio: { eyebrow: string; title: string; subtitle: string }
   process: { eyebrow: string; title: string; steps: ProcessStep[] }
   testimonials: { eyebrow: string; title: string }
@@ -94,12 +94,39 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
   const [heroSaving, setHeroSaving] = useState(false)
   const [heroSaved, setHeroSaved] = useState(false)
   const [heroError, setHeroError] = useState<string | null>(null)
+  const [heroImgUploading, setHeroImgUploading] = useState(false)
+  const [heroImgStatus, setHeroImgStatus] = useState<'ok' | 'err' | null>(null)
+  const [heroImgError, setHeroImgError] = useState<string | null>(null)
 
   async function saveHero() {
     setHeroSaving(true); setHeroSaved(false); setHeroError(null)
     const ok = await saveSection('homepage_hero', hero)
     setHeroSaving(false)
     if (ok) { setHeroSaved(true); setTimeout(() => setHeroSaved(false), 3000) } else { setHeroError('Save failed') }
+  }
+
+  async function uploadHeroImage(file: File) {
+    setHeroImgUploading(true); setHeroImgStatus(null); setHeroImgError(null)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'hero')
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      const body = await res.json().catch(() => ({}))
+      if (res.ok) {
+        setHero(h => ({ ...h, heroImageUrl: body.url }))
+        setHeroImgStatus('ok')
+        setTimeout(() => setHeroImgStatus(null), 4000)
+      } else {
+        setHeroImgStatus('err')
+        setHeroImgError(body.error || 'Upload failed')
+      }
+    } catch (e) {
+      setHeroImgStatus('err')
+      setHeroImgError(String(e))
+    } finally {
+      setHeroImgUploading(false)
+    }
   }
 
   // ── Stats ─────────────────────────────────────────────────────────────────
@@ -326,6 +353,33 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
               <input style={inputStyle} value={hero.cta2Url} onChange={e => setHero(h => ({ ...h, cta2Url: e.target.value }))} placeholder="/contact" />
             </Field>
           </div>
+          <Field label="Background Image">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                <input
+                  style={{ ...inputStyle, flex: 1 }}
+                  value={hero.heroImageUrl}
+                  onChange={e => setHero(h => ({ ...h, heroImageUrl: e.target.value }))}
+                  placeholder="Paste image URL or upload below"
+                />
+                <label style={{ cursor: heroImgUploading ? 'not-allowed' : 'pointer', padding: '0.45rem 0.9rem', background: heroImgUploading ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.35rem', fontSize: '0.8rem', color: '#fff', whiteSpace: 'nowrap', userSelect: 'none' }}>
+                  {heroImgUploading ? 'Uploading…' : '↑ Upload'}
+                  <input type="file" accept="image/*" style={{ display: 'none' }} disabled={heroImgUploading} onChange={e => { const f = e.target.files?.[0]; if (f) uploadHeroImage(f); e.target.value = '' }} />
+                </label>
+                {hero.heroImageUrl && (
+                  <button type="button" title="Remove image" onClick={() => setHero(h => ({ ...h, heroImageUrl: '' }))} style={{ padding: '0.45rem 0.65rem', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '0.35rem', color: '#f87171', cursor: 'pointer', fontSize: '0.9rem' }}>×</button>
+                )}
+              </div>
+              {hero.heroImageUrl && (
+                <img src={hero.heroImageUrl} alt="Hero preview" style={{ width: '100%', maxHeight: '140px', objectFit: 'cover', borderRadius: '0.4rem', opacity: 0.8 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+              )}
+              {heroImgStatus === 'ok' && <p style={{ margin: 0, fontSize: '0.78rem', color: '#4ade80' }}>✓ Image uploaded — click <strong>Save Section</strong> to apply.</p>}
+              {heroImgStatus === 'err' && <p style={{ margin: 0, fontSize: '0.78rem', color: '#f87171' }}>✗ {heroImgError || 'Upload failed'}</p>}
+            </div>
+          </Field>
+          <Field label="Hero Video URL (YouTube — shown on the right side of the hero)">
+            <input style={inputStyle} value={hero.heroVideoUrl} onChange={e => setHero(h => ({ ...h, heroVideoUrl: e.target.value }))} placeholder="https://www.youtube.com/watch?v=..." />
+          </Field>
           <SaveBtn saving={heroSaving} saved={heroSaved} error={heroError} onClick={saveHero} />
         </SectionCard>
 
@@ -464,6 +518,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
               <input style={inputStyle} value={video.title} onChange={e => setVideo(v => ({ ...v, title: e.target.value }))} placeholder="Campaigns That Move People." />
             </Field>
           </div>
+          <Field label="YouTube Video URL">
+            <input style={inputStyle} value={video.youtubeUrl} onChange={e => setVideo(v => ({ ...v, youtubeUrl: e.target.value }))} placeholder="https://www.youtube.com/watch?v=..." />
+          </Field>
           <SaveBtn saving={videoSaving} saved={videoSaved} error={videoError} onClick={saveVideo} />
         </SectionCard>
 

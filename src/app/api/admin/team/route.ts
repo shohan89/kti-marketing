@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       data: {
         name: body.name, role: body.role ?? '',
         bio: body.bio || null, imageUrl: body.imageUrl || null,
-        linkedinUrl: body.linkedinUrl || null,
+        socialLinks: (body.socialLinks && typeof body.socialLinks === 'object') ? body.socialLinks : {},
         sortOrder: Number(body.sortOrder) || 0,
         isPublished: body.isPublished ?? true,
       },

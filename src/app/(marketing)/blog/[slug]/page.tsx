@@ -50,7 +50,7 @@ function BlogCard({ post }: { post: BlogPost }) {
   return (
     <article className="blog-card">
       <div className="blog-card__img" style={{ background: `linear-gradient(135deg, ${post.gradientFrom} 0%, ${post.gradientTo} 100%)` }}>
-        <span className="blog-card__badge" style={{ background: post.accentColor }}>{post.category === 'general' ? 'Marketing' : 'E-commerce'}</span>
+        <span className="blog-card__badge" style={{ background: post.accentColor }}>{post.category === 'import' ? 'Import' : 'Marketing'}</span>
       </div>
       <div className="blog-card__body">
         <div className="blog-card__meta"><span>{post.publishDate}</span><span className="blog-card__dot">·</span><span>{post.readTime}</span></div>
@@ -85,7 +85,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post) notFound()
 
   const related = blogPosts.filter(p => p.slug !== slug && p.category === post.category).slice(0, 3)
-  const categoryLabel = post.category === 'general' ? 'Marketing & Strategy' : 'E-commerce & Export-Import'
+  const categoryLabel = post.category === 'import' ? 'Import & Export' : 'Marketing & Strategy'
 
   return (
     <main className="bp-page">
@@ -104,12 +104,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <section className="bp-content">
         <div className="container bp-content__grid">
           <article className="bp-article">
-            {post.body.map((section: { heading?: string; paragraphs: string[] }, i: number) => (
+            {typeof post.body === 'string' ? (
+              <div className="bp-rich-content reveal" dangerouslySetInnerHTML={{ __html: post.body }} />
+            ) : Array.isArray(post.body) ? post.body.map((section: { heading?: string; paragraphs: string[] }, i: number) => (
               <div key={i} className="bp-section reveal">
                 {section.heading && <h2 className="bp-section__heading">{section.heading}</h2>}
                 {section.paragraphs.map((p: string, j: number) => <p key={j} className="bp-section__para">{p}</p>)}
               </div>
-            ))}
+            )) : null}
             {post.callout && (
               <div className="bp-callout reveal"><span className="bp-callout__icon" aria-hidden="true">💡</span><p>{post.callout}</p></div>
             )}

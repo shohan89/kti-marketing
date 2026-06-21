@@ -12,108 +12,116 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
   cartItems: CartItem[]; addToCart: (item: CartItem) => void; removeFromCart: (id: string) => void; cartTotal: number
   marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]
 }) {
-  const [openCategory, setOpenCategory] = useState<string | null>('marketing')
   const [photoQtys, setPhotoQtys] = useState<Record<string, number>>(() =>
-    Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig.defaultQty]))
+    Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig?.defaultQty ?? 1]))
   )
   const [photoImages, setPhotoImages] = useState<Record<string, number>>(() =>
-    Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig.imagesConfig.defaultImages]))
+    Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig?.imagesConfig?.defaultImages ?? 0]))
   )
   function calcPhoto(pkg: PhotoshootPackage, qty: number, images: number) {
-    const sessions = Math.ceil(qty / pkg.qtyConfig.capacity)
-    const imageCost = images * pkg.qtyConfig.imagesConfig.pricePerImage
+    const capacity = pkg.qtyConfig?.capacity ?? 1
+    const ppi = pkg.qtyConfig?.imagesConfig?.pricePerImage ?? 0
+    const sessions = Math.ceil(qty / capacity)
+    const imageCost = images * ppi
     return { sessions, imageCost, total: sessions * pkg.priceNumeric + imageCost }
   }
+
+  const colHead = (title: string, count: number) => (
+    <div className="calc-col-header">
+      <span className="calc-col-header__title">{title}</span>
+      <span className="calc-col-header__meta">{count} packages</span>
+    </div>
+  )
+
   return (
     <div className="calc-tab-body">
-      <div className="calc-tab-left">
-        <div className={`calc-accordion${openCategory === 'marketing' ? ' calc-accordion--open' : ''}`}>
-          <button className="calc-accordion__header" onClick={() => setOpenCategory(prev => prev === 'marketing' ? null : 'marketing')} aria-expanded={openCategory === 'marketing'}>
-            <span className="calc-accordion__title">Marketing Packages</span>
-            <span className="calc-accordion__meta">{marketingPackages.length} packages</span>
-            <span className="calc-accordion__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-          </button>
-          {openCategory === 'marketing' && (
-            <div className="calc-accordion__body">
-              <div className="calc-pkg-grid">
-                {marketingPackages.map(pkg => {
-                  const itemId = `mkt-${pkg.id}`; const inCart = cartItems.some(c => c.id === itemId)
-                  return (
-                    <div key={pkg.id} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
-                      {pkg.badge && <span className="calc-pkg-option__badge">{pkg.badge}</span>}
-                      <div className="calc-pkg-option__info">
-                        <div className="calc-pkg-option__top"><span className="calc-pkg-option__name">{pkg.name}</span><span className="calc-pkg-option__price">{fmt(pkg.price)}<small>/mo</small></span></div>
-                        <ul className="calc-pkg-option__highlights">{pkg.deliverables.slice(0, 3).map(d => <li key={d}>{d}</li>)}</ul>
-                      </div>
-                      <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => !inCart && addToCart({ id: itemId, name: pkg.name, category: 'marketing', price: pkg.price })} disabled={inCart}>
-                        {inCart ? '✓ Added' : '+ Add to Cart'}
-                      </button>
-                    </div>
-                  )
-                })}
+      {/* ── Marketing Packages column ───────────────────── */}
+      <div className="calc-tab-col">
+        {colHead('Marketing Packages', marketingPackages.length)}
+        <div className="calc-col-list">
+          {marketingPackages.map(pkg => {
+            const itemId = `mkt-${pkg.id}`
+            const inCart = cartItems.some(c => c.id === itemId)
+            return (
+              <div key={pkg.id} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
+                {pkg.badge && <span className="calc-pkg-option__badge">{pkg.badge}</span>}
+                <div className="calc-pkg-option__info">
+                  <div className="calc-pkg-option__top">
+                    <span className="calc-pkg-option__name">{pkg.name}</span>
+                    <span className="calc-pkg-option__price">{fmt(pkg.price)}<small>/mo</small></span>
+                  </div>
+                  <ul className="calc-pkg-option__highlights">{pkg.deliverables.slice(0, 3).map(d => <li key={d}>{d}</li>)}</ul>
+                </div>
+                <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => !inCart && addToCart({ id: itemId, name: pkg.name, category: 'marketing', price: pkg.price })} disabled={inCart}>
+                  {inCart ? '✓ Added' : '+ Add to Cart'}
+                </button>
               </div>
-            </div>
-          )}
-        </div>
-        <div className={`calc-accordion${openCategory === 'photoshoot' ? ' calc-accordion--open' : ''}`}>
-          <button className="calc-accordion__header" onClick={() => setOpenCategory(prev => prev === 'photoshoot' ? null : 'photoshoot')} aria-expanded={openCategory === 'photoshoot'}>
-            <span className="calc-accordion__title">Photoshoot Packages</span>
-            <span className="calc-accordion__meta">{photoshootPackages.length} packages</span>
-            <span className="calc-accordion__chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-          </button>
-          {openCategory === 'photoshoot' && (
-            <div className="calc-accordion__body">
-              <div className="calc-pkg-grid">
-                {photoshootPackages.map(pkg => {
-                  const itemId = `photo-${pkg.type.replace(/\s+/g, '-').toLowerCase()}`; const inCart = cartItems.some(c => c.id === itemId)
-                  const qty = photoQtys[pkg.type]; const images = photoImages[pkg.type]
-                  const { sessions, imageCost, total } = calcPhoto(pkg, qty, images)
-                  const ppi = pkg.qtyConfig.imagesConfig.pricePerImage
-                  return (
-                    <div key={pkg.type} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
-                      <div className="calc-pkg-option__info">
-                        <div className="calc-pkg-option__top"><span className="calc-pkg-option__name">{pkg.icon} {pkg.type}</span><span className="calc-pkg-option__price">{pkg.price}<small> {pkg.unit}</small></span></div>
-                        <ul className="calc-pkg-option__highlights">{pkg.includes.slice(0, 3).map(item => <li key={item}>{item}</li>)}</ul>
-                      </div>
-                      <div className="calc-qty-control">
-                        <span className="calc-qty-control__label">{pkg.qtyConfig.inputLabel}</span>
-                        <div className="calc-qty-control__row">
-                          <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoQtys(prev => ({ ...prev, [pkg.type]: Math.max(1, (prev[pkg.type] || 1) - 1) }))} aria-label="Decrease">−</button>
-                          <input type="number" className="calc-qty-control__input" value={qty} min="1" onChange={e => setPhotoQtys(prev => ({ ...prev, [pkg.type]: Math.max(1, parseInt(e.target.value) || 1) }))} aria-label={pkg.qtyConfig.inputLabel} />
-                          <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoQtys(prev => ({ ...prev, [pkg.type]: (prev[pkg.type] || 1) + 1 }))} aria-label="Increase">+</button>
-                          <span className="calc-qty-control__unit">{pkg.qtyConfig.unit}</span>
-                        </div>
-                      </div>
-                      <div className="calc-qty-control">
-                        <span className="calc-qty-control__label">How many images?</span>
-                        <div className="calc-qty-control__row">
-                          <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoImages(prev => ({ ...prev, [pkg.type]: Math.max(1, (prev[pkg.type] || 1) - 1) }))} aria-label="Decrease images">−</button>
-                          <input type="number" className="calc-qty-control__input" value={images} min="1" onChange={e => setPhotoImages(prev => ({ ...prev, [pkg.type]: Math.max(1, parseInt(e.target.value) || 1) }))} aria-label="How many images?" />
-                          <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoImages(prev => ({ ...prev, [pkg.type]: (prev[pkg.type] || 1) + 1 }))} aria-label="Increase images">+</button>
-                          <span className="calc-qty-control__unit">images</span>
-                        </div>
-                      </div>
-                      <p className="calc-qty-preview">
-                        {sessions} {pkg.qtyConfig.sessionLabel}{sessions !== 1 ? 's' : ''} × {fmt(pkg.priceNumeric)}
-                        {imageCost > 0 && <> + {images} images × {fmt(ppi)}</>}
-                        {' '}= <strong>{fmt(total)}</strong>
-                      </p>
-                      <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => addToCart({ id: itemId, name: pkg.type, category: 'photoshoot', price: total, qty, qtyUnit: pkg.qtyConfig.unit, sessions, sessionLabel: pkg.qtyConfig.sessionLabel, sessionPrice: pkg.priceNumeric, images, pricePerImage: ppi })}>
-                        {inCart ? '✓ Update' : '+ Add to Cart'}
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+            )
+          })}
         </div>
       </div>
+
+      {/* ── Photoshoot Packages column ──────────────────── */}
+      <div className="calc-tab-col">
+        {colHead('Photoshoot Packages', photoshootPackages.length)}
+        <div className="calc-col-list">
+          {photoshootPackages.map(pkg => {
+            const itemId = `photo-${pkg.type.replace(/\s+/g, '-').toLowerCase()}`
+            const inCart = cartItems.some(c => c.id === itemId)
+            const qty = photoQtys[pkg.type] ?? pkg.qtyConfig?.defaultQty ?? 1
+            const images = photoImages[pkg.type] ?? pkg.qtyConfig?.imagesConfig?.defaultImages ?? 0
+            const { sessions, imageCost, total } = calcPhoto(pkg, qty, images)
+            const ppi = pkg.qtyConfig?.imagesConfig?.pricePerImage ?? 0
+            const showImages = ppi > 0
+            return (
+              <div key={pkg.type} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
+                <div className="calc-pkg-option__info">
+                  <div className="calc-pkg-option__top">
+                    <span className="calc-pkg-option__name">{pkg.icon} {pkg.type}</span>
+                    <span className="calc-pkg-option__price">{pkg.price}<small> {pkg.unit}</small></span>
+                  </div>
+                  <ul className="calc-pkg-option__highlights">{pkg.includes.slice(0, 3).map(item => <li key={item}>{item}</li>)}</ul>
+                </div>
+                <div className="calc-qty-control">
+                  <span className="calc-qty-control__label">{pkg.qtyConfig?.inputLabel ?? 'Quantity'}</span>
+                  <div className="calc-qty-control__row">
+                    <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoQtys(prev => ({ ...prev, [pkg.type]: Math.max(1, (prev[pkg.type] || 1) - 1) }))} aria-label="Decrease">−</button>
+                    <input type="number" className="calc-qty-control__input" value={qty} min="1" onChange={e => setPhotoQtys(prev => ({ ...prev, [pkg.type]: Math.max(1, parseInt(e.target.value) || 1) }))} aria-label={pkg.qtyConfig?.inputLabel} />
+                    <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoQtys(prev => ({ ...prev, [pkg.type]: (prev[pkg.type] || 1) + 1 }))} aria-label="Increase">+</button>
+                    <span className="calc-qty-control__unit">{pkg.qtyConfig?.unit ?? ''}</span>
+                  </div>
+                </div>
+                {showImages && (
+                  <div className="calc-qty-control">
+                    <span className="calc-qty-control__label">How many images?</span>
+                    <div className="calc-qty-control__row">
+                      <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoImages(prev => ({ ...prev, [pkg.type]: Math.max(0, (prev[pkg.type] || 0) - 1) }))} aria-label="Decrease images">−</button>
+                      <input type="number" className="calc-qty-control__input" value={images} min="0" onChange={e => setPhotoImages(prev => ({ ...prev, [pkg.type]: Math.max(0, parseInt(e.target.value) || 0) }))} aria-label="How many images?" />
+                      <button type="button" className="calc-qty-control__btn" onClick={() => setPhotoImages(prev => ({ ...prev, [pkg.type]: (prev[pkg.type] || 0) + 1 }))} aria-label="Increase images">+</button>
+                      <span className="calc-qty-control__unit">images</span>
+                    </div>
+                  </div>
+                )}
+                <p className="calc-qty-preview">
+                  {sessions} {pkg.qtyConfig?.sessionLabel ?? 'session'}{sessions !== 1 ? 's' : ''} × {fmt(pkg.priceNumeric)}
+                  {imageCost > 0 && <> + {images} images × {fmt(ppi)}</>}
+                  {' '}= <strong>{fmt(total)}</strong>
+                </p>
+                <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => addToCart({ id: itemId, name: pkg.type, category: 'photoshoot', price: total, qty, qtyUnit: pkg.qtyConfig?.unit, sessions, sessionLabel: pkg.qtyConfig?.sessionLabel, sessionPrice: pkg.priceNumeric, images: showImages ? images : undefined, pricePerImage: showImages ? ppi : undefined })}>
+                  {inCart ? '✓ Update' : '+ Add to Cart'}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Cart column ─────────────────────────────────── */}
       <div className="calc-tab-right">
         <div className="cart-panel">
           <p className="cart-panel__title">Your Cart</p>
           {cartItems.length === 0 ? (
-            <p className="cart-panel__empty">Open a category on the left and add packages to see your estimate here.</p>
+            <p className="cart-panel__empty">Add packages from the left to see your estimate here.</p>
           ) : (
             <ul className="cart-items">
               {cartItems.map(item => (

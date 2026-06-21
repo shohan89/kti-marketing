@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Team — KTI Admin' }
 
 type DbTeamMember = {
   id: string; name: string; role: string; bio: string | null
-  imageUrl: string | null; linkedinUrl: string | null
+  imageUrl: string | null; socialLinks: unknown
   isPublished: boolean; sortOrder: number; createdAt: Date
 }
 
@@ -39,7 +39,7 @@ export default async function AdminTeamPage() {
             <tr>
               <th>Name</th>
               <th>Role</th>
-              <th>LinkedIn</th>
+              <th>Social Links</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -67,10 +67,14 @@ export default async function AdminTeamPage() {
                 </td>
                 <td style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.9rem' }}>{m.role}</td>
                 <td>
-                  {m.linkedinUrl
-                    ? <a href={m.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#0A66C2', fontSize: '0.85rem', textDecoration: 'none' }}>LinkedIn ↗</a>
-                    : <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.8rem' }}>—</span>
-                  }
+                  {(() => {
+                    const links = (m.socialLinks && typeof m.socialLinks === 'object' && !Array.isArray(m.socialLinks))
+                      ? Object.keys(m.socialLinks as Record<string, string>)
+                      : []
+                    return links.length > 0
+                      ? <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.55)' }}>{links.join(', ')}</span>
+                      : <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.8rem' }}>—</span>
+                  })()}
                 </td>
                 <td>
                   <span className={`admin-badge admin-badge--${m.isPublished ? 'green' : 'gray'}`}>

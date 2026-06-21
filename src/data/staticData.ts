@@ -309,7 +309,7 @@ export function getServiceBySlug(slug: string): Service | undefined {
 
 export const blogPosts: BlogPost[] = [
   {
-    slug: 'consistency-beats-creativity-social-media', category: 'general', featured: true,
+    slug: 'consistency-beats-creativity-social-media', category: 'marketing', featured: true,
     title: 'Why Consistency Beats Creativity in Social Media',
     excerpt: 'Most brands chase the next viral idea. The ones that actually grow do one thing every day — show up.',
     readTime: '6 min read', publishDate: 'May 18, 2026', author: 'KTI Marketing Team',
@@ -324,7 +324,7 @@ export const blogPosts: BlogPost[] = [
     ],
   },
   {
-    slug: 'turn-followers-into-paying-customers', category: 'general', featured: false,
+    slug: 'turn-followers-into-paying-customers', category: 'marketing', featured: false,
     title: 'How to Turn Followers into Paying Customers',
     excerpt: 'A large following means nothing if it does not convert. This guide walks through the funnel mechanics that transform passive scrollers into buyers.',
     readTime: '8 min read', publishDate: 'May 10, 2026', author: 'KTI Marketing Team',
@@ -338,7 +338,7 @@ export const blogPosts: BlogPost[] = [
     ],
   },
   {
-    slug: '5-marketing-metrics-that-actually-matter', category: 'general', featured: false,
+    slug: '5-marketing-metrics-that-actually-matter', category: 'marketing', featured: false,
     title: 'The 5 Marketing Metrics That Actually Matter',
     excerpt: 'Vanity metrics like impressions and likes feel good but rarely drive decisions. Learn which five numbers tell the real story of your marketing health.',
     readTime: '5 min read', publishDate: 'April 28, 2026', author: 'KTI Marketing Team',
@@ -352,7 +352,7 @@ export const blogPosts: BlogPost[] = [
     ],
   },
   {
-    slug: 'brand-storytelling-small-business', category: 'general', featured: false,
+    slug: 'brand-storytelling-small-business', category: 'marketing', featured: false,
     title: 'Brand Storytelling: How Small Businesses Win Against Big Budgets',
     excerpt: 'You cannot out-spend a corporate competitor. But you can out-story them.',
     readTime: '7 min read', publishDate: 'April 15, 2026', author: 'KTI Marketing Team',
@@ -365,7 +365,7 @@ export const blogPosts: BlogPost[] = [
     ],
   },
   {
-    slug: 'launch-ecommerce-brand-bangladesh', category: 'ecommerce', featured: true,
+    slug: 'launch-ecommerce-brand-bangladesh', category: 'import', featured: true,
     title: 'How to Launch an E-commerce Brand in Bangladesh',
     excerpt: 'The Bangladeshi e-commerce market is growing at 30% annually, yet most new sellers fail within 12 months.',
     readTime: '10 min read', publishDate: 'May 20, 2026', author: 'KTI Marketing Team',
@@ -379,7 +379,7 @@ export const blogPosts: BlogPost[] = [
     ],
   },
   {
-    slug: 'export-import-documentation-marketing', category: 'ecommerce', featured: false,
+    slug: 'export-import-documentation-marketing', category: 'import', featured: false,
     title: 'Export-Import Documentation: A Marketing Perspective',
     excerpt: 'LC, ERC, HS codes — the paperwork of international trade is dense. But hidden inside every document is a positioning opportunity.',
     readTime: '7 min read', publishDate: 'May 5, 2026', author: 'KTI Marketing Team',
@@ -392,7 +392,7 @@ export const blogPosts: BlogPost[] = [
     ],
   },
   {
-    slug: 'daraz-vs-facebook-shop', category: 'ecommerce', featured: false,
+    slug: 'daraz-vs-facebook-shop', category: 'import', featured: false,
     title: 'Daraz vs Facebook Shop: Which Platform Should You Start With?',
     excerpt: 'Both platforms dominate Bangladesh\'s e-commerce landscape — but they serve very different customer journeys.',
     readTime: '6 min read', publishDate: 'April 22, 2026', author: 'KTI Marketing Team',
@@ -407,11 +407,11 @@ export const blogPosts: BlogPost[] = [
 ]
 
 export function generalPosts(): BlogPost[] {
-  return blogPosts.filter(p => p.category === 'general')
+  return blogPosts.filter(p => p.category === 'marketing')
 }
 
 export function ecommercePosts(): BlogPost[] {
-  return blogPosts.filter(p => p.category === 'ecommerce')
+  return blogPosts.filter(p => p.category === 'import')
 }
 
 export function latestPosts(): BlogPost[] {

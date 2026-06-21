@@ -31,6 +31,8 @@ model Service {
   headline        String
   imageUrl        String?
   videoUrl        String?
+  imageGallery    Json     @default("[]")  // String[] of image URLs
+  videoGallery    Json     @default("[]")  // String[] of YouTube URLs
   sortOrder       Int      @default(0)
   isPublished     Boolean  @default(true)
   deliverables    String[]
@@ -49,7 +51,7 @@ model BlogPost {
   id              String       @id @default(cuid())
   slug            String       @unique
   title           String
-  category        BlogCategory @default(GENERAL)
+  category        BlogCategory @default(MARKETING)
   excerpt         String       @db.Text
   readTime        String
   publishDate     String
@@ -73,23 +75,35 @@ model BlogPost {
 }
 
 enum BlogCategory {
-  GENERAL
-  ECOMMERCE
+  MARKETING
+  IMPORT
 }
 
 // ── Portfolio ─────────────────────────────────────────
 model PortfolioItem {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  description String?  @db.Text
-  category    String?
-  imageUrls   Json     @default("[]")  // String[]
-  youtubeUrl  String?
-  isPublished Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  client       String?
+  description  String?  @db.Text
+  category     String?
+  imageUrls    Json     @default("[]")   // String[]
+  videoUrls    Json     @default("[]")   // String[] of YouTube URLs
+  youtubeUrl   String?                   // legacy single video (kept for migration)
+  challenge    String?  @db.Text
+  solution     String?  @db.Text
+  phases       Json     @default("[]")   // {num,title,body}[]
+  results      Json     @default("[]")   // {stat,label}[]
+  services     String[]
+  deliverables String[]
+  quote        String?  @db.Text
+  quoteName    String?
+  quoteRole    String?
+  quoteCompany String?
+  isPublished  Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 // ── Case Studies ─────────────────────────────────────
@@ -269,11 +283,23 @@ model TeamMember {
   role        String
   bio         String?  @db.Text
   imageUrl    String?
-  linkedinUrl String?
+  socialLinks Json     @default("{}")
   sortOrder   Int      @default(0)
   isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ── Media Library ─────────────────────────────────────
+model MediaFile {
+  id           String   @id @default(cuid())
+  filename     String   @unique
+  originalName String
+  size         Int
+  width        Int?
+  height       Int?
+  alt          String   @default("")
+  createdAt    DateTime @default(now())
 }
 
 // ── Site Settings ──────────────────────────────────────

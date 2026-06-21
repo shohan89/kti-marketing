@@ -17,7 +17,7 @@ export default async function BlogPage() {
   let general: BlogPost[] = generalPosts()
   try {
     const rows = await prisma.blogPost.findMany({
-      where: { isPublished: true, category: 'GENERAL' },
+      where: { isPublished: true, category: 'MARKETING' },
       orderBy: { publishDate: 'desc' },
     })
     if (rows.length > 0) {
@@ -45,7 +45,7 @@ export default async function BlogPage() {
           <p className="blog-hero__sub reveal">Strategy, stories, and practical guides from the KTI Marketing team — written for ambitious brands that care about results, not just reach.</p>
           <div className="blog-hero__nav reveal">
             <Link href="/blog" className="blog-hero__tab blog-hero__tab--active">Marketing &amp; Strategy</Link>
-            <Link href="/blog/ecommerce" className="blog-hero__tab">E-commerce &amp; Export-Import</Link>
+            <Link href="/blog/import" className="blog-hero__tab">Import &amp; Export</Link>
           </div>
         </div>
         <div className="blog-hero__glow" aria-hidden="true" />

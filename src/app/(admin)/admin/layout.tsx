@@ -7,7 +7,9 @@ import './admin.css'
 
 const NAV = [
   { href: '/admin', label: 'Dashboard', icon: '◈' },
+  { href: '/admin/media', label: 'Media Library', icon: '⊞' },
   { href: '/admin/homepage', label: 'Homepage', icon: '⌂' },
+  { href: '/admin/about', label: 'About Page', icon: '◈' },
   { href: '/admin/services', label: 'Services', icon: '⚙' },
   { href: '/admin/blog', label: 'Blog', icon: '✎' },
   { href: '/admin/portfolio', label: 'Portfolio', icon: '◉' },

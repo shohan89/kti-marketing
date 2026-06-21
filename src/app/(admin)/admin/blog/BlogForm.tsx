@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+
+const RichTextEditor = dynamic(() => import('@/components/ui/RichTextEditor'), { ssr: false })
 
 type BlogPost = {
   id: string; slug: string; title: string; category: string; excerpt: string
@@ -13,21 +16,46 @@ type BlogPost = {
 
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
+function bodyToHtml(body: unknown): string {
+  if (typeof body === 'string') return body
+  if (!Array.isArray(body)) return ''
+  return (body as { heading?: string; paragraphs?: string[] }[]).map(s => {
+    const h = s.heading ? `<h2>${s.heading}</h2>` : ''
+    const ps = (s.paragraphs ?? []).map(p => `<p>${p}</p>`).join('')
+    return h + ps
+  }).join('')
+}
+
+function parseIsoDate(displayDate: string): string {
+  if (!displayDate) return ''
+  try {
+    const d = new Date(displayDate)
+    if (isNaN(d.getTime())) return ''
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  } catch { return '' }
+}
+
+function formatDateDisplay(iso: string): string {
+  if (!iso) return ''
+  const [y, m, d] = iso.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
 export default function BlogForm({ initialData }: { initialData: BlogPost | null }) {
   const router = useRouter()
   const [title, setTitle] = useState(initialData?.title ?? '')
   const [slug, setSlug] = useState(initialData?.slug ?? '')
-  const [category, setCategory] = useState(initialData?.category ?? 'GENERAL')
+  const [category, setCategory] = useState(initialData?.category ?? 'MARKETING')
   const [excerpt, setExcerpt] = useState(initialData?.excerpt ?? '')
   const [readTime, setReadTime] = useState(initialData?.readTime ?? '')
-  const [publishDate, setPublishDate] = useState(initialData?.publishDate ?? '')
+  const [publishDateISO, setPublishDateISO] = useState(() => parseIsoDate(initialData?.publishDate ?? ''))
   const [author, setAuthor] = useState(initialData?.author ?? 'KTI Marketing Team')
   const [tags, setTags] = useState(Array.isArray(initialData?.tags) ? (initialData.tags as string[]).join('\n') : '')
-  const bodyRaw = initialData?.body
-  const bodyStr = Array.isArray(bodyRaw)
-    ? (bodyRaw as {paragraphs?: string[]}[]).flatMap(s => s.paragraphs ?? []).join('\n')
-    : ''
-  const [body, setBody] = useState(bodyStr)
+  const [body, setBody] = useState(() => bodyToHtml(initialData?.body))
   const [featured, setFeatured] = useState(initialData?.featured ?? false)
   const [isPublished, setIsPublished] = useState(initialData?.isPublished ?? false)
   const [metaTitle, setMetaTitle] = useState(initialData?.metaTitle ?? '')
@@ -45,7 +73,14 @@ export default function BlogForm({ initialData }: { initialData: BlogPost | null
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true); setError('')
-    const payload = { title, slug, category, excerpt, readTime, publishDate, author, tags, body, featured, isPublished, metaTitle: metaTitle || null, metaDescription: metaDescription || null, canonicalUrl: canonicalUrl || null, ogImageUrl: ogImageUrl || null }
+    const publishDate = formatDateDisplay(publishDateISO)
+    const tagsArr = tags.split('\n').map(t => t.trim()).filter(Boolean)
+    const payload = {
+      title, slug, category, excerpt, readTime, publishDate,
+      author, tags: tagsArr, body, featured, isPublished,
+      metaTitle: metaTitle || null, metaDescription: metaDescription || null,
+      canonicalUrl: canonicalUrl || null, ogImageUrl: ogImageUrl || null,
+    }
     const url = initialData ? `/api/admin/blog/${initialData.id}` : '/api/admin/blog'
     const method = initialData ? 'PUT' : 'POST'
     const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
@@ -98,8 +133,8 @@ export default function BlogForm({ initialData }: { initialData: BlogPost | null
             <div className="admin-field">
               <label className="admin-label">Category</label>
               <select className="admin-select" value={category} onChange={e => setCategory(e.target.value)}>
-                <option value="GENERAL">General</option>
-                <option value="ECOMMERCE">E-commerce</option>
+                <option value="MARKETING">Marketing</option>
+                <option value="IMPORT">Import</option>
               </select>
             </div>
             <div className="admin-field">
@@ -114,7 +149,12 @@ export default function BlogForm({ initialData }: { initialData: BlogPost | null
             </div>
             <div className="admin-field">
               <label className="admin-label">Publish Date</label>
-              <input className="admin-input" placeholder="June 2026" value={publishDate} onChange={e => setPublishDate(e.target.value)} />
+              <input
+                className="admin-input"
+                type="date"
+                value={publishDateISO}
+                onChange={e => setPublishDateISO(e.target.value)}
+              />
             </div>
           </div>
           <div className="admin-field">
@@ -126,10 +166,10 @@ export default function BlogForm({ initialData }: { initialData: BlogPost | null
             <textarea className="admin-textarea" rows={3} placeholder="SEO&#10;Digital Marketing&#10;E-commerce" value={tags} onChange={e => setTags(e.target.value)} />
           </div>
           <div className="admin-field">
-            <label className="admin-label">Body (one paragraph per line)</label>
-            <textarea className="admin-textarea" rows={10} value={body} onChange={e => setBody(e.target.value)} />
+            <label className="admin-label">Body</label>
+            <RichTextEditor value={body} onChange={setBody} />
           </div>
-          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
             <label className="admin-toggle"><input type="checkbox" checked={featured} onChange={e => setFeatured(e.target.checked)} /><span>Featured</span></label>
             <label className="admin-toggle"><input type="checkbox" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} /><span>Published</span></label>
           </div>

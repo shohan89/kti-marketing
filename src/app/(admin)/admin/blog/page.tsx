@@ -41,7 +41,7 @@ export default async function AdminBlogPage() {
             {posts.map(p => (
               <tr key={p.id}>
                 <td style={{ fontWeight: 500, color: '#fff', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</td>
-                <td><span className={`admin-badge ${p.category === 'ECOMMERCE' ? 'admin-badge--yellow' : 'admin-badge--gray'}`}>{p.category === 'ECOMMERCE' ? 'E-commerce' : 'General'}</span></td>
+                <td><span className={`admin-badge ${p.category === 'IMPORT' ? 'admin-badge--yellow' : 'admin-badge--gray'}`}>{p.category === 'IMPORT' ? 'Import' : 'Marketing'}</span></td>
                 <td style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem' }}>{p.author}</td>
                 <td><span className={`admin-badge admin-badge--${p.isPublished ? 'green' : 'gray'}`}>{p.isPublished ? 'Published' : 'Draft'}</span></td>
                 <td style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>{p.publishDate}</td>

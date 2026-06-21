@@ -10,12 +10,25 @@ type FaqItem = { q: string; a: string }
 type Service = {
   id: string; slug: string; title: string; description: string; longDescription: string
   headline: string; imageUrl: string | null; videoUrl: string | null
+  imageGallery: unknown; videoGallery: unknown
   sortOrder: number; isPublished: boolean; deliverables: string[]
   processSteps: unknown; results: unknown; faqs: unknown
   metaTitle: string | null; metaDescription: string | null; ogImageUrl: string | null
 }
 
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+function parseGallery(raw: unknown): string[] {
+  return Array.isArray(raw) ? raw.map(String) : []
+}
+
+function toEmbedUrl(url: string): string {
+  if (!url) return ''
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  if (m) return `https://www.youtube.com/embed/${m[1]}`
+  if (url.includes('youtube.com/embed/')) return url
+  return ''
+}
 
 function parseSteps(raw: unknown): ProcessStep[] {
   if (!Array.isArray(raw)) return [{ num: '01', title: '', body: '' }, { num: '02', title: '', body: '' }, { num: '03', title: '', body: '' }]
@@ -41,6 +54,11 @@ export default function ServicesForm({ initialData }: { initialData: Service | n
   const [longDescription, setLongDescription] = useState(initialData?.longDescription ?? '')
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl ?? '')
   const [videoUrl, setVideoUrl] = useState(initialData?.videoUrl ?? '')
+  const [imageGallery, setImageGallery] = useState<string[]>(parseGallery(initialData?.imageGallery))
+  const [videoGallery, setVideoGallery] = useState<string[]>(parseGallery(initialData?.videoGallery))
+  const [galleryImgUploading, setGalleryImgUploading] = useState(false)
+  const [galleryImgError, setGalleryImgError] = useState('')
+  const [newVideoUrl, setNewVideoUrl] = useState('')
   const [sortOrder, setSortOrder] = useState(initialData?.sortOrder ?? 0)
   const [isPublished, setIsPublished] = useState(initialData?.isPublished ?? true)
   const [deliverables, setDeliverables] = useState(
@@ -54,6 +72,34 @@ export default function ServicesForm({ initialData }: { initialData: Service | n
   const [ogImageUrl, setOgImageUrl] = useState(initialData?.ogImageUrl ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+
+  async function handleGalleryImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setGalleryImgUploading(true)
+    setGalleryImgError('')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'services')
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { setGalleryImgError(data.error ?? 'Upload failed'); return }
+      setImageGallery(prev => [...prev, data.url])
+    } catch {
+      setGalleryImgError('Upload failed')
+    } finally {
+      setGalleryImgUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  function addVideoGalleryUrl() {
+    const url = newVideoUrl.trim()
+    if (!url) return
+    setVideoGallery(prev => [...prev, url])
+    setNewVideoUrl('')
+  }
 
   function handleTitleChange(v: string) {
     setTitle(v)
@@ -81,6 +127,7 @@ export default function ServicesForm({ initialData }: { initialData: Service | n
     const payload = {
       title, slug, headline, description, longDescription,
       imageUrl: imageUrl || null, videoUrl: videoUrl || null,
+      imageGallery, videoGallery,
       sortOrder, isPublished, deliverables,
       processSteps, results: resultsClean, faqs: faqsClean,
       metaTitle: metaTitle || null, metaDescription: metaDescription || null,
@@ -166,6 +213,61 @@ export default function ServicesForm({ initialData }: { initialData: Service | n
               <label className="admin-label">Video URL</label>
               <input className="admin-input" value={videoUrl} onChange={e => setVideoUrl(e.target.value)} placeholder="https://youtube.com/…" />
             </div>
+          </div>
+        </div>
+
+        {/* Image Gallery */}
+        <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
+          <h2 className="admin-section-title">Image Gallery</h2>
+          <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem' }}>Upload images to display in a gallery on the service page.</p>
+          {galleryImgError && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{galleryImgError}</p>}
+          {imageGallery.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+              {imageGallery.map((url, i) => (
+                <div key={i} style={{ position: 'relative', width: '120px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <img src={url} alt={`Gallery image ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <button type="button" onClick={() => setImageGallery(prev => prev.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.75)', color: '#fff', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>×</button>
+                </div>
+              ))}
+            </div>
+          )}
+          <label className="admin-btn admin-btn--outline" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            {galleryImgUploading ? 'Uploading…' : '+ Upload Image'}
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleGalleryImageUpload} disabled={galleryImgUploading} />
+          </label>
+        </div>
+
+        {/* Video Gallery */}
+        <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
+          <h2 className="admin-section-title">Video Gallery</h2>
+          <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem' }}>Add YouTube video URLs to display as embedded videos on the service page.</p>
+          {videoGallery.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+              {videoGallery.map((url, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '0.5rem 0.75rem' }}>
+                  {toEmbedUrl(url) && (
+                    <img
+                      src={`https://img.youtube.com/vi/${url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]}/mqdefault.jpg`}
+                      alt=""
+                      style={{ width: '80px', height: '45px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
+                    />
+                  )}
+                  <span style={{ flex: 1, fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{url}</span>
+                  <button type="button" onClick={() => setVideoGallery(prev => prev.filter((_, j) => j !== i))} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>Remove</button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              className="admin-input"
+              style={{ flex: 1 }}
+              value={newVideoUrl}
+              onChange={e => setNewVideoUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVideoGalleryUrl() } }}
+            />
+            <button type="button" className="admin-btn admin-btn--outline" onClick={addVideoGalleryUrl}>+ Add</button>
           </div>
         </div>
 

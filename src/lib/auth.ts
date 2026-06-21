@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
 import { createSupabaseServerClient } from './supabase-server'
 
 export async function getAdminSession() {
@@ -8,6 +9,12 @@ export async function getAdminSession() {
 }
 
 export async function requireAdminSession(): Promise<NextResponse | null> {
+  // Middleware stamps this header when it has already validated the session.
+  // Trust it — the middleware strips any client-supplied value before setting it.
+  const headerStore = await headers()
+  if (headerStore.get('x-admin-authorized') === '1') return null
+
+  // Fallback: direct session check (e.g. calls that bypass middleware in dev)
   const session = await getAdminSession()
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

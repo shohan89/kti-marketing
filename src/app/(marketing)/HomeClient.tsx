@@ -36,6 +36,11 @@ const PROCESS_STEPS = [
   { num: '02', title: 'Execution', body: 'Our team launches campaigns across every relevant channel — moving fast, testing constantly, and iterating relentlessly to maximize performance.' },
   { num: '03', title: 'Growth', body: "We double down on what works, eliminate what doesn't, and scale your most profitable channels to deliver compounding returns month over month." },
 ]
+const PROCESS_ICONS = [
+  <svg key="strategy" width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="currentColor" strokeWidth="2"/><circle cx="16" cy="16" r="5.5" stroke="currentColor" strokeWidth="2"/><circle cx="16" cy="16" r="2" fill="currentColor"/><line x1="16" y1="5" x2="16" y2="8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="23.5" x2="16" y2="27" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="5" y1="16" x2="8.5" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="23.5" y1="16" x2="27" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
+  <svg key="execution" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M18 4L7 18h9l-2 10 14-16h-9l2-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  <svg key="growth" width="32" height="32" viewBox="0 0 32 32" fill="none"><polyline points="4,24 12,15 18,19 28,8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="22,8 28,8 28,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="4" cy="24" r="2" fill="currentColor"/><circle cx="12" cy="15" r="2" fill="currentColor"/><circle cx="18" cy="19" r="2" fill="currentColor"/><circle cx="28" cy="8" r="2" fill="currentColor"/></svg>,
+]
 const TESTIMONIALS = [
   { quote: "KTI grew our Instagram from 4,200 to 31,000 followers in 6 months and turned it into our number one revenue channel. The ROI speaks for itself.", name: 'Amira Hassan', role: 'CEO', company: 'Luxe Apparel Co.', result: '7.4× follower growth', rating: 5 },
   { quote: "Our ROAS jumped from 1.8× to 4.6× within the first quarter. KTI's paid media team understands performance advertising at a level I haven't seen elsewhere. They don't just run ads — they build systems that compound.", name: 'Daniel Osei', role: 'Head of Growth', company: 'TechFlow Inc.', result: '4.6× ROAS achieved', rating: 5 },
@@ -55,18 +60,18 @@ const INITIAL_COUNT = 6
 
 interface StatItem { num: string; label: string }
 interface PillarItem { icon: string; title: string; body: string }
-interface PortfolioItem { tag: string; category: string; client: string; title: string; body: string; metrics: { num: string; label: string }[] }
+interface PortfolioItem { slug?: string; tag: string; category: string; client: string; title: string; body: string; metrics: { num: string; label: string }[] }
 interface ProcessStep { num: string; title: string; body: string }
 interface TestimonialItem { quote: string; name: string; role: string; company: string; result: string; rating: number }
 
 export interface HomepageContent {
-  hero?: { badge?: string; headline?: string; subheadline?: string; cta1Text?: string; cta1Url?: string; cta2Text?: string; cta2Url?: string }
+  hero?: { badge?: string; headline?: string; subheadline?: string; cta1Text?: string; cta1Url?: string; cta2Text?: string; cta2Url?: string; heroImageUrl?: string; heroVideoUrl?: string }
   stats?: StatItem[]
   brands?: BrandItem[]
   marquee?: string[]
   services?: { eyebrow?: string; title?: string; subtitle?: string }
   why?: { eyebrow?: string; title?: string; body?: string; pillars?: PillarItem[] }
-  video?: { eyebrow?: string; title?: string }
+  video?: { eyebrow?: string; title?: string; youtubeUrl?: string }
   portfolio?: { eyebrow?: string; title?: string; subtitle?: string }
   process?: { eyebrow?: string; title?: string; steps?: ProcessStep[] }
   testimonials?: { eyebrow?: string; title?: string }
@@ -77,10 +82,18 @@ export interface HomepageContent {
 interface Props {
   content?: HomepageContent
   testimonials?: TestimonialItem[]
-  caseStudies?: PortfolioItem[]
+  portfolioItems?: PortfolioItem[]
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+function toEmbedUrl(url: string): string {
+  if (!url) return ''
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  if (m) return `https://www.youtube.com/embed/${m[1]}`
+  if (url.includes('youtube.com/embed/')) return url
+  return ''
+}
 
 function renderLines(text: string) {
   return text.split('\n').map((line, i, arr) => (
@@ -90,10 +103,11 @@ function renderLines(text: string) {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function HomeClient({ content = {}, testimonials: dbTestimonials, caseStudies: dbCaseStudies }: Props) {
+export default function HomeClient({ content = {}, testimonials: dbTestimonials, portfolioItems: dbPortfolioItems }: Props) {
   const heroRef       = useRef<HTMLElement>(null)
   const cursorGlowRef = useRef<HTMLDivElement>(null)
   const [expanded, setExpanded] = useState(false)
+  const [processActiveStep, setProcessActiveStep] = useState(0)
 
   // ── Merge CMS values with defaults ────────────────────────────────────────
   const hero   = content.hero ?? {}
@@ -102,11 +116,17 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
   const brands: BrandItem[] = rawBrands.map(b => typeof b === 'string' ? { name: b as string } : b)
   const marqueeItems  = content.marquee?.length    ? content.marquee    : MARQUEE_ITEMS
   const pillars       = content.why?.pillars?.length ? content.why.pillars : WHY_PILLARS
-  const portfolioItems: PortfolioItem[] = dbCaseStudies?.length ? dbCaseStudies : PORTFOLIO
+  const portfolioItems: PortfolioItem[] = dbPortfolioItems?.length ? dbPortfolioItems : PORTFOLIO
   const processSteps  = content.process?.steps?.length ? content.process.steps : PROCESS_STEPS
   const testimonialList: TestimonialItem[] = dbTestimonials?.length ? dbTestimonials : TESTIMONIALS
   const marqueeStr    = marqueeItems.map(i => `${i}  ·  `).join('')
   const posts         = latestPosts()
+
+  useEffect(() => {
+    const total = processSteps.length
+    const id = setInterval(() => setProcessActiveStep(s => (s + 1) % total), 3500)
+    return () => clearInterval(id)
+  }, [processSteps.length])
 
   useEffect(() => {
     const heroEl = heroRef.current; const glow = cursorGlowRef.current
@@ -138,8 +158,10 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="home-hero" ref={heroRef}>
         <div className="home-hero__bg" aria-hidden="true">
+          {hero.heroImageUrl && (
+            <img src={hero.heroImageUrl} alt="" className="hero-bg-image" aria-hidden="true" />
+          )}
           <div className="hero-cursor-glow" ref={cursorGlowRef} />
-          <div className="hero-grid-overlay" />
           <div className="hero-parallax" data-speed="0.08"><div className="hero-shape hero-shape--1" /></div>
           <div className="hero-parallax" data-speed="0.14"><div className="hero-shape hero-shape--2" /></div>
           <div className="hero-parallax" data-speed="0.05"><div className="hero-shape hero-shape--3" /></div>
@@ -165,55 +187,23 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
                 <Link href={hero.cta2Url ?? '/contact'} className="btn-hero-outline">{hero.cta2Text ?? 'Book a Strategy Call'}</Link>
               </div>
             </div>
-            <div className="home-hero__right fade-up-2" aria-hidden="true">
-              <div className="hero-visual">
-                <div className="hero-dashboard">
-                  <div className="hero-db__header">
-                    <div className="hero-db__dots"><span /><span /><span /></div>
-                    <span className="hero-db__label">Campaign Performance</span>
-                    <span className="hero-db__live"><span className="hero-db__live-dot" />Live</span>
-                  </div>
-                  <div className="hero-db__toolbar">
-                    <span className="hero-db__range">Last 30 days <span className="hero-db__range-caret">▾</span></span>
-                    <span className="hero-db__export">↓ Export</span>
-                  </div>
-                  <div className="hero-db__kpis">
-                    {[{ lbl: 'ROAS', val: '4.6×', delta: '+127%', d: '0.30s' }, { lbl: 'Revenue', val: '$48.2K', delta: '+94%', d: '0.42s' }, { lbl: 'Leads', val: '1,284', delta: '+63%', d: '0.54s' }, { lbl: 'CTR', val: '8.4%', delta: '+2.1%', d: '0.66s' }].map(({ lbl, val, delta, d }) => (
-                      <div className="hero-db__kpi" key={lbl} style={{ '--d': d } as React.CSSProperties}>
-                        <span className="hero-db__kpi-lbl">{lbl}</span>
-                        <span className="hero-db__kpi-val">{val}</span>
-                        <span className="hero-db__kpi-delta">↑ {delta}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="hero-db__chart">
-                    <div className="hero-db__chart-yticks"><span>$60K</span><span>$40K</span><span>$20K</span><span>$0</span></div>
-                    <div className="hero-db__chart-canvas">
-                      <svg className="hero-db__svg" viewBox="0 0 260 68" preserveAspectRatio="none" aria-hidden="true">
-                        <defs><linearGradient id="heroAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D7262E" stopOpacity="0.3" /><stop offset="100%" stopColor="#D7262E" stopOpacity="0.02" /></linearGradient></defs>
-                        <path className="hero-db__area" d="M0,62 C20,60 35,55 55,50 C75,45 90,38 110,30 C130,22 145,17 165,13 C185,9 200,7 220,6 C240,5 250,4 260,4 L260,68 L0,68 Z" fill="url(#heroAreaGrad)" />
-                        <path className="hero-db__line" pathLength="1" d="M0,62 C20,60 35,55 55,50 C75,45 90,38 110,30 C130,22 145,17 165,13 C185,9 200,7 220,6 C240,5 250,4 260,4" fill="none" stroke="#D7262E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <circle className="hero-db__endpoint" cx="257" cy="4.5" r="3" fill="#D7262E" />
-                      </svg>
-                      <div className="hero-db__x-labels"><span>Jan</span><span>Mar</span><span>May</span><span>Jun</span><span>Jul</span><span>Now</span></div>
-                    </div>
-                  </div>
-                  <div className="hero-db__channels">
-                    {[{ name: 'Meta Ads', pct: 85, color: '#818cf8', d: '1.2s' }, { name: 'Google', pct: 62, color: '#34d399', d: '1.45s' }, { name: 'TikTok', pct: 48, color: '#f87171', d: '1.7s' }].map(({ name, pct, color, d }) => (
-                      <div className="hero-db__channel" key={name}>
-                        <span className="hero-db__ch-name">{name}</span>
-                        <div className="hero-db__ch-track"><div className="hero-db__ch-fill" style={{ '--pct': `${pct}%`, '--color': color, '--d': d } as React.CSSProperties} /></div>
-                        <span className="hero-db__ch-pct" style={{ color }}>{pct}%</span>
-                      </div>
-                    ))}
+            {(() => {
+              const embedUrl = toEmbedUrl(hero.heroVideoUrl ?? '')
+              if (!embedUrl) return null
+              return (
+                <div className="home-hero__right fade-up-2">
+                  <div className="hero-video-embed">
+                    <iframe
+                      className="hero-video-embed__iframe"
+                      src={`${embedUrl}?autoplay=1&mute=1&rel=0&modestbranding=1&loop=1&playlist=${embedUrl.split('/embed/')[1]?.split('?')[0] ?? ''}`}
+                      title="Hero video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
                   </div>
                 </div>
-                <div className="hero-float-card hero-float-card--tl"><div className="hero-fc__live-dot" /><div className="hero-fc__body"><strong>ROAS Target Hit</strong><span>4.6× · Beat goal by 53%</span></div></div>
-                <div className="hero-float-card hero-float-card--br"><div className="hero-fc__stars">★★★★★</div><div className="hero-fc__rating-text">5.0 Average Rating</div></div>
-                <div className="hero-skill-badge hero-skill-badge--a" aria-hidden="true"><span className="hero-skill-badge__dot" />Performance Marketing</div>
-                <div className="hero-skill-badge hero-skill-badge--b" aria-hidden="true"><span className="hero-skill-badge__dot" />Creative Strategy</div>
-              </div>
-            </div>
+              )
+            })()}
           </div>
         </div>
         <div className="home-hero__stats fade-up-5">
@@ -325,17 +315,24 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
           )}
         </div></div>
         <div className="home-video__frame reveal" style={{ '--reveal-delay': '0.1s' } as React.CSSProperties}>
-          <div className="home-video__player" aria-label="KTI Marketing showreel video player">
-            <div className="home-video__grid-bg" aria-hidden="true" />
-            <div className="home-video__glow" aria-hidden="true" />
-            <div className="home-video__bars" aria-hidden="true">
-              {[55,72,40,88,63,45,79,50,67,84,38,72,60,48,76].map((h, i) => (
-                <div key={i} className="home-video__bar" style={{ '--h': `${h}%`, '--d': `${i * 0.06}s` } as React.CSSProperties} />
-              ))}
-            </div>
-            <button className="home-video__play-btn" aria-label="Play showreel"><svg viewBox="0 0 24 24" fill="currentColor" width="30" height="30" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
-            <div className="home-video__meta" aria-hidden="true"><span className="home-video__meta-dot" /><span>KTI Marketing — Campaign Showreel</span><span className="home-video__meta-time">2:47</span></div>
-          </div>
+          {(() => {
+            const embedUrl = toEmbedUrl(content.video?.youtubeUrl ?? '')
+            return embedUrl ? (
+              <iframe
+                className="home-video__iframe"
+                src={`${embedUrl}?rel=0&modestbranding=1`}
+                title="KTI Marketing showreel"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div className="home-video__player home-video__player--placeholder" aria-label="Video coming soon">
+                <div className="home-video__grid-bg" aria-hidden="true" />
+                <div className="home-video__glow" aria-hidden="true" />
+                <p className="home-video__placeholder-text">Video coming soon</p>
+              </div>
+            )
+          })()}
         </div>
       </section>
 
@@ -344,7 +341,7 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
         <div className="container">
           <div className="home-portfolio__header">
             <div className="reveal">
-              <p className="eyebrow">{content.portfolio?.eyebrow ?? 'Case Studies'}</p>
+              <p className="eyebrow">{content.portfolio?.eyebrow ?? 'Our Work'}</p>
               {content.portfolio?.title ? (
                 <h2 className="home-portfolio__title">{content.portfolio.title}</h2>
               ) : (
@@ -352,18 +349,21 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
               )}
             </div>
             <p className="home-portfolio__sub reveal" style={{ '--reveal-delay': '0.12s' } as React.CSSProperties}>
-              {content.portfolio?.subtitle ?? "We don't believe in case studies that only show the highlights. Here are real campaigns with real numbers from real clients."}
+              {content.portfolio?.subtitle ?? "Real projects. Real clients. Real results — with the numbers to back it up."}
             </p>
           </div>
           <div className="portfolio-grid">
-            {portfolioItems.map(({ tag, category, client, title, body, metrics }, i) => (
-              <div className="portfolio-card reveal" key={client} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>
+            {portfolioItems.map(({ slug, tag, category, client, title, body, metrics }, i) => (
+              <div className="portfolio-card reveal" key={i} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>
                 <div className="portfolio-card__top"><span className="portfolio-card__tag">{tag}</span><span className="portfolio-card__category">{category}</span></div>
                 <h3 className="portfolio-card__title">{title}</h3>
                 <p className="portfolio-card__client">{client}</p>
                 <p className="portfolio-card__body">{body}</p>
                 <div className="portfolio-card__metrics">{metrics.map(({ num, label }) => (<div className="portfolio-metric" key={label}><span className="portfolio-metric__num">{num}</span><span className="portfolio-metric__label">{label}</span></div>))}</div>
-                <Link href="/contact" className="portfolio-card__cta">Start a Similar Project →</Link>
+                {slug
+                  ? <Link href={`/portfolio/${slug}`} className="portfolio-card__cta">View Project →</Link>
+                  : <Link href="/portfolio" className="portfolio-card__cta">View Portfolio →</Link>
+                }
               </div>
             ))}
           </div>
@@ -375,22 +375,55 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
 
       {/* ── Process ──────────────────────────────────────────────────── */}
       <section className="home-process">
+        <div className="home-process__bg" aria-hidden="true" />
         <div className="container">
           <div className="home-process__header text-center reveal">
-            <p className="eyebrow">{content.process?.eyebrow ?? 'How We Work'}</p>
+            <p className="eyebrow process-eyebrow">{content.process?.eyebrow ?? 'How We Work'}</p>
             {content.process?.title ? (
-              <h2>{content.process.title}</h2>
+              <h2 className="home-process__title">{content.process.title}</h2>
             ) : (
-              <h2>A Proven <span className="accent">3-Step Growth System</span></h2>
+              <h2 className="home-process__title">A Proven <span className="accent">3-Step Growth System</span></h2>
             )}
+            <div className="process-tabs" role="tablist" aria-label="Process steps">
+              {processSteps.map((step, i) => (
+                <button
+                  key={step.num}
+                  role="tab"
+                  aria-selected={processActiveStep === i}
+                  className={`process-tab${processActiveStep === i ? ' process-tab--active' : ''}`}
+                  onClick={() => setProcessActiveStep(i)}
+                >
+                  <span className="process-tab__num">{step.num}</span>
+                  <span className="process-tab__label">{step.title}</span>
+                  <span className="process-tab__bar" aria-hidden="true" />
+                </button>
+              ))}
+            </div>
           </div>
+
           <div className="process-grid">
             {processSteps.map((step, i) => (
-              <div className="process-step reveal" key={step.num} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>
-                <span className="process-step__num">{step.num}</span>
-                <h3 className="process-step__title">{step.title}</h3>
-                <p className="process-step__body">{step.body}</p>
-                {i < processSteps.length - 1 && <span className="process-step__connector" aria-hidden="true" />}
+              <div
+                key={step.num}
+                className={`process-card${processActiveStep === i ? ' process-card--active' : ''}`}
+                onClick={() => setProcessActiveStep(i)}
+                onMouseEnter={() => setProcessActiveStep(i)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && setProcessActiveStep(i)}
+                aria-label={`Step ${step.num}: ${step.title}`}
+              >
+                <span className="process-card__ghost" aria-hidden="true">{step.num}</span>
+                <div className="process-card__icon" aria-hidden="true">
+                  {PROCESS_ICONS[i]}
+                </div>
+                <div className="process-card__badge">{step.num}</div>
+                <h3 className="process-card__title">{step.title}</h3>
+                <p className="process-card__body">{step.body}</p>
+                <div className="process-card__glow" aria-hidden="true" />
+                <div className="process-card__progress" aria-hidden="true">
+                  <div className="process-card__progress-fill" />
+                </div>
               </div>
             ))}
           </div>
@@ -455,7 +488,7 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
             {posts.map(post => (
               <article key={post.slug} className="home-blog__card">
                 <div className="home-blog__card-img" style={{ background: `linear-gradient(135deg, ${post.gradientFrom} 0%, ${post.gradientTo} 100%)` }}>
-                  <span className="home-blog__badge" style={{ background: post.accentColor }}>{post.category === 'general' ? 'Marketing' : 'E-commerce'}</span>
+                  <span className="home-blog__badge" style={{ background: post.accentColor }}>{post.category === 'import' ? 'Import' : 'Marketing'}</span>
                 </div>
                 <div className="home-blog__card-body">
                   <p className="home-blog__card-meta">{post.publishDate} <span>·</span> {post.readTime}</p>

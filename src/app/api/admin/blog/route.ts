@@ -19,15 +19,14 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const tags = Array.isArray(body.tags) ? body.tags : (body.tags as string || '').split('\n').map((t: string) => t.trim()).filter(Boolean)
-    const bodyJson = Array.isArray(body.body) ? body.body : [{ paragraphs: (body.body as string || '').split('\n').filter(Boolean) }]
     const post = await prisma.blogPost.create({
       data: {
         title: body.title, slug: body.slug,
-        category: body.category ?? 'GENERAL',
+        category: body.category ?? 'MARKETING',
         excerpt: body.excerpt ?? '', readTime: body.readTime ?? '',
         publishDate: body.publishDate ?? '', author: body.author ?? '',
         tags, featured: body.featured ?? false, isPublished: body.isPublished ?? false,
-        body: bodyJson,
+        body: body.body ?? '',
         metaTitle: body.metaTitle || null, metaDescription: body.metaDescription || null,
         canonicalUrl: body.canonicalUrl || null, ogImageUrl: body.ogImageUrl || null,
       },

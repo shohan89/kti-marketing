@@ -36,7 +36,7 @@ async function main() {
       update: {},
       create: {
         slug: p.slug, title: p.title,
-        category: (p.category === 'ecommerce' ? 'ECOMMERCE' : 'GENERAL') as 'GENERAL' | 'ECOMMERCE',
+        category: (p.category === 'import' ? 'IMPORT' : 'MARKETING') as 'MARKETING' | 'IMPORT',
         excerpt: p.excerpt, readTime: p.readTime,
         publishDate: p.publishDate,
         author: p.author, tags: p.tags,
