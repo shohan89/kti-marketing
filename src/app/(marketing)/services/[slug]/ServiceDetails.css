@@ -63,6 +63,13 @@
   color: #f87171 !important;
 }
 
+.sd-hero .container {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .sd-hero__title {
   font-size: clamp(2rem, 8vw, 4.25rem);
   font-weight: 900;
@@ -84,6 +91,7 @@
 .sd-hero__cta {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 2rem;
   flex-wrap: wrap;
 }
@@ -889,6 +897,7 @@
   .sd-faq,
   .sd-cta               { padding: 4rem 0; }
   .sd-hero              { padding: 3.5rem 0 3rem; }
+  .sd-hero__cta         { justify-content: center; }
   .sd-deliverables__grid { gap: 0; }
 }
 

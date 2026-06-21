@@ -121,6 +121,7 @@ export default function Footer({ isHiring, phones = [], emails = [], address = '
                   <li key={to}><Link href={to}>{label}</Link></li>
                 ))}
               </ul>
+              <Link href="/services" className="footer-see-all-btn">See All Services →</Link>
             </div>
 
             {/* Column 4 — Map */}
