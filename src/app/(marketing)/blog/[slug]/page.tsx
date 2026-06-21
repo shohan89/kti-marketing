@@ -51,6 +51,7 @@ function BlogCard({ post }: { post: BlogPost }) {
     <article className="blog-card">
       <div className="blog-card__img" style={{ background: `linear-gradient(135deg, ${post.gradientFrom} 0%, ${post.gradientTo} 100%)` }}>
         <span className="blog-card__badge" style={{ background: post.accentColor }}>{post.category === 'import' ? 'Import' : 'Marketing'}</span>
+        {post.coverImageUrl && <img src={post.coverImageUrl} alt={post.title} className="blog-card__cover" />}
       </div>
       <div className="blog-card__body">
         <div className="blog-card__meta"><span>{post.publishDate}</span><span className="blog-card__dot">·</span><span>{post.readTime}</span></div>
@@ -100,6 +101,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div className="bp-hero__tags reveal">{post.tags.map((tag: string) => (<span key={tag} className="bp-tag">{tag}</span>))}</div>
         </div>
       </section>
+
+      {post.coverImageUrl && (
+        <div className="bp-featured-img">
+          <div className="container">
+            <img src={post.coverImageUrl} alt={post.title} className="bp-featured-img__img" />
+          </div>
+        </div>
+      )}
 
       <section className="bp-content">
         <div className="container bp-content__grid">

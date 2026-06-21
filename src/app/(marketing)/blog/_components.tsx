@@ -15,13 +15,17 @@ export function BlogCard({ post, large = false }: { post: BlogPost; large?: bool
     <article className={`blog-card${large ? ' blog-card--featured' : ''}`}>
       <div className="blog-card__img" style={{ background: `linear-gradient(135deg, ${post.gradientFrom} 0%, ${post.gradientTo} 100%)` }}>
         <span className="blog-card__badge" style={{ background: post.accentColor }}>{post.category === 'import' ? 'Import' : 'Marketing'}</span>
-        <div className="blog-card__img-icon" style={{ color: post.accentColor }}>
-          {post.category === 'import' ? (
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
-          ) : (
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
-          )}
-        </div>
+        {post.coverImageUrl ? (
+          <img src={post.coverImageUrl} alt={post.title} className="blog-card__cover" />
+        ) : (
+          <div className="blog-card__img-icon" style={{ color: post.accentColor }}>
+            {post.category === 'import' ? (
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
+            ) : (
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
+            )}
+          </div>
+        )}
       </div>
       <div className="blog-card__body">
         <div className="blog-card__meta"><span>{post.publishDate}</span><span className="blog-card__dot">·</span><span>{post.readTime}</span></div>

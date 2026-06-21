@@ -14,6 +14,7 @@ export interface BlogPost {
   slug: string; category: string; featured: boolean; title: string; excerpt: string
   readTime: string; publishDate: string; author: string; tags: string[]
   accentColor: string; gradientFrom: string; gradientTo: string
+  coverImageUrl?: string | null
   callout?: string; takeaways?: string[]
   body: { heading?: string; paragraphs: string[] }[]
 }
