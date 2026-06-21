@@ -32,6 +32,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
         tags, featured: body.featured ?? false, isPublished: body.isPublished ?? false,
         body: body.body ?? '',
         metaTitle: body.metaTitle || null, metaDescription: body.metaDescription || null,
+        coverImageUrl: body.coverImageUrl || null,
         canonicalUrl: body.canonicalUrl || null, ogImageUrl: body.ogImageUrl || null,
       },
     })

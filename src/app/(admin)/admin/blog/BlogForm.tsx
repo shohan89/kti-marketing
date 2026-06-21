@@ -9,7 +9,7 @@ const RichTextEditor = dynamic(() => import('@/components/ui/RichTextEditor'), {
 type BlogPost = {
   id: string; slug: string; title: string; category: string; excerpt: string
   readTime: string; publishDate: string; author: string; tags: string[]
-  featured: boolean; isPublished: boolean; body: unknown
+  featured: boolean; isPublished: boolean; body: unknown; coverImageUrl: string | null
   metaTitle: string | null; metaDescription: string | null
   canonicalUrl: string | null; ogImageUrl: string | null
 }
@@ -62,6 +62,8 @@ export default function BlogForm({ initialData }: { initialData: BlogPost | null
   const [metaDescription, setMetaDescription] = useState(initialData?.metaDescription ?? '')
   const [canonicalUrl, setCanonicalUrl] = useState(initialData?.canonicalUrl ?? '')
   const [ogImageUrl, setOgImageUrl] = useState(initialData?.ogImageUrl ?? '')
+  const [coverImageUrl, setCoverImageUrl] = useState(initialData?.coverImageUrl ?? '')
+  const [coverUploading, setCoverUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -78,6 +80,7 @@ export default function BlogForm({ initialData }: { initialData: BlogPost | null
     const payload = {
       title, slug, category, excerpt, readTime, publishDate,
       author, tags: tagsArr, body, featured, isPublished,
+      coverImageUrl: coverImageUrl || null,
       metaTitle: metaTitle || null, metaDescription: metaDescription || null,
       canonicalUrl: canonicalUrl || null, ogImageUrl: ogImageUrl || null,
     }
@@ -164,6 +167,48 @@ export default function BlogForm({ initialData }: { initialData: BlogPost | null
           <div className="admin-field">
             <label className="admin-label">Tags (one per line)</label>
             <textarea className="admin-textarea" rows={3} placeholder="SEO&#10;Digital Marketing&#10;E-commerce" value={tags} onChange={e => setTags(e.target.value)} />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Featured Image</label>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+              {coverImageUrl && (
+                <img
+                  src={coverImageUrl}
+                  alt="Featured"
+                  style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 6, border: '1px solid var(--border)' }}
+                />
+              )}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <input
+                  className="admin-input"
+                  value={coverImageUrl}
+                  onChange={e => setCoverImageUrl(e.target.value)}
+                  placeholder="https://... or upload below"
+                />
+                <label className="admin-btn admin-btn--outline" style={{ cursor: 'pointer', width: 'fit-content' }}>
+                  {coverUploading ? 'Uploading…' : 'Upload Image'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    disabled={coverUploading}
+                    onChange={async e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      setCoverUploading(true)
+                      const fd = new FormData()
+                      fd.append('file', file)
+                      fd.append('folder', 'blog')
+                      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+                      const data = await res.json()
+                      if (data.url) setCoverImageUrl(data.url)
+                      setCoverUploading(false)
+                      e.target.value = ''
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
           </div>
           <div className="admin-field">
             <label className="admin-label">Body</label>
