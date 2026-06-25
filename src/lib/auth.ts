@@ -1,15 +1,18 @@
 import { NextResponse } from 'next/server'
 import { headers, cookies } from 'next/headers'
 
-function getProjectRef(url: string): string {
-  return url.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] ?? ''
+const SUPABASE_COOKIE = 'supabase.auth.token'
+const BASE64_PREFIX = 'base64-'
+
+function base64urlDecode(str: string): string {
+  const std = str.replace(/-/g, '+').replace(/_/g, '/')
+  return atob(std.padEnd(Math.ceil(str.length / 4) * 4, '='))
 }
 
 function isAccessTokenValid(token: string): boolean {
   try {
     const [, payload] = token.split('.')
-    const padded = payload.replace(/-/g, '+').replace(/_/g, '/')
-    const claims = JSON.parse(atob(padded.padEnd(Math.ceil(padded.length / 4) * 4, '=')))
+    const claims = JSON.parse(base64urlDecode(payload))
     return typeof claims.exp === 'number' && claims.exp > Date.now() / 1000
   } catch {
     return false
@@ -17,17 +20,14 @@ function isAccessTokenValid(token: string): boolean {
 }
 
 async function isSessionValid(): Promise<boolean> {
-  const projectRef = getProjectRef(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '')
-  if (!projectRef) return false
   const cookieStore = await cookies()
-  const name = `sb-${projectRef}-auth-token`
 
-  // Try direct cookie first, then chunked (Supabase splits large tokens)
-  let raw = cookieStore.get(name)?.value ?? null
+  // Try direct cookie first, then chunked (supabase.auth.token.0, .1, …)
+  let raw = cookieStore.get(SUPABASE_COOKIE)?.value ?? null
   if (!raw) {
     const chunks: string[] = []
     for (let i = 0; ; i++) {
-      const chunk = cookieStore.get(`${name}.${i}`)?.value
+      const chunk = cookieStore.get(`${SUPABASE_COOKIE}.${i}`)?.value
       if (chunk === undefined) break
       chunks.push(chunk)
     }
@@ -35,16 +35,21 @@ async function isSessionValid(): Promise<boolean> {
   }
   if (!raw) return false
 
+  // @supabase/ssr encodes values as "base64-<base64url-encoded-JSON>"
+  const json = raw.startsWith(BASE64_PREFIX)
+    ? base64urlDecode(raw.slice(BASE64_PREFIX.length))
+    : raw
+
   try {
-    const session = JSON.parse(raw) as { access_token?: string }
+    const session = JSON.parse(json) as { access_token?: string }
     if (session.access_token) return isAccessTokenValid(session.access_token)
   } catch {}
-  return isAccessTokenValid(raw)
+  return false
 }
 
 export async function requireAdminSession(): Promise<NextResponse | null> {
   // Middleware stamps this header when it has already validated the session.
-  // Trust it — the middleware strips any client-supplied value before setting it.
+  // The middleware strips any client-supplied value before setting it.
   const headerStore = await headers()
   if (headerStore.get('x-admin-authorized') === '1') return null
 

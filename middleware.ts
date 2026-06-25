@@ -1,26 +1,42 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-function getProjectRef(url: string): string {
-  return url.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] ?? ''
+const SUPABASE_COOKIE = 'supabase.auth.token'
+const BASE64_PREFIX = 'base64-'
+
+function base64urlDecode(str: string): string {
+  const std = str.replace(/-/g, '+').replace(/_/g, '/')
+  return atob(std.padEnd(Math.ceil(std.length / 4) * 4, '='))
 }
 
-function assembleAuthToken(request: NextRequest, name: string): string | null {
-  const direct = request.cookies.get(name)?.value
+function assembleRawCookie(request: NextRequest): string | null {
+  // Try direct cookie first; fall back to chunks (.0, .1, …)
+  const direct = request.cookies.get(SUPABASE_COOKIE)?.value
   if (direct) return direct
   const chunks: string[] = []
   for (let i = 0; ; i++) {
-    const chunk = request.cookies.get(`${name}.${i}`)?.value
+    const chunk = request.cookies.get(`${SUPABASE_COOKIE}.${i}`)?.value
     if (chunk === undefined) break
     chunks.push(chunk)
   }
   return chunks.length ? chunks.join('') : null
 }
 
+function decodeSessionJSON(raw: string): string | null {
+  try {
+    // @supabase/ssr stores values as "base64-<base64url-encoded-JSON>"
+    if (raw.startsWith(BASE64_PREFIX)) {
+      return base64urlDecode(raw.slice(BASE64_PREFIX.length))
+    }
+    return raw // plain JSON fallback (older ssr versions)
+  } catch {
+    return null
+  }
+}
+
 function isAccessTokenValid(token: string): boolean {
   try {
     const [, payload] = token.split('.')
-    const padded = payload.replace(/-/g, '+').replace(/_/g, '/')
-    const claims = JSON.parse(atob(padded.padEnd(Math.ceil(padded.length / 4) * 4, '=')))
+    const claims = JSON.parse(base64urlDecode(payload))
     return typeof claims.exp === 'number' && claims.exp > Date.now() / 1000
   } catch {
     return false
@@ -28,15 +44,15 @@ function isAccessTokenValid(token: string): boolean {
 }
 
 function hasValidSession(request: NextRequest): boolean {
-  const projectRef = getProjectRef(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '')
-  if (!projectRef) return false
-  const raw = assembleAuthToken(request, `sb-${projectRef}-auth-token`)
+  const raw = assembleRawCookie(request)
   if (!raw) return false
+  const json = decodeSessionJSON(raw)
+  if (!json) return false
   try {
-    const session = JSON.parse(raw) as { access_token?: string }
+    const session = JSON.parse(json) as { access_token?: string }
     if (session.access_token) return isAccessTokenValid(session.access_token)
   } catch {}
-  return isAccessTokenValid(raw)
+  return false
 }
 
 export async function middleware(request: NextRequest) {
@@ -59,7 +75,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Session is valid — stamp the forwarded request so route handlers skip re-checking
+  // Session is valid — stamp header so route handlers skip re-checking
   requestHeaders.set('x-admin-authorized', '1')
   return NextResponse.next({ request: { headers: requestHeaders } })
 }
