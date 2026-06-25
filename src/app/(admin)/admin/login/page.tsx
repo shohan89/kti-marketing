@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import './login.css'
 
 function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') || '/admin'
   const [email, setEmail] = useState('')
@@ -22,8 +21,9 @@ function LoginForm() {
       const supabase = createSupabaseBrowserClient()
       const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
       if (authError) { setError('Invalid email or password.'); setLoading(false); return }
-      router.push(next)
-      router.refresh()
+      // Hard navigation so the middleware processes a fresh request with the auth cookie.
+      // router.push can get stuck if a middleware redirect preserves the loading state.
+      window.location.assign(next)
     } catch {
       setError('Authentication service is not configured yet.')
       setLoading(false)
