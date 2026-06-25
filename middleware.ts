@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 function base64urlDecode(str: string): string {
   const std = str.replace(/-/g, '+').replace(/_/g, '/')
-  // Pad to the nearest multiple of 4
   const padded = std + '==='.slice(0, (4 - std.length % 4) % 4)
   return atob(padded)
 }
@@ -26,24 +25,27 @@ function hasValidSession(request: NextRequest): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (!pathname.startsWith('/admin') || pathname.startsWith('/admin/login')) {
+  const isAdminPage = pathname.startsWith('/admin')
+  const isAdminApi  = pathname.startsWith('/api/admin/')
+  const isLoginPage = pathname.startsWith('/admin/login')
+
+  // Pass through anything that isn't an admin route or is the login page itself
+  if ((!isAdminPage && !isAdminApi) || isLoginPage) {
     return NextResponse.next()
   }
-
-  const isApiRoute = pathname.startsWith('/api/admin/')
 
   // Strip any client-supplied spoofed header up front
   const requestHeaders = new Headers(request.headers)
   requestHeaders.delete('x-admin-authorized')
 
   if (!hasValidSession(request)) {
-    if (isApiRoute) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (isAdminApi) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const loginUrl = new URL('/admin/login', request.url)
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  // Session is valid — stamp header so route handlers skip re-checking
+  // Session is valid — stamp header so route handlers skip re-checking the cookie
   requestHeaders.set('x-admin-authorized', '1')
   return NextResponse.next({ request: { headers: requestHeaders } })
 }
