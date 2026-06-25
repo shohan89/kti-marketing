@@ -1,10 +1,47 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+
+function getProjectRef(url: string): string {
+  return url.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] ?? ''
+}
+
+function assembleAuthToken(request: NextRequest, name: string): string | null {
+  const direct = request.cookies.get(name)?.value
+  if (direct) return direct
+  const chunks: string[] = []
+  for (let i = 0; ; i++) {
+    const chunk = request.cookies.get(`${name}.${i}`)?.value
+    if (chunk === undefined) break
+    chunks.push(chunk)
+  }
+  return chunks.length ? chunks.join('') : null
+}
+
+function isAccessTokenValid(token: string): boolean {
+  try {
+    const [, payload] = token.split('.')
+    const padded = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const claims = JSON.parse(atob(padded.padEnd(Math.ceil(padded.length / 4) * 4, '=')))
+    return typeof claims.exp === 'number' && claims.exp > Date.now() / 1000
+  } catch {
+    return false
+  }
+}
+
+function hasValidSession(request: NextRequest): boolean {
+  const projectRef = getProjectRef(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '')
+  if (!projectRef) return false
+  const raw = assembleAuthToken(request, `sb-${projectRef}-auth-token`)
+  if (!raw) return false
+  try {
+    const session = JSON.parse(raw) as { access_token?: string }
+    if (session.access_token) return isAccessTokenValid(session.access_token)
+  } catch {}
+  return isAccessTokenValid(raw)
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Pass through login page and non-admin routes
   if (!pathname.startsWith('/admin') || pathname.startsWith('/admin/login')) {
     return NextResponse.next()
   }
@@ -15,31 +52,8 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.delete('x-admin-authorized')
 
-  // Tracks any token-refresh cookies Supabase wants to set on the response
-  const cookiesToForward: { name: string; value: string; options: Record<string, unknown> }[] = []
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          cookiesToSet.forEach(c => cookiesToForward.push(c as typeof cookiesToForward[0]))
-        },
-      },
-    }
-  )
-
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if (!session) {
-    if (isApiRoute) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  if (!hasValidSession(request)) {
+    if (isApiRoute) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const loginUrl = new URL('/admin/login', request.url)
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)
@@ -47,14 +61,7 @@ export async function middleware(request: NextRequest) {
 
   // Session is valid — stamp the forwarded request so route handlers skip re-checking
   requestHeaders.set('x-admin-authorized', '1')
-  const response = NextResponse.next({ request: { headers: requestHeaders } })
-
-  // Forward any refreshed auth cookies to the browser
-  cookiesToForward.forEach(({ name, value, options }) =>
-    response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2])
-  )
-
-  return response
+  return NextResponse.next({ request: { headers: requestHeaders } })
 }
 
 export const config = {
