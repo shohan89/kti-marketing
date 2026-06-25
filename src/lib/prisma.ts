@@ -1,18 +1,20 @@
 import { PrismaClient } from '@/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+let _client: PrismaClient | undefined
 
-function createPrismaClient(): PrismaClient {
+function getClient(): PrismaClient {
+  if (_client) return _client
   const connectionString = process.env.DATABASE_URL
-  if (!connectionString) {
-    // Return a client that will throw on query — all callers use try/catch with static fallback
-    const adapter = new PrismaPg({ connectionString: 'postgresql://localhost:5432/placeholder' })
-    return new PrismaClient({ adapter } as never)
-  }
-  const adapter = new PrismaPg({ connectionString })
-  return new PrismaClient({ adapter } as never)
+  if (!connectionString) throw new Error('DATABASE_URL is not set')
+  _client = new PrismaClient({ adapter: new PrismaPg({ connectionString }) } as never)
+  return _client
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient()
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+// Lazy proxy: the real PrismaClient is instantiated on first property access,
+// which happens inside a request handler (after Cloudflare env vars are in process.env).
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_, prop) {
+    return Reflect.get(getClient() as object, prop)
+  },
+})
