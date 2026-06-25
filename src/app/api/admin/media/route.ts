@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import { existsSync } from 'fs'
 import { join } from 'path'
-import { createClient } from '@supabase/supabase-js'
 import { prisma } from '@/lib/prisma'
 import { requireAdminSession } from '@/lib/auth'
 
@@ -14,16 +13,17 @@ async function ensureDir() {
   if (!existsSync(UPLOAD_DIR)) await mkdir(UPLOAD_DIR, { recursive: true })
 }
 
-function getServiceClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
 async function listSupabaseImages() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return []
-  const supabase = getServiceClient()
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return []
+
+  const headers = {
+    Authorization: `Bearer ${key}`,
+    apikey: key,
+    'Content-Type': 'application/json',
+  }
+
   const items: {
     id: string; filename: string; originalName: string; url: string
     size: number; width: null; height: null; alt: string; createdAt: string
@@ -32,8 +32,13 @@ async function listSupabaseImages() {
 
   for (const bucket of IMAGE_BUCKETS) {
     try {
-      const { data } = await supabase.storage.from(bucket).list('', { limit: 500, sortBy: { column: 'created_at', order: 'desc' } })
-      if (!data) continue
+      const res = await fetch(`${url}/storage/v1/object/list/${bucket}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ limit: 500, sortBy: { column: 'created_at', order: 'desc' } }),
+      })
+      if (!res.ok) continue
+      const data: { name?: string; metadata?: { size?: number }; created_at?: string }[] = await res.json()
       for (const file of data) {
         if (!file.name || file.name === '.emptyFolderPlaceholder') continue
         if (!IMAGE_EXTS.test(file.name)) continue
@@ -42,7 +47,7 @@ async function listSupabaseImages() {
           filename: file.name,
           originalName: file.name,
           url: `/public/${bucket}/${file.name}`,
-          size: (file.metadata as { size?: number })?.size ?? 0,
+          size: file.metadata?.size ?? 0,
           width: null, height: null, alt: '',
           createdAt: file.created_at ?? new Date().toISOString(),
           source: 'supabase', bucket,
@@ -77,7 +82,6 @@ export async function GET() {
       canDelete: true,
     }))
 
-    // Deduplicate: skip Supabase files whose filename matches a local file
     const localFilenames = new Set(localFiles.map(f => f.filename))
     const uniqueSupabase = supabaseFiles.filter(f => !localFilenames.has(f.filename))
 
