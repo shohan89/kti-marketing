@@ -24,7 +24,9 @@ export async function POST(req: NextRequest) {
       )
     )
     return NextResponse.json({ ok: true })
-  } catch {
-    return NextResponse.json({ error: 'DB error' }, { status: 500 })
+  } catch (err) {
+    console.error('[settings POST]', err)
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
