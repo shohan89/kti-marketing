@@ -36,6 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const supabase = createSupabaseBrowserClient()
       await supabase.auth.signOut()
     } catch {}
+    document.cookie = 'admin_jwt=; path=/; max-age=0'
     router.push('/admin/login')
   }
 

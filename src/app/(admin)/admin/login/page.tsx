@@ -19,10 +19,12 @@ function LoginForm() {
     try {
       const { createSupabaseBrowserClient } = await import('@/lib/supabase-client')
       const supabase = createSupabaseBrowserClient()
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-      if (authError) { setError('Invalid email or password.'); setLoading(false); return }
-      // Hard navigation so the middleware processes a fresh request with the auth cookie.
-      // router.push can get stuck if a middleware redirect preserves the loading state.
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      if (authError || !data.session) { setError('Invalid email or password.'); setLoading(false); return }
+      // Store the raw JWT so the middleware can validate it without decoding
+      // the opaque Supabase session cookie format.
+      const { access_token, expires_in } = data.session
+      document.cookie = `admin_jwt=${access_token}; path=/; samesite=lax; max-age=${expires_in ?? 3600}`
       window.location.assign(next)
     } catch {
       setError('Authentication service is not configured yet.')
