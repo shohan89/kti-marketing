@@ -1,51 +1,25 @@
 /**
  * Post-build patch for Cloudflare Workers WASM restriction.
  *
- * Cloudflare Workers blocks `new WebAssembly.Module(buffer)` at runtime.
- * WASM must be imported as a static ES module so Cloudflare pre-compiles it
- * at upload time.
+ * Cloudflare Workers blocks the SYNCHRONOUS `new WebAssembly.Module(buffer)`
+ * constructor at runtime (error: "Wasm code generation disallowed by embedder").
+ * The ASYNCHRONOUS `WebAssembly.compile(buffer)` is permitted.
  *
- * This script runs after `opennextjs-cloudflare build` and:
- * 1. Decodes the Prisma WASM from its base64 bundle → writes a .wasm file
- * 2. Prepends a static WASM import to worker.js, stored in globalThis
- * 3. Patches every chunk file that calls `new WebAssembly.Module(...)` to
- *    use the pre-compiled globalThis.__prismaWasmModule instead
+ * Prisma v7's query compiler calls `new WebAssembly.Module(wasmBytes)` after
+ * decoding its bundled base64 WASM. This script patches every chunk in the
+ * OpenNext bundle that makes that synchronous call and replaces it with the
+ * async equivalent — no extra .wasm file needed, bundle size stays the same.
  */
 const fs = require('fs')
 const path = require('path')
 
-const ROOT = path.join(__dirname, '..')
-const OPEN_NEXT = path.join(ROOT, '.open-next')
-const WORKER_JS = path.join(OPEN_NEXT, 'worker.js')
-const WASM_NAME = 'prisma_query_compiler.wasm'
-const WASM_OUT = path.join(OPEN_NEXT, WASM_NAME)
+const OPEN_NEXT = path.join(__dirname, '..', '.open-next')
+const CHUNKS_DIR = path.join(OPEN_NEXT, 'server-functions/default/.next/server/chunks')
 
-// ── 1. Extract WASM bytes from Prisma's base64 bundle ─────────────────────
-const b64Path = path.join(
-  ROOT,
-  'node_modules/@prisma/client/runtime/query_compiler_small_bg.postgresql.wasm-base64.mjs'
-)
-const b64Content = fs.readFileSync(b64Path, 'utf8')
-// The file exports: const wasm = "BASE64..."
-const b64Match = b64Content.match(/["']([A-Za-z0-9+/]+=*)["']/)
-if (!b64Match) throw new Error('[patch-wasm] Could not extract WASM base64 data from ' + b64Path)
-const wasmBytes = Buffer.from(b64Match[1], 'base64')
-fs.writeFileSync(WASM_OUT, wasmBytes)
-console.log(`[patch-wasm] Written ${WASM_NAME} (${wasmBytes.length} bytes)`)
-
-// ── 2. Prepend static WASM import to worker.js ────────────────────────────
-const workerContent = fs.readFileSync(WORKER_JS, 'utf8')
-const wasmImportLine = `import __prismaWasm from './${WASM_NAME}';\nglobalThis.__prismaWasmModule = __prismaWasm;\n`
-if (!workerContent.includes('__prismaWasmModule')) {
-  fs.writeFileSync(WORKER_JS, wasmImportLine + workerContent)
-  console.log('[patch-wasm] Added WASM import to worker.js')
-} else {
-  console.log('[patch-wasm] worker.js already has WASM import — skipping')
-}
-
-// ── 3. Patch bundle chunks that call `new WebAssembly.Module(...)` ─────────
-const WASM_RE = /new WebAssembly\.Module\([a-zA-Z_$][a-zA-Z0-9_$]*\)/g
-const WASM_REPLACEMENT = 'globalThis.__prismaWasmModule'
+// Replace: new WebAssembly.Module(<var>)
+// With:    await WebAssembly.compile(<var>)
+const SYNC_RE = /new WebAssembly\.Module\(([a-zA-Z_$][a-zA-Z0-9_$]*)\)/g
+const ASYNC_REPLACE = 'await WebAssembly.compile($1)'
 
 function patchDir(dir) {
   if (!fs.existsSync(dir)) return
@@ -56,12 +30,12 @@ function patchDir(dir) {
     } else if (entry.isFile() && entry.name.endsWith('.js')) {
       const src = fs.readFileSync(full, 'utf8')
       if (!src.includes('new WebAssembly.Module(')) continue
-      const patched = src.replace(WASM_RE, WASM_REPLACEMENT)
+      const patched = src.replace(SYNC_RE, ASYNC_REPLACE)
       fs.writeFileSync(full, patched)
       console.log('[patch-wasm] Patched:', path.relative(OPEN_NEXT, full))
     }
   }
 }
 
-patchDir(path.join(OPEN_NEXT, 'server-functions/default/.next/server/chunks'))
+patchDir(CHUNKS_DIR)
 console.log('[patch-wasm] Done')
