@@ -17,8 +17,20 @@ function LoginForm() {
     setLoading(true)
     setError(null)
     try {
-      const { createSupabaseBrowserClient } = await import('@/lib/supabase-client')
-      const supabase = createSupabaseBrowserClient()
+      // NEXT_PUBLIC_* vars may not be baked in at build time on Cloudflare CI/CD
+      // (they live as runtime Worker vars, not build-phase vars). Fetch them from
+      // the server where populateProcessEnv() always makes them available.
+      let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      let supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      if (!supabaseUrl || !supabaseAnonKey) {
+        const res = await fetch('/api/admin/supabase-config')
+        if (!res.ok) { setError('Authentication service is not configured yet.'); setLoading(false); return }
+        const cfg = await res.json()
+        supabaseUrl = cfg.supabaseUrl
+        supabaseAnonKey = cfg.supabaseAnonKey
+      }
+      const { createBrowserClient } = await import('@supabase/ssr')
+      const supabase = createBrowserClient(supabaseUrl!, supabaseAnonKey!)
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
       if (authError || !data.session) { setError('Invalid email or password.'); setLoading(false); return }
       // Store the raw JWT so the middleware can validate it without decoding
@@ -27,7 +39,7 @@ function LoginForm() {
       document.cookie = `admin_jwt=${access_token}; path=/; samesite=lax; max-age=${expires_in ?? 3600}`
       window.location.assign(next)
     } catch {
-      setError('Authentication service is not configured yet.')
+      setError('Sign in failed. Please try again.')
       setLoading(false)
     }
   }
