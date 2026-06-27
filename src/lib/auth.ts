@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { headers, cookies } from 'next/headers'
+import { headers } from 'next/headers'
 
 function base64urlDecode(str: string): string {
   const std = str.replace(/-/g, '+').replace(/_/g, '/')
@@ -17,20 +17,26 @@ function isAccessTokenValid(token: string): boolean {
   }
 }
 
-async function isSessionValid(): Promise<boolean> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('admin_jwt')?.value
-  if (!token) return false
-  return isAccessTokenValid(token)
+function tokenFromCookieHeader(cookieHeader: string): string | undefined {
+  // Parse admin_jwt from raw Cookie header — more reliable than cookies() from
+  // next/headers on Cloudflare Workers where cookies() can return empty for
+  // POST route handlers even when the Cookie header is present.
+  return cookieHeader
+    .split(';')
+    .map(c => c.trim())
+    .find(c => c.startsWith('admin_jwt='))
+    ?.slice('admin_jwt='.length)
 }
 
 export async function requireAdminSession(): Promise<NextResponse | null> {
-  // Middleware stamps this header when it has already validated the session.
-  // The middleware strips any client-supplied value before setting it.
-  const headerStore = await headers()
-  if (headerStore.get('x-admin-authorized') === '1') return null
+  const h = await headers()
 
-  // Fallback: read the admin_jwt cookie directly.
-  if (await isSessionValid()) return null
+  // Fast path: middleware stamps this after validating the session.
+  if (h.get('x-admin-authorized') === '1') return null
+
+  // Fallback: parse admin_jwt directly from the raw Cookie header.
+  const token = tokenFromCookieHeader(h.get('cookie') ?? '')
+  if (token && isAccessTokenValid(token)) return null
+
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 }

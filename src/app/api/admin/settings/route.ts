@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   try {
     await Promise.all(
       Object.entries(data).map(([key, value]) =>
-        prisma.siteSetting.upsert({ where: { key }, update: { value, updatedAt: new Date() }, create: { key, value } })
+        prisma.siteSetting.upsert({ where: { key }, update: { value }, create: { key, value } })
       )
     )
     return NextResponse.json({ ok: true })
