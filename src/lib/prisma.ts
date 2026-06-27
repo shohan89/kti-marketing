@@ -218,8 +218,14 @@ interface UpsertArgs {
   select?: Record<string, unknown>
 }
 
+// Tables whose schema has no updatedAt column (Prisma @updatedAt not present).
+// All other tables need updatedAt injected by the application layer because
+// Prisma's @updatedAt directive sets the value in code, not via a DB default.
+const TABLES_WITHOUT_UPDATED_AT = new Set(['AdminUser', 'MediaFile'])
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function makeModel(tableName: string) {
+  const hasUpdatedAt = !TABLES_WITHOUT_UPDATED_AT.has(tableName)
   return {
     // ── count ──────────────────────────────────────────────────────────────
     async count(args?: { where?: Record<string, unknown> }): Promise<number> {
@@ -313,7 +319,12 @@ function makeModel(tableName: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async create(args: { data: Record<string, unknown>; select?: Record<string, unknown> }): Promise<any> {
       const selectStr = buildSelectString(args.select)
-      const payload = args.data.id ? args.data : { id: crypto.randomUUID(), ...args.data }
+      const now = new Date().toISOString()
+      const payload = {
+        id: crypto.randomUUID(),
+        ...(hasUpdatedAt ? { updatedAt: now } : {}),
+        ...args.data, // caller-supplied values win
+      }
       const { data, error } = await getSupabase()
         .from(tableName)
         .insert(payload)
@@ -325,7 +336,12 @@ function makeModel(tableName: string) {
 
     // ── createMany ─────────────────────────────────────────────────────────
     async createMany(args: { data: Record<string, unknown>[]; skipDuplicates?: boolean }) {
-      const rows = args.data.map(row => row.id ? row : { id: crypto.randomUUID(), ...row })
+      const now = new Date().toISOString()
+      const rows = args.data.map(row => ({
+        id: crypto.randomUUID(),
+        ...(hasUpdatedAt ? { updatedAt: now } : {}),
+        ...row,
+      }))
       const { error } = await getSupabase().from(tableName).insert(rows)
       if (error) throw new Error(`[${tableName}.createMany] ${error.message}`)
       return { count: args.data.length }
@@ -335,7 +351,9 @@ function makeModel(tableName: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async update(args: { where: Record<string, unknown>; data: Record<string, unknown>; select?: Record<string, unknown> }): Promise<any> {
       const selectStr = buildSelectString(args.select)
-      let q: any = getSupabase().from(tableName).update(args.data)
+      const now = new Date().toISOString()
+      const updateData = hasUpdatedAt ? { updatedAt: now, ...args.data } : args.data
+      let q: any = getSupabase().from(tableName).update(updateData)
       q = applyWhere(q, args.where)
       const { data, error } = await q.select(selectStr).single()
       if (error) throw new Error(`[${tableName}.update] ${error.message}`)
@@ -344,7 +362,9 @@ function makeModel(tableName: string) {
 
     // ── updateMany ─────────────────────────────────────────────────────────
     async updateMany(args: { where?: Record<string, unknown>; data: Record<string, unknown> }) {
-      let q: any = getSupabase().from(tableName).update(args.data)
+      const now = new Date().toISOString()
+      const updateData = hasUpdatedAt ? { updatedAt: now, ...args.data } : args.data
+      let q: any = getSupabase().from(tableName).update(updateData)
       if (args.where) q = applyWhere(q, args.where)
       const { error } = await q
       if (error) throw new Error(`[${tableName}.updateMany] ${error.message}`)
@@ -354,10 +374,16 @@ function makeModel(tableName: string) {
     // ── upsert ─────────────────────────────────────────────────────────────
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async upsert(args: UpsertArgs): Promise<any> {
-      // Determine the conflict column from the where clause key
       const conflictCol = Object.keys(args.where)[0] ?? 'id'
-      // Merge: create provides defaults, update provides new values, where provides the key
-      const upsertData = { ...args.create, ...args.update, ...args.where }
+      const now = new Date().toISOString()
+      // id for the insert path; updatedAt for both paths; caller data wins
+      const upsertData = {
+        id: crypto.randomUUID(),
+        ...(hasUpdatedAt ? { updatedAt: now } : {}),
+        ...args.create,
+        ...args.update,
+        ...args.where,
+      }
       const selectStr = buildSelectString(args.select)
       const { data, error } = await getSupabase()
         .from(tableName)
