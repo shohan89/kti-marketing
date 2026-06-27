@@ -28,16 +28,18 @@ interface HomepageData {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-async function saveSection(key: string, value: unknown): Promise<boolean> {
+async function saveSection(key: string, value: unknown): Promise<string | null> {
   try {
     const res = await fetch('/api/admin/settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ [key]: JSON.stringify(value) }),
     })
-    return res.ok
-  } catch {
-    return false
+    if (res.ok) return null
+    const body = await res.json().catch(() => ({}))
+    return body.error ?? `HTTP ${res.status}`
+  } catch (e) {
+    return e instanceof Error ? e.message : String(e)
   }
 }
 
@@ -100,9 +102,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveHero() {
     setHeroSaving(true); setHeroSaved(false); setHeroError(null)
-    const ok = await saveSection('homepage_hero', hero)
+    const err = await saveSection('homepage_hero', hero)
     setHeroSaving(false)
-    if (ok) { setHeroSaved(true); setTimeout(() => setHeroSaved(false), 3000) } else { setHeroError('Save failed') }
+    if (!err) { setHeroSaved(true); setTimeout(() => setHeroSaved(false), 3000) } else { setHeroError(err) }
   }
 
   async function uploadHeroImage(file: File) {
@@ -137,9 +139,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveStats() {
     setStatsSaving(true); setStatsSaved(false); setStatsError(null)
-    const ok = await saveSection('homepage_stats', stats)
+    const err = await saveSection('homepage_stats', stats)
     setStatsSaving(false)
-    if (ok) { setStatsSaved(true); setTimeout(() => setStatsSaved(false), 3000) } else { setStatsError('Save failed') }
+    if (!err) { setStatsSaved(true); setTimeout(() => setStatsSaved(false), 3000) } else { setStatsError(err) }
   }
 
   // ── Brands ────────────────────────────────────────────────────────────────
@@ -153,9 +155,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveBrands() {
     setBrandsSaving(true); setBrandsSaved(false); setBrandsError(null)
-    const ok = await saveSection('homepage_brands', brands)
+    const err = await saveSection('homepage_brands', brands)
     setBrandsSaving(false)
-    if (ok) { setBrandsSaved(true); setTimeout(() => setBrandsSaved(false), 3000) } else { setBrandsError('Save failed') }
+    if (!err) { setBrandsSaved(true); setTimeout(() => setBrandsSaved(false), 3000) } else { setBrandsError(err) }
   }
 
   async function uploadLogo(index: number, file: File) {
@@ -195,9 +197,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
   async function saveMarquee() {
     setMarqueeSaving(true); setMarqueeSaved(false); setMarqueeError(null)
     const arr = marqueeText.split('\n').map(s => s.trim()).filter(Boolean)
-    const ok = await saveSection('homepage_marquee', arr)
+    const err = await saveSection('homepage_marquee', arr)
     setMarqueeSaving(false)
-    if (ok) { setMarqueeSaved(true); setTimeout(() => setMarqueeSaved(false), 3000) } else { setMarqueeError('Save failed') }
+    if (!err) { setMarqueeSaved(true); setTimeout(() => setMarqueeSaved(false), 3000) } else { setMarqueeError(err) }
   }
 
   // ── Services header ───────────────────────────────────────────────────────
@@ -208,9 +210,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveServices() {
     setServicesSaving(true); setServicesSaved(false); setServicesError(null)
-    const ok = await saveSection('homepage_services', services)
+    const err = await saveSection('homepage_services', services)
     setServicesSaving(false)
-    if (ok) { setServicesSaved(true); setTimeout(() => setServicesSaved(false), 3000) } else { setServicesError('Save failed') }
+    if (!err) { setServicesSaved(true); setTimeout(() => setServicesSaved(false), 3000) } else { setServicesError(err) }
   }
 
   // ── Why KTI ───────────────────────────────────────────────────────────────
@@ -221,9 +223,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveWhy() {
     setWhySaving(true); setWhySaved(false); setWhyError(null)
-    const ok = await saveSection('homepage_why', why)
+    const err = await saveSection('homepage_why', why)
     setWhySaving(false)
-    if (ok) { setWhySaved(true); setTimeout(() => setWhySaved(false), 3000) } else { setWhyError('Save failed') }
+    if (!err) { setWhySaved(true); setTimeout(() => setWhySaved(false), 3000) } else { setWhyError(err) }
   }
 
   // ── Video ─────────────────────────────────────────────────────────────────
@@ -234,9 +236,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveVideo() {
     setVideoSaving(true); setVideoSaved(false); setVideoError(null)
-    const ok = await saveSection('homepage_video', video)
+    const err = await saveSection('homepage_video', video)
     setVideoSaving(false)
-    if (ok) { setVideoSaved(true); setTimeout(() => setVideoSaved(false), 3000) } else { setVideoError('Save failed') }
+    if (!err) { setVideoSaved(true); setTimeout(() => setVideoSaved(false), 3000) } else { setVideoError(err) }
   }
 
   // ── Portfolio / Case Studies header ───────────────────────────────────────
@@ -247,9 +249,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function savePortfolio() {
     setPortfolioSaving(true); setPortfolioSaved(false); setPortfolioError(null)
-    const ok = await saveSection('homepage_portfolio', portfolio)
+    const err = await saveSection('homepage_portfolio', portfolio)
     setPortfolioSaving(false)
-    if (ok) { setPortfolioSaved(true); setTimeout(() => setPortfolioSaved(false), 3000) } else { setPortfolioError('Save failed') }
+    if (!err) { setPortfolioSaved(true); setTimeout(() => setPortfolioSaved(false), 3000) } else { setPortfolioError(err) }
   }
 
   // ── Process ───────────────────────────────────────────────────────────────
@@ -260,9 +262,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveProcess() {
     setProcSaving(true); setProcSaved(false); setProcError(null)
-    const ok = await saveSection('homepage_process', proc)
+    const err = await saveSection('homepage_process', proc)
     setProcSaving(false)
-    if (ok) { setProcSaved(true); setTimeout(() => setProcSaved(false), 3000) } else { setProcError('Save failed') }
+    if (!err) { setProcSaved(true); setTimeout(() => setProcSaved(false), 3000) } else { setProcError(err) }
   }
 
   // ── Testimonials header ───────────────────────────────────────────────────
@@ -273,9 +275,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveTestimonials() {
     setTestimonialsSaving(true); setTestimonialsSaved(false); setTestimonialsError(null)
-    const ok = await saveSection('homepage_testimonials', testimonials)
+    const err = await saveSection('homepage_testimonials', testimonials)
     setTestimonialsSaving(false)
-    if (ok) { setTestimonialsSaved(true); setTimeout(() => setTestimonialsSaved(false), 3000) } else { setTestimonialsError('Save failed') }
+    if (!err) { setTestimonialsSaved(true); setTimeout(() => setTestimonialsSaved(false), 3000) } else { setTestimonialsError(err) }
   }
 
   // ── Blog header ───────────────────────────────────────────────────────────
@@ -286,9 +288,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveBlog() {
     setBlogSaving(true); setBlogSaved(false); setBlogError(null)
-    const ok = await saveSection('homepage_blog', blog)
+    const err = await saveSection('homepage_blog', blog)
     setBlogSaving(false)
-    if (ok) { setBlogSaved(true); setTimeout(() => setBlogSaved(false), 3000) } else { setBlogError('Save failed') }
+    if (!err) { setBlogSaved(true); setTimeout(() => setBlogSaved(false), 3000) } else { setBlogError(err) }
   }
 
   // ── Final CTA ─────────────────────────────────────────────────────────────
@@ -299,9 +301,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
 
   async function saveCta() {
     setCtaSaving(true); setCtaSaved(false); setCtaError(null)
-    const ok = await saveSection('homepage_cta', cta)
+    const err = await saveSection('homepage_cta', cta)
     setCtaSaving(false)
-    if (ok) { setCtaSaved(true); setTimeout(() => setCtaSaved(false), 3000) } else { setCtaError('Save failed') }
+    if (!err) { setCtaSaved(true); setTimeout(() => setCtaSaved(false), 3000) } else { setCtaError(err) }
   }
 
   const inputStyle: CSSProperties = {

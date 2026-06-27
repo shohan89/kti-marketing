@@ -63,12 +63,14 @@ export default function AboutEditorClient({ clients: initClients, achievements: 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clients, achievements, clientsTitle, achievementsTitle, founderTags }),
       })
-      setToast(res.ok
-        ? { message: 'Changes saved successfully!', type: 'success' }
-        : { message: 'Save failed. Please try again.', type: 'error' }
-      )
-    } catch {
-      setToast({ message: 'Save failed. Please try again.', type: 'error' })
+      if (res.ok) {
+        setToast({ message: 'Changes saved successfully!', type: 'success' })
+      } else {
+        const body = await res.json().catch(() => ({}))
+        setToast({ message: body.error ? `Save failed: ${body.error}` : 'Save failed. Please try again.', type: 'error' })
+      }
+    } catch (e) {
+      setToast({ message: `Save failed: ${e instanceof Error ? e.message : String(e)}`, type: 'error' })
     } finally { setSaving(false) }
   }
 

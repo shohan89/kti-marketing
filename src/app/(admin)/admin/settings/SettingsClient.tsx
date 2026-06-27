@@ -125,8 +125,11 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
         body: JSON.stringify(payload),
       })
       if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 3500) }
-      else setError('Save failed. Please try again.')
-    } catch { setError('Network error.') }
+      else {
+        const body = await res.json().catch(() => ({}))
+        setError(body.error ? `Save failed: ${body.error}` : 'Save failed. Please try again.')
+      }
+    } catch (e) { setError(`Network error: ${e instanceof Error ? e.message : String(e)}`) }
     setSaving(false)
   }
 

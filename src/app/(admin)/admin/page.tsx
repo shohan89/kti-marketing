@@ -9,16 +9,17 @@ export const metadata: Metadata = { title: 'Dashboard — KTI Admin' }
 async function getStats() {
   try {
     const [services, blog, caseStudies, jobs, inbox, applications] = await Promise.all([
-      prisma.service.count({ where: { isPublished: true } }),
-      prisma.blogPost.count({ where: { isPublished: true } }),
-      prisma.caseStudy.count({ where: { isPublished: true } }),
+      prisma.service.count(),
+      prisma.blogPost.count(),
+      prisma.caseStudy.count(),
       prisma.jobListing.count({ where: { isPublished: true } }),
       prisma.contactSubmission.count({ where: { status: 'NEW' } }),
       prisma.jobApplication.count({ where: { status: 'NEW' } }),
     ])
-    return { services, blog, caseStudies, jobs, inbox, applications }
-  } catch {
-    return { services: 0, blog: 0, caseStudies: 0, jobs: 0, inbox: 0, applications: 0 }
+    return { services, blog, caseStudies, jobs, inbox, applications, dbError: false }
+  } catch (e) {
+    console.error('[dashboard getStats]', e)
+    return { services: 0, blog: 0, caseStudies: 0, jobs: 0, inbox: 0, applications: 0, dbError: true }
   }
 }
 
@@ -48,6 +49,11 @@ export default async function AdminDashboard() {
 
   return (
     <>
+      {stats.dbError && (
+        <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1.1rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.5rem', color: '#f87171', fontSize: '0.875rem' }}>
+          ⚠ Database connection error — counts may be inaccurate. Check your DATABASE_URL secret in Cloudflare Workers.
+        </div>
+      )}
       <div className="admin-page-header">
         <div><h1 className="admin-page-title">Dashboard</h1><p className="admin-page-sub">Overview of your website content and activity.</p></div>
         <Link href="/" className="admin-btn admin-btn--outline" target="_blank">View Live Site ↗</Link>
