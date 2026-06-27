@@ -10,5 +10,10 @@
   },
   "observability": {
     "enabled": true
+  },
+  // Public vars available in process.env at runtime (safe to commit — anon key is public)
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://cjwnznuatbnznnwahcns.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqd256bnVhdGJuem5ud2FoY25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDc1ODgsImV4cCI6MjA5NjQ4MzU4OH0.cFUMp_sNw-cVg4gumViYzeXvDfcLuC_yKbUy3BEGrt0"
   }
 }
