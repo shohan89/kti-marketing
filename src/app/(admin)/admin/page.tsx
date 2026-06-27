@@ -16,10 +16,11 @@ async function getStats() {
       prisma.contactSubmission.count({ where: { status: 'NEW' } }),
       prisma.jobApplication.count({ where: { status: 'NEW' } }),
     ])
-    return { services, blog, caseStudies, jobs, inbox, applications, dbError: false }
+    return { services, blog, caseStudies, jobs, inbox, applications, dbError: false, dbErrorMsg: '' }
   } catch (e) {
+    const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
     console.error('[dashboard getStats]', e)
-    return { services: 0, blog: 0, caseStudies: 0, jobs: 0, inbox: 0, applications: 0, dbError: true }
+    return { services: 0, blog: 0, caseStudies: 0, jobs: 0, inbox: 0, applications: 0, dbError: true, dbErrorMsg: msg }
   }
 }
 
@@ -51,7 +52,8 @@ export default async function AdminDashboard() {
     <>
       {stats.dbError && (
         <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1.1rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.5rem', color: '#f87171', fontSize: '0.875rem' }}>
-          ⚠ Database connection error — counts may be inaccurate. Check your DATABASE_URL secret in Cloudflare Workers.
+          <div style={{ fontWeight: 600, marginBottom: '0.35rem' }}>⚠ Database connection error — counts may be inaccurate.</div>
+          {stats.dbErrorMsg && <div style={{ fontFamily: 'monospace', fontSize: '0.78rem', opacity: 0.8, wordBreak: 'break-all' }}>{stats.dbErrorMsg}</div>}
         </div>
       )}
       <div className="admin-page-header">
