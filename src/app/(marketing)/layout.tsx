@@ -25,6 +25,7 @@ async function getNavData() {
     return {
       services,
       isHiring: jobCount > 0,
+      logoUrl:      map['site_logo_url']   ?? '',
       footerPhones: safeParse<{ id: string; label: string; number: string }[]>(map['contact_phones'], [{ id: '1', label: 'Main', number: '+880 170 000 0000' }]),
       footerEmails: safeParse<{ id: string; label: string; address: string }[]>(map['contact_emails'], [{ id: '1', label: 'General', address: 'hello@ktimarketing.com' }]),
       footerAddress: map['contact_address'] ?? 'Dhaka, Bangladesh',
@@ -44,6 +45,7 @@ async function getNavData() {
         { slug: 'website-maintenance', title: 'Website Maintenance' },
       ],
       isHiring: true,
+      logoUrl: '',
       footerPhones: [{ id: '1', label: 'Main', number: '+880 170 000 0000' }],
       footerEmails: [{ id: '1', label: 'General', address: 'hello@ktimarketing.com' }],
       footerAddress: 'Dhaka, Bangladesh',
@@ -53,13 +55,13 @@ async function getNavData() {
 }
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const { services, isHiring, footerPhones, footerEmails, footerAddress, mapEmbedUrl } = await getNavData()
+  const { services, isHiring, logoUrl, footerPhones, footerEmails, footerAddress, mapEmbedUrl } = await getNavData()
 
   return (
     <>
       <ScrollProgress />
       <CustomCursor />
-      <Navbar services={services} />
+      <Navbar services={services} logoUrl={logoUrl} />
       <ScrollRevealProvider>
         <main>{children}</main>
       </ScrollRevealProvider>

@@ -8,6 +8,7 @@ import ThemeToggle from '@/components/ui/ThemeToggle'
 import './Navbar.css'
 
 interface ServiceLink { slug: string; title: string }
+interface NavbarProps { services: ServiceLink[]; logoUrl?: string }
 
 const NAV_LINKS = [
   { to: '/',             label: 'Home' },
@@ -21,7 +22,7 @@ const NAV_LINKS = [
   { to: '/contact',      label: 'Contact' },
 ]
 
-export default function Navbar({ services }: { services: ServiceLink[] }) {
+export default function Navbar({ services, logoUrl }: NavbarProps) {
   const [open, setOpen]               = useState(false)
   const [scrolled, setScrolled]       = useState(false)
   const [svcOpen, setSvcOpen]         = useState(false)
@@ -58,7 +59,10 @@ export default function Navbar({ services }: { services: ServiceLink[] }) {
       <div className="navbar-inner">
 
         <Link href="/" className="navbar-brand" onClick={close}>
-          KTI <span>Marketing</span>
+          {logoUrl
+            ? <img src={logoUrl} alt="KTI Marketing" style={{ height: 40, maxWidth: 160, objectFit: 'contain', display: 'block' }} />
+            : <>KTI <span>Marketing</span></>
+          }
         </Link>
 
         <nav className="navbar-nav" aria-label="Main navigation">
