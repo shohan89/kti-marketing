@@ -376,9 +376,10 @@ function makeModel(tableName: string) {
     async upsert(args: UpsertArgs): Promise<any> {
       const conflictCol = Object.keys(args.where)[0] ?? 'id'
       const now = new Date().toISOString()
-      // id for the insert path; updatedAt for both paths; caller data wins
+      // Only inject id when the table's PK is 'id' (not e.g. SiteSetting which uses 'key').
+      // For the insert path, args.create already carries the correct PK value when conflictCol !== 'id'.
       const upsertData = {
-        id: crypto.randomUUID(),
+        ...(conflictCol === 'id' ? { id: crypto.randomUUID() } : {}),
         ...(hasUpdatedAt ? { updatedAt: now } : {}),
         ...args.create,
         ...args.update,
