@@ -1,10 +1,12 @@
 import { PrismaClient } from '@/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import type { Pool as PgPool, PoolConfig } from 'pg'
-// pg-cloudflare ships no type declarations; borrow pg's types for type safety.
-// At runtime this uses cloudflare:sockets (native TCP) instead of Node.js net/tls.
+// pg-cloudflare ships no TypeScript declarations.
+// Its CommonJS module.exports = { Pool, Client, ... }, so the ESM default import
+// gives us the whole exports object — Pool lives at .Pool, not on the default itself.
 import pgCloudflare from 'pg-cloudflare'
-const CloudflarePool = pgCloudflare as unknown as new (config: PoolConfig) => PgPool
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CloudflarePool = (pgCloudflare as any).Pool as new (config: PoolConfig) => PgPool
 
 let _client: PrismaClient | undefined
 
