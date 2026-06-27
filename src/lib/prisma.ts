@@ -1,6 +1,10 @@
 import { PrismaClient } from '@/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
-import Pool from 'pg-cloudflare'
+import type { Pool as PgPool, PoolConfig } from 'pg'
+// pg-cloudflare ships no type declarations; borrow pg's types for type safety.
+// At runtime this uses cloudflare:sockets (native TCP) instead of Node.js net/tls.
+import pgCloudflare from 'pg-cloudflare'
+const CloudflarePool = pgCloudflare as unknown as new (config: PoolConfig) => PgPool
 
 let _client: PrismaClient | undefined
 
@@ -8,10 +12,7 @@ function getClient(): PrismaClient {
   if (_client) return _client
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) throw new Error('DATABASE_URL is not set')
-  // Use pg-cloudflare Pool so Cloudflare Workers uses cloudflare:sockets (native TCP)
-  // instead of relying on pg's Node.js net/tls modules being polyfilled by nodejs_compat.
-  // pg-cloudflare falls back to standard pg behaviour in local Node.js dev.
-  const pool = new Pool({ connectionString })
+  const pool = new CloudflarePool({ connectionString })
   _client = new PrismaClient({ adapter: new PrismaPg(pool) } as never)
   return _client
 }
