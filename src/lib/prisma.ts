@@ -218,7 +218,8 @@ interface UpsertArgs {
   select?: Record<string, unknown>
 }
 
-function makeModel<T = Record<string, unknown>>(tableName: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function makeModel(tableName: string) {
   return {
     // ── count ──────────────────────────────────────────────────────────────
     async count(args?: { where?: Record<string, unknown> }): Promise<number> {
@@ -230,7 +231,8 @@ function makeModel<T = Record<string, unknown>>(tableName: string) {
     },
 
     // ── findMany ───────────────────────────────────────────────────────────
-    async findMany(args?: FindManyArgs): Promise<T[]> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async findMany(args?: FindManyArgs): Promise<any[]> {
       const selectStr = buildSelectString(args?.select, args?.include)
       let q: any = getSupabase().from(tableName).select(selectStr)
       if (args?.where) q = applyWhere(q, args.where)
@@ -271,11 +273,12 @@ function makeModel<T = Record<string, unknown>>(tableName: string) {
         rows = await attachCounts(tableName, rows, countSpec.select as Record<string, unknown>)
       }
 
-      return rows as unknown as T[]
+      return rows
     },
 
     // ── findFirst ──────────────────────────────────────────────────────────
-    async findFirst(args?: Omit<FindManyArgs, 'skip' | 'take'>): Promise<T | null> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async findFirst(args?: Omit<FindManyArgs, 'skip' | 'take'>): Promise<any> {
       const selectStr = buildSelectString(args?.select, args?.include)
       let q: any = getSupabase().from(tableName).select(selectStr)
       if (args?.where) q = applyWhere(q, args.where)
@@ -283,29 +286,32 @@ function makeModel<T = Record<string, unknown>>(tableName: string) {
       q = q.limit(1)
       const { data, error } = await q
       if (error) throw new Error(`[${tableName}.findFirst] ${error.message}`)
-      return (data?.[0] ?? null) as T | null
+      return data?.[0] ?? null
     },
 
     // ── findUnique ─────────────────────────────────────────────────────────
-    async findUnique(args: FindUniqueArgs): Promise<T | null> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async findUnique(args: FindUniqueArgs): Promise<any> {
       const selectStr = buildSelectString(args.select, args.include)
       let q: any = getSupabase().from(tableName).select(selectStr)
       q = applyWhere(q, args.where)
       q = q.limit(1)
       const { data, error } = await q
       if (error) throw new Error(`[${tableName}.findUnique] ${error.message}`)
-      return (data?.[0] ?? null) as T | null
+      return data?.[0] ?? null
     },
 
     // ── findUniqueOrThrow ──────────────────────────────────────────────────
-    async findUniqueOrThrow(args: FindUniqueArgs): Promise<T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async findUniqueOrThrow(args: FindUniqueArgs): Promise<any> {
       const result = await this.findUnique(args)
       if (!result) throw new Error(`[${tableName}.findUniqueOrThrow] No record found for where: ${JSON.stringify(args.where)}`)
       return result
     },
 
     // ── create ─────────────────────────────────────────────────────────────
-    async create(args: { data: Record<string, unknown>; select?: Record<string, unknown> }): Promise<T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async create(args: { data: Record<string, unknown>; select?: Record<string, unknown> }): Promise<any> {
       const selectStr = buildSelectString(args.select)
       const { data, error } = await getSupabase()
         .from(tableName)
@@ -313,7 +319,7 @@ function makeModel<T = Record<string, unknown>>(tableName: string) {
         .select(selectStr)
         .single()
       if (error) throw new Error(`[${tableName}.create] ${error.message}`)
-      return data as T
+      return data
     },
 
     // ── createMany ─────────────────────────────────────────────────────────
@@ -324,13 +330,14 @@ function makeModel<T = Record<string, unknown>>(tableName: string) {
     },
 
     // ── update ─────────────────────────────────────────────────────────────
-    async update(args: { where: Record<string, unknown>; data: Record<string, unknown>; select?: Record<string, unknown> }): Promise<T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async update(args: { where: Record<string, unknown>; data: Record<string, unknown>; select?: Record<string, unknown> }): Promise<any> {
       const selectStr = buildSelectString(args.select)
       let q: any = getSupabase().from(tableName).update(args.data)
       q = applyWhere(q, args.where)
       const { data, error } = await q.select(selectStr).single()
       if (error) throw new Error(`[${tableName}.update] ${error.message}`)
-      return data as T
+      return data
     },
 
     // ── updateMany ─────────────────────────────────────────────────────────
@@ -343,7 +350,8 @@ function makeModel<T = Record<string, unknown>>(tableName: string) {
     },
 
     // ── upsert ─────────────────────────────────────────────────────────────
-    async upsert(args: UpsertArgs): Promise<T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async upsert(args: UpsertArgs): Promise<any> {
       // Determine the conflict column from the where clause key
       const conflictCol = Object.keys(args.where)[0] ?? 'id'
       // Merge: create provides defaults, update provides new values, where provides the key
@@ -355,17 +363,18 @@ function makeModel<T = Record<string, unknown>>(tableName: string) {
         .select(selectStr)
         .single()
       if (error) throw new Error(`[${tableName}.upsert] ${error.message}`)
-      return data as T
+      return data
     },
 
     // ── delete ─────────────────────────────────────────────────────────────
-    async delete(args: { where: Record<string, unknown>; select?: Record<string, unknown> }): Promise<T> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async delete(args: { where: Record<string, unknown>; select?: Record<string, unknown> }): Promise<any> {
       const selectStr = buildSelectString(args.select)
       let q: any = getSupabase().from(tableName).delete()
       q = applyWhere(q, args.where)
       const { data, error } = await q.select(selectStr).single()
       if (error) throw new Error(`[${tableName}.delete] ${error.message}`)
-      return data as T
+      return data
     },
 
     // ── deleteMany ─────────────────────────────────────────────────────────
