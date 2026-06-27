@@ -313,9 +313,10 @@ function makeModel(tableName: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async create(args: { data: Record<string, unknown>; select?: Record<string, unknown> }): Promise<any> {
       const selectStr = buildSelectString(args.select)
+      const payload = args.data.id ? args.data : { id: crypto.randomUUID(), ...args.data }
       const { data, error } = await getSupabase()
         .from(tableName)
-        .insert(args.data)
+        .insert(payload)
         .select(selectStr)
         .single()
       if (error) throw new Error(`[${tableName}.create] ${error.message}`)
@@ -324,7 +325,8 @@ function makeModel(tableName: string) {
 
     // ── createMany ─────────────────────────────────────────────────────────
     async createMany(args: { data: Record<string, unknown>[]; skipDuplicates?: boolean }) {
-      const { error } = await getSupabase().from(tableName).insert(args.data)
+      const rows = args.data.map(row => row.id ? row : { id: crypto.randomUUID(), ...row })
+      const { error } = await getSupabase().from(tableName).insert(rows)
       if (error) throw new Error(`[${tableName}.createMany] ${error.message}`)
       return { count: args.data.length }
     },
