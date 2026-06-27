@@ -10,8 +10,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate && node scripts/patch-prisma.js",
     "postgenerate": "node scripts/patch-prisma.js",
-    "deploy": "node scripts/generate-env.js && opennextjs-cloudflare build && node scripts/patch-wasm-bundle.js && opennextjs-cloudflare deploy",
-    "preview": "node scripts/generate-env.js && opennextjs-cloudflare build && node scripts/patch-wasm-bundle.js && opennextjs-cloudflare preview"
+    "deploy": "node scripts/generate-env.js && node scripts/patch-prisma.js && opennextjs-cloudflare build && node scripts/patch-wasm-bundle.js && opennextjs-cloudflare deploy",
+    "preview": "node scripts/generate-env.js && node scripts/patch-prisma.js && opennextjs-cloudflare build && node scripts/patch-wasm-bundle.js && opennextjs-cloudflare preview"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
