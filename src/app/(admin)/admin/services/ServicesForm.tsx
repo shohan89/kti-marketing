@@ -24,7 +24,7 @@ function parseGallery(raw: unknown): string[] {
 
 function toEmbedUrl(url: string): string {
   if (!url) return ''
-  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/)
   if (m) return `https://www.youtube.com/embed/${m[1]}`
   if (url.includes('youtube.com/embed/')) return url
   return ''
@@ -247,7 +247,7 @@ export default function ServicesForm({ initialData }: { initialData: Service | n
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '0.5rem 0.75rem' }}>
                   {toEmbedUrl(url) && (
                     <img
-                      src={`https://img.youtube.com/vi/${url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]}/mqdefault.jpg`}
+                      src={`https://img.youtube.com/vi/${url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]}/mqdefault.jpg`}
                       alt=""
                       style={{ width: '80px', height: '45px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
                     />

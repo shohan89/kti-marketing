@@ -1,14 +1,11 @@
-/* ── Base — light frosted background so links stay readable pre-scroll */
+/* ── Base — fully transparent, white text (sits over dark hero sections) */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px) saturate(1.8);
-  -webkit-backdrop-filter: blur(16px) saturate(1.8);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  background: transparent;
   transition:
     background  0.35s ease,
     box-shadow  0.35s ease,
@@ -45,7 +42,7 @@
 .navbar-brand {
   font-size: 1.2rem;
   font-weight: 800;
-  color: #0F1117;
+  color: #FFFFFF;
   text-decoration: none;
   letter-spacing: -0.03em;
   flex-shrink: 0;
@@ -54,6 +51,8 @@
 
 .navbar-brand:hover { opacity: 0.75; }
 .navbar-brand span  { color: #D7262E; }
+
+.navbar--scrolled .navbar-brand { color: #0F1117; }
 
 /* ── Desktop nav links ────────────────────────────────── */
 .navbar-links {
@@ -70,14 +69,14 @@
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #4B5563;
+  color: rgba(255, 255, 255, 0.92);
   text-decoration: none;
   transition: color 0.2s ease, background 0.2s ease;
   white-space: nowrap;
 }
 
-.nav-link:hover  { color: #0F1117; background: rgba(0, 0, 0, 0.05); }
-.nav-link.active { color: #D7262E; background: rgba(215, 38, 46, 0.08); font-weight: 600; }
+.nav-link:hover  { color: #FFFFFF; background: rgba(255, 255, 255, 0.12); }
+.nav-link.active { color: #FFFFFF; background: rgba(215, 38, 46, 0.35); font-weight: 600; }
 
 /* Scrolled state — same dark text, slightly bolder contrast */
 .navbar--scrolled .nav-link        { color: #374151; }
@@ -182,11 +181,13 @@
   display: block;
   width: 22px;
   height: 2px;
-  background: #111827;
+  background: #FFFFFF;
   border-radius: 2px;
   transition: transform 0.24s ease, opacity 0.24s ease, background 0.3s ease;
   transform-origin: center;
 }
+
+.navbar--scrolled .navbar-toggle span { background: #111827; }
 
 /* Animate to × when open */
 .navbar-toggle--open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -295,12 +296,6 @@
 /* ═══════════════════════════════════════════════════════
    DARK MODE OVERRIDES
    ═══════════════════════════════════════════════════════ */
-
-/* Base state — dark frosted background so links stay readable pre-scroll */
-[data-theme="dark"] .navbar {
-  background: rgba(12, 12, 16, 0.55);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
-}
 
 [data-theme="dark"] .navbar-brand { color: rgba(255, 255, 255, 0.92); }
 

@@ -191,6 +191,7 @@ model WebsiteTheme {
   id          String   @id @default(cuid())
   name        String
   tags        String[]
+  technology  String?
   description String   @db.Text
   image       String
   url         String
@@ -324,6 +325,8 @@ model MediaFile {
   width        Int?
   height       Int?
   alt          String   @default("")
+  url          String?
+  bucket       String?
   createdAt    DateTime @default(now())
 }
 

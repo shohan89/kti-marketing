@@ -8,19 +8,19 @@ export const metadata: Metadata = { title: 'Dashboard — KTI Admin' }
 
 async function getStats() {
   try {
-    const [services, blog, caseStudies, jobs, inbox, applications] = await Promise.all([
+    const [services, blog, portfolio, jobs, inbox, applications] = await Promise.all([
       prisma.service.count(),
       prisma.blogPost.count(),
-      prisma.caseStudy.count(),
+      prisma.portfolioItem.count(),
       prisma.jobListing.count({ where: { isPublished: true } }),
       prisma.contactSubmission.count({ where: { status: 'NEW' } }),
       prisma.jobApplication.count({ where: { status: 'NEW' } }),
     ])
-    return { services, blog, caseStudies, jobs, inbox, applications, dbError: false, dbErrorMsg: '' }
+    return { services, blog, portfolio, jobs, inbox, applications, dbError: false, dbErrorMsg: '' }
   } catch (e) {
     const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
     console.error('[dashboard getStats]', e)
-    return { services: 0, blog: 0, caseStudies: 0, jobs: 0, inbox: 0, applications: 0, dbError: true, dbErrorMsg: msg }
+    return { services: 0, blog: 0, portfolio: 0, jobs: 0, inbox: 0, applications: 0, dbError: true, dbErrorMsg: msg }
   }
 }
 
@@ -42,7 +42,7 @@ export default async function AdminDashboard() {
   const STAT_CARDS = [
     { label: 'Services', num: stats.services, href: '/admin/services', color: '#f87171' },
     { label: 'Blog Posts', num: stats.blog, href: '/admin/blog', color: '#60a5fa' },
-    { label: 'Portfolio', num: stats.caseStudies, href: '/admin/portfolio', color: '#a78bfa' },
+    { label: 'Portfolio', num: stats.portfolio, href: '/admin/portfolio', color: '#a78bfa' },
     { label: 'Open Jobs', num: stats.jobs, href: '/admin/jobs', color: '#34d399' },
     { label: 'New Messages', num: stats.inbox, href: '/admin/inbox', color: '#fbbf24' },
     { label: 'New Applications', num: stats.applications, href: '/admin/applications', color: '#f472b6' },

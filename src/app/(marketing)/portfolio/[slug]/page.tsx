@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function toEmbedUrl(url: string): string {
-  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/)
   if (m) return `https://www.youtube.com/embed/${m[1]}`
   if (url.includes('youtube.com/embed/')) return url
   return url

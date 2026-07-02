@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
       data: {
         name: body.name || '',
         tags: splitLines(body.tags),
+        technology: body.technology || null,
         description: body.description || '',
         image: body.image || '',
         url: body.url || '',

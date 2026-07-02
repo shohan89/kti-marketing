@@ -7,6 +7,7 @@ type WebsiteTheme = {
   id: string
   name: string
   tags: string[]
+  technology: string | null
   description: string
   image: string
   url: string
@@ -19,6 +20,7 @@ export default function ThemeForm({ initialData }: { initialData: WebsiteTheme |
 
   const [name, setName] = useState(initialData?.name ?? '')
   const [tags, setTags] = useState(initialData?.tags?.join('\n') ?? '')
+  const [technology, setTechnology] = useState(initialData?.technology ?? '')
   const [description, setDescription] = useState(initialData?.description ?? '')
   const [image, setImage] = useState(initialData?.image ?? '')
   const [url, setUrl] = useState(initialData?.url ?? '')
@@ -50,7 +52,7 @@ export default function ThemeForm({ initialData }: { initialData: WebsiteTheme |
     e.preventDefault()
     setSaving(true); setError('')
     const payload = {
-      name, tags, description, image, url,
+      name, tags, technology, description, image, url,
       sortOrder: Number(sortOrder) || 0,
       isPublished,
     }
@@ -102,6 +104,11 @@ export default function ThemeForm({ initialData }: { initialData: WebsiteTheme |
           <div className="admin-field">
             <label className="admin-label">Tags (one per line, or comma separated)</label>
             <textarea className="admin-textarea" rows={3} value={tags} onChange={e => setTags(e.target.value)} placeholder={'E-commerce\nFashion'} />
+          </div>
+
+          <div className="admin-field">
+            <label className="admin-label">Technology Used</label>
+            <input className="admin-input" value={technology} onChange={e => setTechnology(e.target.value)} placeholder="e.g. WordPress, Laravel, Next.js, Shopify" />
           </div>
 
           <div className="admin-field">

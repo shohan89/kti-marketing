@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { requireAdminSession } from '@/lib/auth'
 
 const UPLOAD_DIR = join(process.cwd(), 'public', 'upload')
-const IMAGE_BUCKETS = ['media', 'services', 'team', 'clients', 'hero', 'assets', 'portfolio', 'blog']
+const IMAGE_BUCKETS = ['media', 'services', 'team', 'clients', 'hero', 'assets', 'portfolio', 'blog', 'founder', 'brand-logos', 'website-themes']
 const IMAGE_EXTS = /\.(jpe?g|png|gif|webp|avif|svg|bmp|tiff?)$/i
 
 async function ensureDir() {
@@ -72,13 +72,14 @@ export async function GET() {
       id: f.id,
       filename: f.filename,
       originalName: f.originalName,
-      url: `/upload/${f.filename}`,
+      url: f.url ?? `/upload/${f.filename}`,
       size: f.size,
       width: f.width,
       height: f.height,
       alt: f.alt,
       createdAt: f.createdAt.toISOString(),
-      source: 'local' as const,
+      source: f.bucket ? ('supabase' as const) : ('local' as const),
+      bucket: f.bucket ?? undefined,
       canDelete: true,
     }))
 

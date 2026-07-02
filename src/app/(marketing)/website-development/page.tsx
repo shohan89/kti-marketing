@@ -16,16 +16,17 @@ type Theme = {
   id: string | number
   name: string
   tags: string[]
+  technology?: string | null
   description: string
   image: string
   url: string
 }
 
 const THEMES_STATIC: Theme[] = [
-  { id: 1, name: 'Theme One', tags: ['E-commerce', 'Fashion'], description: 'Classic store layout with bold category navigation, product grids, and a promotional banner header. Ideal for fashion and apparel brands.', image: '/themes/theme-1.png', url: 'https://ecom.prodevs.com.bd/public/theme-1' },
-  { id: 2, name: 'Theme Two', tags: ['Boutique', 'Multi-Category'], description: 'Modern boutique design featuring circular category icons, curated product sections, and a clean white aesthetic built for conversions.', image: '/themes/theme-2.png', url: 'https://ecom.prodevs.com.bd/theme-2' },
-  { id: 3, name: 'Theme Three', tags: ['Fashion', 'Multi-Section'], description: 'Fashion-forward layout with a full-width hero banner, shop-by-category strip, and multiple product showcase sections for high-volume stores.', image: '/themes/theme-3.png', url: 'https://ecom.prodevs.com.bd/theme-3' },
-  { id: 4, name: 'Theme Four', tags: ['Department Store', 'Sidebar Nav'], description: 'Full-featured department store theme with sidebar category navigation, featured products, and a comprehensive footer for large catalogues.', image: '/themes/theme-4.png', url: 'https://ecom.prodevs.com.bd/theme-4' },
+  { id: 1, name: 'Theme One', tags: ['E-commerce', 'Fashion'], technology: null, description: 'Classic store layout with bold category navigation, product grids, and a promotional banner header. Ideal for fashion and apparel brands.', image: '/themes/theme-1.png', url: 'https://ecom.prodevs.com.bd/public/theme-1' },
+  { id: 2, name: 'Theme Two', tags: ['Boutique', 'Multi-Category'], technology: null, description: 'Modern boutique design featuring circular category icons, curated product sections, and a clean white aesthetic built for conversions.', image: '/themes/theme-2.png', url: 'https://ecom.prodevs.com.bd/theme-2' },
+  { id: 3, name: 'Theme Three', tags: ['Fashion', 'Multi-Section'], technology: null, description: 'Fashion-forward layout with a full-width hero banner, shop-by-category strip, and multiple product showcase sections for high-volume stores.', image: '/themes/theme-3.png', url: 'https://ecom.prodevs.com.bd/theme-3' },
+  { id: 4, name: 'Theme Four', tags: ['Department Store', 'Sidebar Nav'], technology: null, description: 'Full-featured department store theme with sidebar category navigation, featured products, and a comprehensive footer for large catalogues.', image: '/themes/theme-4.png', url: 'https://ecom.prodevs.com.bd/theme-4' },
 ]
 
 function ThemeCard({ theme }: { theme: Theme }) {
@@ -34,6 +35,7 @@ function ThemeCard({ theme }: { theme: Theme }) {
       <div className="theme-card__chrome">
         <div className="theme-card__dots" aria-hidden="true"><span /><span /><span /></div>
         <div className="theme-card__urlbar">{theme.url.replace('https://', '')}</div>
+        {theme.technology && <span className="theme-card__tech">{theme.technology}</span>}
       </div>
       <div className="theme-card__viewport">
         <Image src={theme.image} alt={`${theme.name} preview`} className="theme-card__screenshot" width={800} height={2000} loading="lazy" />
@@ -61,19 +63,6 @@ export default async function WebsiteDevelopmentPage() {
 
   return (
     <main className="themes-page">
-      <section className="themes-hero">
-        <div className="container">
-          <p className="eyebrow fade-up" style={{ color: '#f87171' }}>E-commerce Solutions</p>
-          <h1 className="themes-hero__title fade-up-1">Ready-Made Themes for<br /><span className="accent">Your Online Store.</span></h1>
-          <p className="themes-hero__sub fade-up-2">Pick a design, customise it to your brand, and launch faster. Every theme is built for performance, mobile-first, and optimised to turn visitors into buyers.</p>
-          <div className="themes-hero__badges fade-up-3">
-            <span className="themes-badge"><span className="themes-badge__dot" aria-hidden="true" />{themes.length} Themes Available</span>
-            <span className="themes-badge"><span className="themes-badge__dot" aria-hidden="true" />Mobile-First Design</span>
-            <span className="themes-badge"><span className="themes-badge__dot" aria-hidden="true" />Fully Customisable</span>
-          </div>
-        </div>
-      </section>
-
       <section className="themes-grid-section">
         <div className="container">
           <div className="themes-section__header reveal">

@@ -99,7 +99,7 @@ export default async function JobPostPage({ params }: { params: Promise<{ slug: 
               </div>
             )}
             <div className="jp-article__footer reveal">
-              <Link href="/careers" className="btn btn-outline" style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.6)' }}>← Back to Careers</Link>
+              <Link href="/careers" className="btn btn-outline">← Back to Careers</Link>
             </div>
           </article>
 

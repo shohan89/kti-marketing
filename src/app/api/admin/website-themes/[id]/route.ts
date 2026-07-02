@@ -29,6 +29,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       data: {
         name: body.name || '',
         tags: splitLines(body.tags),
+        technology: body.technology || null,
         description: body.description || '',
         image: body.image || '',
         url: body.url || '',

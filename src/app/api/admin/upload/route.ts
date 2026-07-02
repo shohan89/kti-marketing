@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminSession } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 const SUPABASE_URL = () => process.env.NEXT_PUBLIC_SUPABASE_URL!
 const SERVICE_KEY  = () => process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -67,7 +68,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: err }, { status: 500 })
     }
 
-    return NextResponse.json({ url: getPublicUrl(bucket, path) })
+    const url = getPublicUrl(bucket, path)
+
+    // Record in Media Library — best-effort so a DB hiccup never blocks the upload itself.
+    try {
+      await prisma.mediaFile.create({
+        data: { filename: path, originalName: file.name, size: file.size, url, bucket },
+      })
+    } catch (e) {
+      console.error('[upload] Failed to record MediaFile row:', e)
+    }
+
+    return NextResponse.json({ url })
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json({ error: String(error) }, { status: 500 })

@@ -182,12 +182,6 @@
   box-shadow:
     0 40px 100px rgba(0, 0, 0, 0.6),
     0 0 0 1px rgba(255, 255, 255, 0.08);
-  transform: perspective(1400px) rotateY(-4deg) rotateX(2deg);
-  transition: transform 0.8s ease;
-}
-
-.hero-video-embed:hover {
-  transform: perspective(1400px) rotateY(0deg) rotateX(0deg);
 }
 
 .hero-video-embed__iframe {
@@ -2192,7 +2186,6 @@
 
 @media (max-width: 900px) {
   .home-hero__layout      { grid-template-columns: 1fr; gap: 2rem; padding: 2.5rem 0 4rem; }
-  .hero-video-embed       { transform: none; }
 
   .home-services__header  { grid-template-columns: 1fr; gap: 1.5rem; }
   .home-portfolio__header { grid-template-columns: 1fr; gap: 1.5rem; }
