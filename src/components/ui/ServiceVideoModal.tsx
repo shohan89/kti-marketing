@@ -8,6 +8,14 @@ interface Service { slug: string; title: string; description: string; videoUrl?:
 
 interface Props { service: Service; onClose: () => void }
 
+function toEmbedUrl(url: string): string {
+  if (!url) return ''
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/)
+  if (m) return `https://www.youtube.com/embed/${m[1]}`
+  if (url.includes('youtube.com/embed/')) return url
+  return ''
+}
+
 export default function ServiceVideoModal({ service, onClose }: Props) {
   const overlayRef  = useRef<HTMLDivElement>(null)
   const closeBtnRef = useRef<HTMLButtonElement>(null)
@@ -53,8 +61,8 @@ export default function ServiceVideoModal({ service, onClose }: Props) {
           <p className="svm-desc">{service.description}</p>
         </div>
         <div className="svm-video-wrap">
-          {service.videoUrl ? (
-            <iframe className="svm-iframe" src={`${service.videoUrl}?autoplay=1&rel=0&modestbranding=1`} title={`${service.title} overview video`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+          {toEmbedUrl(service.videoUrl ?? '') ? (
+            <iframe className="svm-iframe" src={`${toEmbedUrl(service.videoUrl ?? '')}?autoplay=1&rel=0&modestbranding=1`} title={`${service.title} overview video`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
           ) : (
             <div className="svm-coming-soon" role="img" aria-label="Video coming soon">
               <div className="svm-coming-soon__icon" aria-hidden="true">
