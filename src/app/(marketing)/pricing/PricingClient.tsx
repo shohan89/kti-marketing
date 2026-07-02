@@ -8,9 +8,9 @@ import './Pricing.css'
 
 function fmt(n: number) { return '৳' + n.toLocaleString('en-IN') }
 
-function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, marketingPackages, photoshootPackages }: {
+function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, marketingPackages, photoshootPackages, videoPackages }: {
   cartItems: CartItem[]; addToCart: (item: CartItem) => void; removeFromCart: (id: string) => void; cartTotal: number
-  marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]
+  marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]; videoPackages: VideoPackage[]
 }) {
   const [photoQtys, setPhotoQtys] = useState<Record<string, number>>(() =>
     Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig?.defaultQty ?? 1]))
@@ -109,6 +109,31 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
                 </p>
                 <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => addToCart({ id: itemId, name: pkg.type, category: 'photoshoot', price: total, qty, qtyUnit: pkg.qtyConfig?.unit, sessions, sessionLabel: pkg.qtyConfig?.sessionLabel, sessionPrice: pkg.priceNumeric, images: showImages ? images : undefined, pricePerImage: showImages ? ppi : undefined })}>
                   {inCart ? '✓ Update' : '+ Add to Cart'}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Video Packages column ───────────────────────── */}
+      <div className="calc-tab-col">
+        {colHead('Video Packages', videoPackages.length)}
+        <div className="calc-col-list">
+          {videoPackages.map(pkg => {
+            const itemId = `video-${pkg.id}`
+            const inCart = cartItems.some(c => c.id === itemId)
+            return (
+              <div key={pkg.id} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
+                <div className="calc-pkg-option__info">
+                  <div className="calc-pkg-option__top">
+                    <span className="calc-pkg-option__name">{pkg.name}</span>
+                    <span className="calc-pkg-option__price">{fmt(pkg.price)}{pkg.priceLabel && <small> {pkg.priceLabel}</small>}</span>
+                  </div>
+                  <ul className="calc-pkg-option__highlights"><li>{pkg.category}</li></ul>
+                </div>
+                <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => !inCart && addToCart({ id: itemId, name: pkg.name, category: 'video', price: pkg.price })} disabled={inCart}>
+                  {inCart ? '✓ Added' : '+ Add to Cart'}
                 </button>
               </div>
             )
@@ -285,7 +310,7 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
         <section className="pricing-calc-tab">
           <div className="container">
             <div className="pricing-calc-tab__header"><p className="eyebrow">Build Your Bundle</p><h2>Price <span className="accent">Calculator</span></h2><p className="pricing-calc-tab__sub">Browse our packages below and add them to your cart. Real bundle pricing is always lower than individual rates.</p></div>
-            <CalculatorTab cartItems={cartItems} addToCart={addToCart} removeFromCart={removeFromCart} cartTotal={cartTotal} marketingPackages={marketingPackages} photoshootPackages={photoshootPackages} />
+            <CalculatorTab cartItems={cartItems} addToCart={addToCart} removeFromCart={removeFromCart} cartTotal={cartTotal} marketingPackages={marketingPackages} photoshootPackages={photoshootPackages} videoPackages={videoPackages} />
           </div>
         </section>
       )}

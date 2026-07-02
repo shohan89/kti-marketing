@@ -956,6 +956,18 @@
   box-shadow: 0 2px 8px rgba(215,38,46,0.15);
 }
 
+/* Mobile — stack tabs in a single column instead of horizontal scroll */
+@media (max-width: 640px) {
+  .pricing-tabs {
+    flex-direction: column;
+    overflow-x: visible;
+  }
+  .pricing-tab {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .pricing-tab--active {
   background: var(--red);
   border-color: var(--red);
@@ -1017,9 +1029,16 @@
 
 .calc-tab-body {
   display: grid;
-  grid-template-columns: 1fr 1fr 320px;
+  grid-template-columns: 1fr 1fr 1fr 320px;
   gap: 2rem;
   align-items: start;
+}
+
+@media (max-width: 1300px) {
+  .calc-tab-body {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .calc-tab-right { grid-column: span 3; }
 }
 
 @media (max-width: 1100px) {

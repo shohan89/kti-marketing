@@ -4,10 +4,20 @@ import Footer from '@/components/layout/Footer'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import CustomCursor from '@/components/ui/CustomCursor'
 import ScrollRevealProvider from '@/components/ui/ScrollRevealProvider'
+import WhatsAppButton from '@/components/ui/WhatsAppButton'
 
 function safeParse<T>(val: string | undefined, fallback: T): T {
   if (!val) return fallback
   try { return JSON.parse(val) as T } catch { return fallback }
+}
+
+function toWhatsAppUrl(phones: { number: string }[], socials: { platform: string; url: string }[]): string {
+  const social = socials.find(s => s.platform === 'whatsapp')
+  if (social?.url) {
+    return social.url.startsWith('http') ? social.url : `https://wa.me/${social.url.replace(/[^\d]/g, '')}`
+  }
+  const digits = phones[0]?.number?.replace(/[^\d]/g, '') ?? ''
+  return digits ? `https://wa.me/${digits}` : ''
 }
 
 async function getNavData() {
@@ -22,14 +32,17 @@ async function getNavData() {
       prisma.siteSetting.findMany(),
     ])
     const map = Object.fromEntries(settings.map(r => [r.key, r.value]))
+    const footerPhones = safeParse<{ id: string; label: string; number: string }[]>(map['contact_phones'], [{ id: '1', label: 'Main', number: '+880 170 000 0000' }])
+    const socials = safeParse<{ id: string; platform: string; url: string }[]>(map['social_links'], [])
     return {
       services,
       isHiring: jobCount > 0,
       logoUrl:      map['site_logo_url']   ?? '',
-      footerPhones: safeParse<{ id: string; label: string; number: string }[]>(map['contact_phones'], [{ id: '1', label: 'Main', number: '+880 170 000 0000' }]),
+      footerPhones,
       footerEmails: safeParse<{ id: string; label: string; address: string }[]>(map['contact_emails'], [{ id: '1', label: 'General', address: 'hello@ktimarketing.com' }]),
       footerAddress: map['contact_address'] ?? 'Dhaka, Bangladesh',
       mapEmbedUrl:  map['map_embed_url']   ?? '',
+      whatsappUrl: toWhatsAppUrl(footerPhones, socials),
     }
   } catch {
     return {
@@ -50,12 +63,13 @@ async function getNavData() {
       footerEmails: [{ id: '1', label: 'General', address: 'hello@ktimarketing.com' }],
       footerAddress: 'Dhaka, Bangladesh',
       mapEmbedUrl: '',
+      whatsappUrl: 'https://wa.me/8801700000000',
     }
   }
 }
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const { services, isHiring, logoUrl, footerPhones, footerEmails, footerAddress, mapEmbedUrl } = await getNavData()
+  const { services, isHiring, logoUrl, footerPhones, footerEmails, footerAddress, mapEmbedUrl, whatsappUrl } = await getNavData()
 
   return (
     <>
@@ -72,6 +86,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
         address={footerAddress}
         mapEmbedUrl={mapEmbedUrl}
       />
+      <WhatsAppButton url={whatsappUrl} />
     </>
   )
 }
