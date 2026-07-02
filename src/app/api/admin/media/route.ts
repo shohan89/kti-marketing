@@ -13,6 +13,94 @@ async function ensureDir() {
   if (!existsSync(UPLOAD_DIR)) await mkdir(UPLOAD_DIR, { recursive: true })
 }
 
+/** Parse a Supabase-Storage-hosted URL (direct public URL or the /public/{bucket}/{filename}
+ *  proxy format used across this app) into its bucket + object filename, or null if it's not
+ *  a Storage-hosted URL (e.g. a local static asset or external URL — nothing to track). */
+function parseStorageUrl(raw: unknown): { bucket: string; filename: string } | null {
+  if (typeof raw !== 'string' || !raw) return null
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const prefix = supabaseUrl ? `${supabaseUrl}/storage/v1/object/public/` : null
+  if (prefix && raw.startsWith(prefix)) {
+    const rest = raw.slice(prefix.length)
+    const slash = rest.indexOf('/')
+    if (slash > 0) return { bucket: rest.slice(0, slash), filename: decodeURIComponent(rest.slice(slash + 1)) }
+  }
+  const m = raw.match(/^\/public\/([^/]+)\/(.+)$/)
+  if (m) return { bucket: m[1], filename: decodeURIComponent(m[2]) }
+  return null
+}
+
+function safeJsonParse<T>(str: string | null | undefined): T | null {
+  if (!str) return null
+  try { return JSON.parse(str) as T } catch { return null }
+}
+
+/** Walk every content model/field known to store image URLs (services, blog posts,
+ *  portfolio items, case studies, website themes, team members, homepage/about site
+ *  settings) and return every image URL actually referenced across the live site —
+ *  this is the guaranteed source of "images I used", independent of whether the
+ *  Storage bucket-listing API happens to work in the current runtime. */
+async function collectContentImageUrls(): Promise<string[]> {
+  const urls: string[] = []
+  const push = (v: unknown) => { if (typeof v === 'string' && v) urls.push(v) }
+
+  try {
+    const services = await prisma.service.findMany({ select: { imageUrl: true, imageGallery: true } })
+    for (const s of services) {
+      push(s.imageUrl)
+      const gallery = Array.isArray(s.imageGallery) ? s.imageGallery : []
+      gallery.forEach(push)
+    }
+  } catch (e) { console.error('[media backfill] service scan failed:', e) }
+
+  try {
+    const posts = await prisma.blogPost.findMany({ select: { coverImageUrl: true } })
+    posts.forEach(p => push(p.coverImageUrl))
+  } catch (e) { console.error('[media backfill] blogPost scan failed:', e) }
+
+  try {
+    const items = await prisma.portfolioItem.findMany({ select: { imageUrls: true } })
+    for (const i of items) {
+      const arr = Array.isArray(i.imageUrls) ? i.imageUrls : []
+      arr.forEach(push)
+    }
+  } catch (e) { console.error('[media backfill] portfolioItem scan failed:', e) }
+
+  try {
+    const cases = await prisma.caseStudy.findMany({ select: { coverImageUrl: true, imageUrls: true } })
+    for (const c of cases) {
+      push(c.coverImageUrl)
+      const arr = Array.isArray(c.imageUrls) ? c.imageUrls : []
+      arr.forEach(push)
+    }
+  } catch (e) { console.error('[media backfill] caseStudy scan failed:', e) }
+
+  try {
+    const themes = await prisma.websiteTheme.findMany({ select: { image: true } })
+    themes.forEach(t => push(t.image))
+  } catch (e) { console.error('[media backfill] websiteTheme scan failed:', e) }
+
+  try {
+    const team = await prisma.teamMember.findMany({ select: { imageUrl: true } })
+    team.forEach(m => push(m.imageUrl))
+  } catch (e) { console.error('[media backfill] teamMember scan failed:', e) }
+
+  try {
+    const settings = await prisma.siteSetting.findMany({
+      where: { key: { in: ['homepage_hero', 'homepage_brands', 'about_founder', 'about_clients'] } },
+    })
+    for (const row of settings) {
+      const value = safeJsonParse<unknown>(row.value)
+      if (row.key === 'homepage_hero') push((value as { heroImageUrl?: string } | null)?.heroImageUrl)
+      if (row.key === 'homepage_brands' && Array.isArray(value)) (value as { logoUrl?: string }[]).forEach(b => push(b?.logoUrl))
+      if (row.key === 'about_founder') push((value as { photoUrl?: string } | null)?.photoUrl)
+      if (row.key === 'about_clients' && Array.isArray(value)) (value as { logoUrl?: string }[]).forEach(c => push(c?.logoUrl))
+    }
+  } catch (e) { console.error('[media backfill] siteSetting scan failed:', e) }
+
+  return [...new Set(urls)]
+}
+
 async function listSupabaseImages() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -79,13 +167,36 @@ export async function GET() {
     console.error('[media GET] listSupabaseImages failed:', e)
   }
 
-  const localFilenames = new Set(localFiles.map(f => f.filename))
-  const untracked = supabaseFiles.filter(f => !localFilenames.has(f.filename))
+  let contentUrls: string[] = []
+  try {
+    contentUrls = await collectContentImageUrls()
+  } catch (e) {
+    console.error('[media GET] collectContentImageUrls failed:', e)
+  }
 
-  // Lazily backfill a MediaFile row for every real Storage image we haven't
-  // tracked yet, so every image becomes editable/deletable through the same
-  // DB-backed flow (one-time cost — subsequent loads have nothing left to backfill).
-  const backfilled = (await Promise.all(untracked.map(async f => {
+  const localFilenames = new Set(localFiles.map(f => f.filename))
+
+  // Merge candidates from both sources — the Storage bucket-listing scan AND every
+  // image URL actually referenced by site content — deduped by filename. The content
+  // scan is the guaranteed source: it only depends on normal DB reads (already proven
+  // to work everywhere else in this admin), independent of whether Storage's list API
+  // happens to succeed in the current runtime.
+  const candidates = new Map<string, { filename: string; originalName: string; size: number; url: string; bucket: string }>()
+  for (const f of supabaseFiles) {
+    if (localFilenames.has(f.filename)) continue
+    candidates.set(f.filename, { filename: f.filename, originalName: f.originalName, size: f.size, url: f.url, bucket: f.bucket })
+  }
+  for (const raw of contentUrls) {
+    const parsed = parseStorageUrl(raw)
+    if (!parsed) continue
+    if (localFilenames.has(parsed.filename) || candidates.has(parsed.filename)) continue
+    candidates.set(parsed.filename, { filename: parsed.filename, originalName: parsed.filename, size: 0, url: raw, bucket: parsed.bucket })
+  }
+
+  // Lazily backfill a MediaFile row for every image we haven't tracked yet, so it
+  // becomes editable/deletable through the same DB-backed flow (one-time cost —
+  // subsequent loads have nothing left to backfill).
+  const backfilled = (await Promise.all([...candidates.values()].map(async f => {
     try {
       return await prisma.mediaFile.create({
         data: { filename: f.filename, originalName: f.originalName, size: f.size, url: f.url, bucket: f.bucket },
