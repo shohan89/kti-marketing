@@ -42,6 +42,7 @@ async function getNavData() {
       footerEmails: safeParse<{ id: string; label: string; address: string }[]>(map['contact_emails'], [{ id: '1', label: 'General', address: 'hello@ktimarketing.com' }]),
       footerAddress: map['contact_address'] ?? 'Dhaka, Bangladesh',
       mapEmbedUrl:  map['map_embed_url']   ?? '',
+      socials,
       whatsappUrl: toWhatsAppUrl(footerPhones, socials),
     }
   } catch {
@@ -63,13 +64,14 @@ async function getNavData() {
       footerEmails: [{ id: '1', label: 'General', address: 'hello@ktimarketing.com' }],
       footerAddress: 'Dhaka, Bangladesh',
       mapEmbedUrl: '',
+      socials: [] as { id: string; platform: string; url: string }[],
       whatsappUrl: 'https://wa.me/8801700000000',
     }
   }
 }
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const { services, isHiring, logoUrl, footerPhones, footerEmails, footerAddress, mapEmbedUrl, whatsappUrl } = await getNavData()
+  const { services, isHiring, logoUrl, footerPhones, footerEmails, footerAddress, mapEmbedUrl, socials, whatsappUrl } = await getNavData()
 
   return (
     <>
@@ -85,6 +87,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
         emails={footerEmails}
         address={footerAddress}
         mapEmbedUrl={mapEmbedUrl}
+        socials={socials}
       />
       <WhatsAppButton url={whatsappUrl} />
     </>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import ContactForm from './ContactForm'
 import { getPageSeo, buildMetadata } from '@/lib/seo'
+import { prisma } from '@/lib/prisma'
 import './Contact.css'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -8,14 +9,59 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata(seo, { title: 'Contact Us', description: 'Start your marketing growth journey with KTI Marketing. Get in touch — we respond within one business day.' })
 }
 
-const CONTACT_INFO = [
-  { icon: '✉️', label: 'Email Us',   value: 'hello@ktimarketing.com', href: 'mailto:hello@ktimarketing.com' },
-  { icon: '📞', label: 'Call Us',    value: '+880 170 000 0000',      href: 'tel:+8801700000000' },
-  { icon: '📍', label: 'Our Office', value: 'Dhaka, Bangladesh',       href: null },
-  { icon: '💬', label: 'Instagram',  value: '@ktimarketing',           href: 'https://instagram.com/ktimarketing' },
-]
+function safeParse<T>(val: string | undefined, fallback: T): T {
+  if (!val) return fallback
+  try { return JSON.parse(val) as T } catch { return fallback }
+}
 
-export default function ContactPage() {
+const SOCIAL_ICONS: Record<string, string> = {
+  facebook: '📘', instagram: '💬', linkedin: '💼', twitter: '🐦', youtube: '▶️',
+  tiktok: '🎵', whatsapp: '💬', telegram: '✈️', pinterest: '📌', snapchat: '👻',
+}
+const SOCIAL_LABELS: Record<string, string> = {
+  facebook: 'Facebook', instagram: 'Instagram', linkedin: 'LinkedIn', twitter: 'Twitter / X',
+  youtube: 'YouTube', tiktok: 'TikTok', whatsapp: 'WhatsApp', telegram: 'Telegram',
+  pinterest: 'Pinterest', snapchat: 'Snapchat',
+}
+
+const DEFAULTS = {
+  email: 'hello@ktimarketing.com',
+  phone: '+880 170 000 0000',
+  address: 'Dhaka, Bangladesh',
+  social: { platform: 'instagram', url: 'https://instagram.com/ktimarketing' } as { platform: string; url: string } | null,
+}
+
+async function getContactInfo() {
+  try {
+    const settings = await prisma.siteSetting.findMany({
+      where: { key: { in: ['contact_emails', 'contact_phones', 'contact_address', 'social_links'] } },
+    })
+    const map = Object.fromEntries(settings.map(r => [r.key, r.value]))
+    const emails = safeParse<{ address: string }[]>(map['contact_emails'], [])
+    const phones = safeParse<{ number: string }[]>(map['contact_phones'], [])
+    const socials = safeParse<{ platform: string; url: string }[]>(map['social_links'], [])
+    const social = socials.find(s => s.platform === 'instagram') ?? socials[0] ?? null
+
+    return {
+      email: emails[0]?.address || DEFAULTS.email,
+      phone: phones[0]?.number || DEFAULTS.phone,
+      address: map['contact_address'] || DEFAULTS.address,
+      social: social ?? DEFAULTS.social,
+    }
+  } catch {
+    return DEFAULTS
+  }
+}
+
+export default async function ContactPage() {
+  const { email, phone, address, social } = await getContactInfo()
+  const CONTACT_INFO = [
+    { icon: '✉️', label: 'Email Us',   value: email,  href: `mailto:${email}` },
+    { icon: '📞', label: 'Call Us',    value: phone,  href: `tel:${phone.replace(/\s/g, '')}` },
+    { icon: '📍', label: 'Our Office', value: address, href: null as string | null },
+    ...(social ? [{ icon: SOCIAL_ICONS[social.platform] ?? '💬', label: SOCIAL_LABELS[social.platform] ?? social.platform, value: social.url.replace(/^https?:\/\//, ''), href: social.url as string | null }] : []),
+  ]
+
   return (
     <div className="contact-page">
 

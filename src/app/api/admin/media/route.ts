@@ -13,6 +13,15 @@ async function ensureDir() {
   if (!existsSync(UPLOAD_DIR)) await mkdir(UPLOAD_DIR, { recursive: true })
 }
 
+// The Supabase-backed compat layer returns timestamp columns as already-ISO
+// strings (from PostgREST/JSON), not JS Date instances — calling
+// .toISOString() on them throws. Handle either shape defensively.
+function toIso(v: unknown): string {
+  if (v instanceof Date) return v.toISOString()
+  if (typeof v === 'string') return v
+  return new Date().toISOString()
+}
+
 /** Parse a Supabase-Storage-hosted URL (direct public URL or the /public/{bucket}/{filename}
  *  proxy format used across this app) into its bucket + object filename, or null if it's not
  *  a Storage-hosted URL (e.g. a local static asset or external URL — nothing to track). */
@@ -216,7 +225,7 @@ export async function GET() {
     width: f.width,
     height: f.height,
     alt: f.alt,
-    createdAt: f.createdAt.toISOString(),
+    createdAt: toIso(f.createdAt),
     source: f.bucket ? ('supabase' as const) : ('local' as const),
     bucket: f.bucket ?? undefined,
     canDelete: true,
@@ -254,7 +263,7 @@ export async function POST(req: NextRequest) {
       url: `/upload/${media.filename}`,
       source: 'local',
       canDelete: true,
-      createdAt: media.createdAt.toISOString(),
+      createdAt: toIso(media.createdAt),
     }, { status: 201 })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Upload failed'

@@ -17,26 +17,29 @@ export async function GET() {
   }
 }
 
+/** Idempotent get-or-create by pageKey. `PageSeo.id` is a separate cuid PK
+ *  from the unique `pageKey`, and this project's Supabase-backed upsert only
+ *  auto-generates `id` when the conflict column IS `id` — so a real upsert()
+ *  here would insert new rows with a missing id. Explicit find-then-create
+ *  sidesteps that and is also what makes "Configure" safe to click twice. */
+async function getOrCreatePage(pageKey: string, pageLabel: string) {
+  const found = await prisma.pageSeo.findFirst({ where: { pageKey } })
+  if (found) return found
+  return prisma.pageSeo.create({ data: { pageKey, pageLabel } })
+}
+
 export async function POST(req: NextRequest) {
   const unauth = await requireAdminSession()
   if (unauth) return unauth
   try {
     const body = await req.json()
 
-    // Seed all static pages at once if requested
     if (body.seedAll) {
-      const existing = await prisma.pageSeo.findMany({ select: { pageKey: true } })
-      const existingKeys = new Set(existing.map(p => p.pageKey))
-      const toCreate = STATIC_PAGES.filter(p => !existingKeys.has(p.key))
-      const created = await Promise.all(
-        toCreate.map(p => prisma.pageSeo.create({ data: { pageKey: p.key, pageLabel: p.label } }))
-      )
+      const created = await Promise.all(STATIC_PAGES.map(p => getOrCreatePage(p.key, p.label)))
       return NextResponse.json({ created: created.length })
     }
 
-    const page = await prisma.pageSeo.create({
-      data: { pageKey: body.pageKey, pageLabel: body.pageLabel },
-    })
+    const page = await getOrCreatePage(body.pageKey, body.pageLabel)
     return NextResponse.json(page, { status: 201 })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'DB error'
