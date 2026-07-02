@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
     const portfolioUrl = formData.get('portfolioUrl') as string | null
     const cvFile      = formData.get('cv') as File | null
 
-    if (!jobId || !name?.trim() || !email?.trim() || !coverLetter?.trim()) {
-      return NextResponse.json({ error: 'Job ID, name, email, and cover letter are required.' }, { status: 400 })
+    if (!jobId || !name?.trim() || !email?.trim() || !phone?.trim() || !coverLetter?.trim()) {
+      return NextResponse.json({ error: 'Job ID, name, email, phone, and cover letter are required.' }, { status: 400 })
     }
 
     let cvUrl: string | null = null

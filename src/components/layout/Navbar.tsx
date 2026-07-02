@@ -17,7 +17,7 @@ const NAV_LINKS = [
   { to: '/portfolio', label: 'Portfolio' },
   { to: '/blog',         label: 'Blog' },
   { to: '/careers',      label: 'Careers' },
-  { to: '/themes',       label: 'Our Themes' },
+  { to: '/website-development', label: 'Website Development' },
   { to: '/pricing',      label: 'Pricing' },
   { to: '/contact',      label: 'Contact' },
 ]

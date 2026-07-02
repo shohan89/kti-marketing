@@ -429,6 +429,8 @@ export const prisma = {
   caseStudy:          makeModel('CaseStudy'),
   marketingPackage:   makeModel('MarketingPackage'),
   photoshootPackage:  makeModel('PhotoshootPackage'),
+  videoPackage:       makeModel('VideoPackage'),
+  websiteTheme:       makeModel('WebsiteTheme'),
   calculatorService:  makeModel('CalculatorService'),
   jobListing:         makeModel('JobListing'),
   jobApplication:     makeModel('JobApplication'),

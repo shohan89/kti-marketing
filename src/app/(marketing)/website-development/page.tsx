@@ -2,21 +2,33 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import PageCTA from '@/components/ui/PageCTA'
 import { getPageSeo, buildMetadata } from '@/lib/seo'
+import { prisma } from '@/lib/prisma'
 import './OurThemes.css'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = await getPageSeo('themes')
-  return buildMetadata(seo, { title: 'Our Themes — Ready-Made E-commerce Designs', description: 'Pick a design, customise it to your brand, and launch faster. Every theme is mobile-first and optimised to turn visitors into buyers.' })
+  const seo = await getPageSeo('website-development')
+  return buildMetadata(seo, { title: 'Website Development — Ready-Made E-commerce Designs', description: 'Pick a design, customise it to your brand, and launch faster. Every theme is mobile-first and optimised to turn visitors into buyers.' })
 }
 
-const THEMES = [
+type Theme = {
+  id: string | number
+  name: string
+  tags: string[]
+  description: string
+  image: string
+  url: string
+}
+
+const THEMES_STATIC: Theme[] = [
   { id: 1, name: 'Theme One', tags: ['E-commerce', 'Fashion'], description: 'Classic store layout with bold category navigation, product grids, and a promotional banner header. Ideal for fashion and apparel brands.', image: '/themes/theme-1.png', url: 'https://ecom.prodevs.com.bd/public/theme-1' },
   { id: 2, name: 'Theme Two', tags: ['Boutique', 'Multi-Category'], description: 'Modern boutique design featuring circular category icons, curated product sections, and a clean white aesthetic built for conversions.', image: '/themes/theme-2.png', url: 'https://ecom.prodevs.com.bd/theme-2' },
   { id: 3, name: 'Theme Three', tags: ['Fashion', 'Multi-Section'], description: 'Fashion-forward layout with a full-width hero banner, shop-by-category strip, and multiple product showcase sections for high-volume stores.', image: '/themes/theme-3.png', url: 'https://ecom.prodevs.com.bd/theme-3' },
   { id: 4, name: 'Theme Four', tags: ['Department Store', 'Sidebar Nav'], description: 'Full-featured department store theme with sidebar category navigation, featured products, and a comprehensive footer for large catalogues.', image: '/themes/theme-4.png', url: 'https://ecom.prodevs.com.bd/theme-4' },
 ]
 
-function ThemeCard({ theme }: { theme: typeof THEMES[0] }) {
+function ThemeCard({ theme }: { theme: Theme }) {
   return (
     <div className="theme-card">
       <div className="theme-card__chrome">
@@ -40,7 +52,13 @@ function ThemeCard({ theme }: { theme: typeof THEMES[0] }) {
   )
 }
 
-export default function ThemesPage() {
+export default async function WebsiteDevelopmentPage() {
+  let themes: Theme[] = THEMES_STATIC
+  try {
+    const rows = await prisma.websiteTheme.findMany({ where: { isPublished: true }, orderBy: { sortOrder: 'asc' } })
+    if (rows.length > 0) themes = rows
+  } catch { /* use static fallback */ }
+
   return (
     <main className="themes-page">
       <section className="themes-hero">
@@ -49,7 +67,7 @@ export default function ThemesPage() {
           <h1 className="themes-hero__title fade-up-1">Ready-Made Themes for<br /><span className="accent">Your Online Store.</span></h1>
           <p className="themes-hero__sub fade-up-2">Pick a design, customise it to your brand, and launch faster. Every theme is built for performance, mobile-first, and optimised to turn visitors into buyers.</p>
           <div className="themes-hero__badges fade-up-3">
-            <span className="themes-badge"><span className="themes-badge__dot" aria-hidden="true" />{THEMES.length} Themes Available</span>
+            <span className="themes-badge"><span className="themes-badge__dot" aria-hidden="true" />{themes.length} Themes Available</span>
             <span className="themes-badge"><span className="themes-badge__dot" aria-hidden="true" />Mobile-First Design</span>
             <span className="themes-badge"><span className="themes-badge__dot" aria-hidden="true" />Fully Customisable</span>
           </div>
@@ -64,7 +82,7 @@ export default function ThemesPage() {
             <p className="themes-section__sub">Hover over any theme to see a live scrolling preview of the full page.</p>
           </div>
           <div className="themes-grid">
-            {THEMES.map((theme, i) => (
+            {themes.map((theme, i) => (
               <div key={theme.id} className="reveal" style={{ '--reveal-delay': `${i * 0.1}s` } as React.CSSProperties}>
                 <ThemeCard theme={theme} />
               </div>

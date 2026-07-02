@@ -39,6 +39,10 @@ export interface MarketingPackage {
   description: string; platforms: string[]; deliverables: string[]; cta: string
 }
 
+export interface VideoPackage {
+  id: string; category: string; name: string; price: number; priceLabel?: string | null
+}
+
 export interface PhotoshootPackage {
   type: string; icon: string; description: string; price: string; priceNumeric: number
   unit: string; addOn: string | null; includes: string[]
@@ -504,6 +508,23 @@ export const photoshootPackages: PhotoshootPackage[] = [
   { type: 'Model Photography', icon: '👤', description: 'Lifestyle and fashion shoots featuring professional models.', price: '৳15,000', priceNumeric: 15000, unit: 'per session', addOn: 'Model fee may apply', includes: ['Half-day shoot (4 hrs)', '2 outfit changes', 'Professional model', 'Location or studio'], qtyConfig: { inputLabel: 'How many sessions?', unit: 'sessions', capacity: 1, sessionLabel: 'session', defaultQty: 1, imagesConfig: { defaultImages: 50, pricePerImage: 200 } } },
   { type: 'E-commerce Pack', icon: '🛒', description: 'High-volume product photography package for sellers on Daraz, Amazon, or direct-to-consumer stores.', price: '৳18,000', priceNumeric: 18000, unit: 'per pack', addOn: null, includes: ['Up to 20 products', 'Pure white background', 'Multi-angle shots', 'Same-day processing'], qtyConfig: { inputLabel: 'How many products?', unit: 'products', capacity: 20, sessionLabel: 'pack', defaultQty: 20, imagesConfig: { defaultImages: 60, pricePerImage: 150 } } },
   { type: 'Commercial Full-Day', icon: '🎬', description: 'Full production day with professional crew, studio access, styling, and comprehensive post-processing.', price: '৳45,000', priceNumeric: 45000, unit: 'per day', addOn: 'Travel fees extra', includes: ['8-hour shoot', 'Full crew & equipment', 'Styling assistance', 'Advanced retouching', 'Usage rights'], qtyConfig: { inputLabel: 'How many days?', unit: 'days', capacity: 1, sessionLabel: 'day', defaultQty: 1, imagesConfig: { defaultImages: 100, pricePerImage: 250 } } },
+]
+
+export const videoPackages: VideoPackage[] = [
+  // Video Services
+  { id: 'v1', category: 'Video Services', name: 'Model Video (Promotional)', price: 8000 },
+  { id: 'v2', category: 'Video Services', name: 'Model Video (Explain)', price: 8000 },
+  { id: 'v3', category: 'Video Services', name: 'Video (Without Model)', price: 6000 },
+  { id: 'v4', category: 'Video Services', name: 'Voiceover Video', price: 5000 },
+  { id: 'v5', category: 'Video Services', name: 'Cinematic Video Shoot', price: 3500 },
+  { id: 'v6', category: 'Video Services', name: 'Reel Video (Professional)', price: 4000 },
+  { id: 'v7', category: 'Video Services', name: 'Reel Video (Mid Range)', price: 3000 },
+  { id: 'v8', category: 'Video Services', name: 'Reel Video (Lower)', price: 2000 },
+  // Branding Videos
+  { id: 'v9', category: 'Branding Videos', name: 'Branding Video + Professional Voiceover', price: 5000, priceLabel: '15–20 sec' },
+  { id: 'v10', category: 'Branding Videos', name: 'Branding Video + Professional Shoot', price: 8000, priceLabel: '20–40 sec' },
+  { id: 'v11', category: 'Branding Videos', name: 'Outdoor Video (With Model)', price: 15000 },
+  { id: 'v12', category: 'Branding Videos', name: 'Showroom Content Video (With Model)', price: 20000 },
 ]
 
 export const FAQS = [

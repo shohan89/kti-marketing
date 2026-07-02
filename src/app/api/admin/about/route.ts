@@ -6,12 +6,17 @@ export async function POST(req: NextRequest) {
   const unauth = await requireAdminSession()
   if (unauth) return unauth
   try {
-    const { clients, achievements, clientsTitle, achievementsTitle, founderTags } = await req.json()
+    const { clients, achievements, clientsTitle, achievementsTitle, founderTags, founder } = await req.json()
     await Promise.all([
       prisma.siteSetting.upsert({
         where: { key: 'about_founder_tags' },
         update: { value: JSON.stringify(founderTags ?? []) },
         create: { key: 'about_founder_tags', value: JSON.stringify(founderTags ?? []), label: 'About — Founder Tags', group: 'about' },
+      }),
+      prisma.siteSetting.upsert({
+        where: { key: 'about_founder' },
+        update: { value: JSON.stringify(founder ?? {}) },
+        create: { key: 'about_founder', value: JSON.stringify(founder ?? {}), label: 'About — Founder Bio', group: 'about' },
       }),
       prisma.siteSetting.upsert({
         where: { key: 'about_clients' },

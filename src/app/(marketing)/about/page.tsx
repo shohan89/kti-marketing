@@ -84,12 +84,32 @@ const STATS = [
 type ClientItem = { name: string; logoUrl?: string; website?: string }
 type AchievementItem = { year: string; title: string; description?: string }
 type FounderTag = { label: string; url: string }
+type FounderContent = {
+  photoUrl: string; badge: string; sinceBadge: string; name: string; nickname: string
+  bio: string; pullquote: string; email: string; facebookUrl: string
+  kibanShoeUrl: string; ktiAgencyUrl: string; officeAddress: string
+}
 
 const DEFAULT_FOUNDER_TAGS: FounderTag[] = [
   { label: 'KIBAN SHOE', url: 'https://www.kibanshoe.com' },
   { label: 'KIBAN Trade International', url: 'https://www.kibanshoe.com' },
   { label: 'KTI – Marketing Agency', url: 'https://www.kti.com.bd' },
 ]
+
+const DEFAULT_FOUNDER: FounderContent = {
+  photoUrl: '/founder.jpg',
+  badge: 'Founder & Chief',
+  sinceBadge: 'Est. 2016',
+  name: 'Md Mehedi Hasan',
+  nickname: '(Babla)',
+  bio: 'Md Mehedi Hasan (Babla) is a visionary entrepreneur and the founder of KIBAN Trade International and KIBAN SHOE. With a commitment to quality and integrity, he has built a strong reputation in the e-commerce and trading sectors of Bangladesh.\n\nBeyond manufacturing and trade, he leads KTI – Marketing Agency, specializing in innovative digital marketing and branding solutions. Based in Mirpur 10, Dhaka, Mehedi is dedicated to creating sustainable business growth and delivering excellence to his clients.',
+  pullquote: 'My goal has always been simple — help brands grow in ways that actually matter to their bottom line. Real revenue, not just reach.',
+  email: 'mehedihasan.babla@gmail.com',
+  facebookUrl: 'https://facebook.com/ktibabla',
+  kibanShoeUrl: 'https://www.kibanshoe.com',
+  ktiAgencyUrl: 'https://www.kti.com.bd',
+  officeAddress: 'Suite 1005, 10th Floor (Lift-9), Shah Ali Plaza, Mirpur 10, Dhaka.',
+}
 
 function safeJson<T>(str: string | undefined | null, fallback: T): T {
   if (!str) return fallback
@@ -102,6 +122,7 @@ export default async function AboutPage() {
   let clients: ClientItem[] = []
   let achievements: AchievementItem[] = []
   let founderTags: FounderTag[] = DEFAULT_FOUNDER_TAGS
+  let founder: FounderContent = DEFAULT_FOUNDER
   let aboutExtra = { clientsTitle: "Brands We've Helped Grow", achievementsTitle: 'Our Milestones' }
 
   try {
@@ -125,6 +146,7 @@ export default async function AboutPage() {
     const settings = await prisma.siteSetting.findMany({ where: { key: { startsWith: 'about_' } } })
     const map = Object.fromEntries(settings.map(r => [r.key, r.value]))
     founderTags = safeJson<FounderTag[]>(map['about_founder_tags'], DEFAULT_FOUNDER_TAGS)
+    founder = { ...DEFAULT_FOUNDER, ...safeJson<Partial<FounderContent>>(map['about_founder'], {}) }
     clients = safeJson<ClientItem[]>(map['about_clients'], [])
     achievements = safeJson<AchievementItem[]>(map['about_achievements'], [])
     aboutExtra = { ...aboutExtra, ...safeJson(map['about_extra'], {}) }
@@ -146,14 +168,14 @@ export default async function AboutPage() {
           <div className="about-founder__grid">
             <div className="about-founder__photo reveal">
               <div className="about-founder__photo-frame">
-                <img src="/founder.jpg" alt="Md Mehedi Hasan (Babla) — Founder & Chief" />
-                <span className="about-founder__since-badge">Est. 2016</span>
+                <img src={founder.photoUrl} alt={`${founder.name} ${founder.nickname} — ${founder.badge}`} />
+                <span className="about-founder__since-badge">{founder.sinceBadge}</span>
               </div>
               <div className="about-founder__photo-bg" aria-hidden="true" />
             </div>
             <div className="about-founder__content reveal" style={{ '--reveal-delay': '0.12s' } as React.CSSProperties}>
-              <span className="about-founder__badge">Founder &amp; Chief</span>
-              <h2 className="about-founder__name">Md Mehedi Hasan<span className="about-founder__nick"> (Babla)</span></h2>
+              <span className="about-founder__badge">{founder.badge}</span>
+              <h2 className="about-founder__name">{founder.name}<span className="about-founder__nick"> {founder.nickname}</span></h2>
               <div className="about-founder__tags">
                 {founderTags.filter(t => t.label).map((tag, i) => (
                   tag.url ? (
@@ -163,20 +185,19 @@ export default async function AboutPage() {
                   )
                 ))}
               </div>
-              <p>Md Mehedi Hasan (Babla) is a visionary entrepreneur and the founder of KIBAN Trade International and KIBAN SHOE. With a commitment to quality and integrity, he has built a strong reputation in the e-commerce and trading sectors of Bangladesh.</p>
-              <p>Beyond manufacturing and trade, he leads KTI – Marketing Agency, specializing in innovative digital marketing and branding solutions. Based in Mirpur 10, Dhaka, Mehedi is dedicated to creating sustainable business growth and delivering excellence to his clients.</p>
-              <blockquote className="about-founder__pullquote">"My goal has always been simple — help brands grow in ways that actually matter to their bottom line. Real revenue, not just reach."</blockquote>
+              {founder.bio.split(/\n\s*\n/).filter(Boolean).map((para, i) => <p key={i}>{para}</p>)}
+              <blockquote className="about-founder__pullquote">&quot;{founder.pullquote}&quot;</blockquote>
               <div className="about-founder__connect">
                 <h3 className="about-founder__connect-title">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.14 1.22 2 2 0 012.11 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
-                  Connect with Mehedi
+                  Connect with {founder.name.split(' ')[0]}
                 </h3>
                 <div className="about-founder__connect-grid">
-                  <div className="about-founder__connect-item"><span className="about-founder__connect-label">Email</span><a href="mailto:mehedihasan.babla@gmail.com" className="about-founder__connect-link">mehedihasan.babla@gmail.com</a></div>
-                  <div className="about-founder__connect-item"><span className="about-founder__connect-label">Facebook</span><a href="https://facebook.com/ktibabla" target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">facebook.com/ktibabla</a></div>
-                  <div className="about-founder__connect-item"><span className="about-founder__connect-label">KIBAN Shoe</span><a href="https://www.kibanshoe.com" target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">www.kibanshoe.com</a></div>
-                  <div className="about-founder__connect-item"><span className="about-founder__connect-label">KTI Agency</span><a href="https://www.kti.com.bd" target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">www.kti.com.bd</a></div>
-                  <div className="about-founder__connect-item about-founder__connect-item--full"><span className="about-founder__connect-label">Office Address</span><span className="about-founder__connect-address">Suite 1005, 10th Floor (Lift-9), Shah Ali Plaza, Mirpur 10, Dhaka.</span></div>
+                  <div className="about-founder__connect-item"><span className="about-founder__connect-label">Email</span><a href={`mailto:${founder.email}`} className="about-founder__connect-link">{founder.email}</a></div>
+                  <div className="about-founder__connect-item"><span className="about-founder__connect-label">Facebook</span><a href={founder.facebookUrl} target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">{founder.facebookUrl.replace('https://', '')}</a></div>
+                  <div className="about-founder__connect-item"><span className="about-founder__connect-label">KIBAN Shoe</span><a href={founder.kibanShoeUrl} target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">{founder.kibanShoeUrl.replace('https://', '')}</a></div>
+                  <div className="about-founder__connect-item"><span className="about-founder__connect-label">KTI Agency</span><a href={founder.ktiAgencyUrl} target="_blank" rel="noopener noreferrer" className="about-founder__connect-link">{founder.ktiAgencyUrl.replace('https://', '')}</a></div>
+                  <div className="about-founder__connect-item about-founder__connect-item--full"><span className="about-founder__connect-label">Office Address</span><span className="about-founder__connect-address">{founder.officeAddress}</span></div>
                 </div>
               </div>
             </div>

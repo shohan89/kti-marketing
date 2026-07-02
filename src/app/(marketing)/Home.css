@@ -166,7 +166,7 @@
 
 .home-hero__layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 0.85fr 1.15fr;
   gap: 4rem;
   align-items: center;
   padding: 3rem 0 5rem;
@@ -974,7 +974,7 @@
 
 /* ── 3. Marquee ───────────────────────────────────────── */
 .marquee-band {
-  background: var(--red);
+  background: var(--ash);
   padding: 1.1rem 0;
   overflow: hidden;
   white-space: nowrap;
@@ -1455,6 +1455,9 @@
   box-shadow: var(--shadow-card);
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 

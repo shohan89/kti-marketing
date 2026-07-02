@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import type { MarketingPackage, PhotoshootPackage } from '@/data/staticData'
+import type { MarketingPackage, PhotoshootPackage, VideoPackage } from '@/data/staticData'
 import PageCTA from '@/components/ui/PageCTA'
 import './Pricing.css'
 
@@ -153,7 +153,17 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
 
 interface CartItem { id: string; name: string; category: string; price: number; qty?: number; qtyUnit?: string; sessions?: number; sessionLabel?: string; sessionPrice?: number; images?: number; pricePerImage?: number }
 
-export default function PricingClient({ marketingPackages, photoshootPackages, FAQS }: { marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]; FAQS: { q: string; a: string }[] }) {
+function groupByCategory(items: VideoPackage[]) {
+  const groups: { category: string; items: VideoPackage[] }[] = []
+  for (const item of items) {
+    let group = groups.find(g => g.category === item.category)
+    if (!group) { group = { category: item.category, items: [] }; groups.push(group) }
+    group.items.push(item)
+  }
+  return groups
+}
+
+export default function PricingClient({ marketingPackages, photoshootPackages, videoPackages, FAQS }: { marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]; videoPackages: VideoPackage[]; FAQS: { q: string; a: string }[] }) {
   const [activeTab, setActiveTab] = useState('marketing')
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [openFaq, setOpenFaq] = useState<number | null>(null)
@@ -162,7 +172,9 @@ export default function PricingClient({ marketingPackages, photoshootPackages, F
   function removeFromCart(id: string) { setCartItems(prev => prev.filter(c => c.id !== id)) }
   const cartTotal = cartItems.reduce((sum, item) => sum + item.price, 0)
 
-  const TABS = [{ key: 'marketing', label: 'Marketing Packages' }, { key: 'photoshoot', label: 'Photoshoot' }, { key: 'calculator', label: 'Price Calculator' }]
+  const videoGroups = groupByCategory(videoPackages)
+
+  const TABS = [{ key: 'marketing', label: 'Marketing Packages' }, { key: 'photoshoot', label: 'Photoshoot' }, { key: 'video', label: 'Video Package' }, { key: 'calculator', label: 'Price Calculator' }]
 
   return (
     <main className="pricing-page">
@@ -233,6 +245,35 @@ export default function PricingClient({ marketingPackages, photoshootPackages, F
                     {pkg.addOn && <p className="photo-card__addon">+ {pkg.addOn}</p>}
                   </div>
                   <div className="photo-card__price-col"><span className="photo-card__price">{pkg.price}</span><span className="photo-card__unit">{pkg.unit}</span><Link href="/contact" className="btn btn-outline photo-card__btn">Book Now</Link></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {activeTab === 'video' && (
+        <section className="pricing-photo pricing-video">
+          <div className="container">
+            <div className="pricing-photo__header"><p className="eyebrow">Video Production</p><h2>Video <span className="accent">Package</span></h2><p className="pricing-photo__sub">Elevate your content with professional video editing. Flat, one-time pricing per video — no calculator, no surprises.</p></div>
+            <div className="pricing-video__grid">
+              {videoGroups.map(group => (
+                <div key={group.category} className="video-pkg-col">
+                  <h3 className="video-pkg-col__title">{group.category}</h3>
+                  <div className="video-pkg-col__list">
+                    {group.items.map(item => (
+                      <div key={item.id} className="video-pkg-row">
+                        <div className="video-pkg-row__info">
+                          <span className="video-pkg-row__name">{item.name}</span>
+                          {item.priceLabel && <span className="video-pkg-row__label">{item.priceLabel}</span>}
+                        </div>
+                        <div className="video-pkg-row__cta">
+                          <span className="video-pkg-row__price">{fmt(item.price)}</span>
+                          <Link href="/contact" className="btn btn-outline video-pkg-row__btn">Book Now</Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

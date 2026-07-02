@@ -293,6 +293,16 @@
 .jp-sidebar-cta__btn {
   width: 100%;
   justify-content: center;
+  animation: jpSidebarCtaPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes jpSidebarCtaPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(215, 38, 46, 0.55); transform: scale(1); }
+  50%      { box-shadow: 0 0 0 10px rgba(215, 38, 46, 0); transform: scale(1.03); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-sidebar-cta__btn { animation: none; }
 }
 
 /* ── Responsive ───────────────────────────────────────── */

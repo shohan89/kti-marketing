@@ -1,11 +1,14 @@
-/* ── Base — transparent with dark text (light mode default) */
+/* ── Base — light frosted background so links stay readable pre-scroll */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(1.8);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
   transition:
     background  0.35s ease,
     box-shadow  0.35s ease,
@@ -293,7 +296,12 @@
    DARK MODE OVERRIDES
    ═══════════════════════════════════════════════════════ */
 
-/* Transparent state — white text on dark backgrounds */
+/* Base state — dark frosted background so links stay readable pre-scroll */
+[data-theme="dark"] .navbar {
+  background: rgba(12, 12, 16, 0.55);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
 [data-theme="dark"] .navbar-brand { color: rgba(255, 255, 255, 0.92); }
 
 [data-theme="dark"] .nav-link       { color: rgba(255, 255, 255, 0.65); }

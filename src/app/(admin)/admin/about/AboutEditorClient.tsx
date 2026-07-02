@@ -6,6 +6,11 @@ import AdminToast from '@/components/ui/AdminToast'
 type ClientItem = { name: string; logoUrl: string; website: string }
 type AchievementItem = { year: string; title: string; description: string }
 type FounderTag = { label: string; url: string }
+type FounderContent = {
+  photoUrl: string; badge: string; sinceBadge: string; name: string; nickname: string
+  bio: string; pullquote: string; email: string; facebookUrl: string
+  kibanShoeUrl: string; ktiAgencyUrl: string; officeAddress: string
+}
 
 type Props = {
   clients: ClientItem[]
@@ -13,18 +18,42 @@ type Props = {
   clientsTitle: string
   achievementsTitle: string
   founderTags: FounderTag[]
+  founder: FounderContent
 }
 
-export default function AboutEditorClient({ clients: initClients, achievements: initAchievements, clientsTitle: initClientsTitle, achievementsTitle: initAchievementsTitle, founderTags: initFounderTags }: Props) {
+export default function AboutEditorClient({ clients: initClients, achievements: initAchievements, clientsTitle: initClientsTitle, achievementsTitle: initAchievementsTitle, founderTags: initFounderTags, founder: initFounder }: Props) {
   const [clients, setClients] = useState<ClientItem[]>(initClients)
   const [achievements, setAchievements] = useState<AchievementItem[]>(initAchievements)
   const [clientsTitle, setClientsTitle] = useState(initClientsTitle)
   const [achievementsTitle, setAchievementsTitle] = useState(initAchievementsTitle)
   const [founderTags, setFounderTags] = useState<FounderTag[]>(initFounderTags)
+  const [founder, setFounder] = useState<FounderContent>(initFounder)
+  const [founderPhotoUploading, setFounderPhotoUploading] = useState(false)
   const [logoUploading, setLogoUploading] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
+
+  function updateFounder(field: keyof FounderContent, val: string) {
+    setFounder(prev => ({ ...prev, [field]: val }))
+  }
+
+  async function handleFounderPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setFounderPhotoUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'founder')
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (res.ok) updateFounder('photoUrl', data.url)
+    } finally {
+      setFounderPhotoUploading(false)
+      e.target.value = ''
+    }
+  }
 
   function updateClient(i: number, field: keyof ClientItem, val: string) {
     setClients(prev => prev.map((c, j) => j === i ? { ...c, [field]: val } : c))
@@ -61,7 +90,7 @@ export default function AboutEditorClient({ clients: initClients, achievements: 
       const res = await fetch('/api/admin/about', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clients, achievements, clientsTitle, achievementsTitle, founderTags }),
+        body: JSON.stringify({ clients, achievements, clientsTitle, achievementsTitle, founderTags, founder }),
       })
       if (res.ok) {
         setToast({ message: 'Changes saved successfully!', type: 'success' })
@@ -89,6 +118,87 @@ export default function AboutEditorClient({ clients: initClients, achievements: 
       </div>
 
       {toast && <AdminToast message={toast.message} type={toast.type} onClose={dismissToast} />}
+
+      {/* Founder / CEO Bio */}
+      <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
+        <h2 className="admin-section-title">Founder / CEO Bio</h2>
+        <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1.25rem' }}>Controls the founder profile section on the About page — photo, name, bio, pull-quote, and contact details.</p>
+
+        <div className="admin-field">
+          <label className="admin-label">Photo</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {founder.photoUrl && (
+              <div style={{ position: 'relative', width: '70px', height: '70px', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <img src={founder.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            )}
+            <input className="admin-input" style={{ flex: 1, minWidth: 0 }} value={founder.photoUrl} onChange={e => updateFounder('photoUrl', e.target.value)} placeholder="Paste photo URL or upload →" />
+            <label className="admin-btn admin-btn--outline" style={{ cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
+              {founderPhotoUploading ? 'Uploading…' : '+ Upload'}
+              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFounderPhotoUpload} disabled={founderPhotoUploading} />
+            </label>
+          </div>
+        </div>
+
+        <div className="admin-form-row">
+          <div className="admin-field">
+            <label className="admin-label">Badge</label>
+            <input className="admin-input" value={founder.badge} onChange={e => updateFounder('badge', e.target.value)} placeholder="Founder & Chief" />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">&quot;Since&quot; Badge</label>
+            <input className="admin-input" value={founder.sinceBadge} onChange={e => updateFounder('sinceBadge', e.target.value)} placeholder="Est. 2016" />
+          </div>
+        </div>
+
+        <div className="admin-form-row">
+          <div className="admin-field">
+            <label className="admin-label">Name</label>
+            <input className="admin-input" value={founder.name} onChange={e => updateFounder('name', e.target.value)} placeholder="Md Mehedi Hasan" />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Nickname</label>
+            <input className="admin-input" value={founder.nickname} onChange={e => updateFounder('nickname', e.target.value)} placeholder="(Babla)" />
+          </div>
+        </div>
+
+        <div className="admin-field">
+          <label className="admin-label">Bio (separate paragraphs with a blank line)</label>
+          <textarea className="admin-textarea" rows={6} value={founder.bio} onChange={e => updateFounder('bio', e.target.value)} placeholder="First paragraph…&#10;&#10;Second paragraph…" />
+        </div>
+
+        <div className="admin-field">
+          <label className="admin-label">Pull-quote</label>
+          <textarea className="admin-textarea" rows={2} value={founder.pullquote} onChange={e => updateFounder('pullquote', e.target.value)} placeholder="A short standout quote from the founder" />
+        </div>
+
+        <div className="admin-form-row">
+          <div className="admin-field">
+            <label className="admin-label">Email</label>
+            <input className="admin-input" value={founder.email} onChange={e => updateFounder('email', e.target.value)} placeholder="you@example.com" />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Facebook URL</label>
+            <input className="admin-input" value={founder.facebookUrl} onChange={e => updateFounder('facebookUrl', e.target.value)} placeholder="https://facebook.com/yourpage" />
+          </div>
+        </div>
+
+        <div className="admin-form-row">
+          <div className="admin-field">
+            <label className="admin-label">KIBAN Shoe URL</label>
+            <input className="admin-input" value={founder.kibanShoeUrl} onChange={e => updateFounder('kibanShoeUrl', e.target.value)} placeholder="https://www.kibanshoe.com" />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">KTI Agency URL</label>
+            <input className="admin-input" value={founder.ktiAgencyUrl} onChange={e => updateFounder('ktiAgencyUrl', e.target.value)} placeholder="https://www.kti.com.bd" />
+          </div>
+        </div>
+
+        <div className="admin-field">
+          <label className="admin-label">Office Address</label>
+          <input className="admin-input" value={founder.officeAddress} onChange={e => updateFounder('officeAddress', e.target.value)} placeholder="Office address" />
+        </div>
+      </div>
 
       {/* Founder Tags */}
       <div className="admin-card" style={{ marginBottom: '1.25rem' }}>

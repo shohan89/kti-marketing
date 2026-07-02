@@ -99,8 +99,8 @@ export default function ApplyModal({ jobId, jobTitle, variant = 'primary' }: Pro
                 </div>
 
                 <div className="apply-modal__field">
-                  <label htmlFor="am-phone">Phone Number <span className="apply-modal__optional">(optional)</span></label>
-                  <input id="am-phone" name="phone" type="tel" placeholder="+880 1700 000000" autoComplete="tel" />
+                  <label htmlFor="am-phone">Phone Number <span aria-hidden="true">*</span></label>
+                  <input id="am-phone" name="phone" type="tel" placeholder="+880 1700 000000" required autoComplete="tel" />
                 </div>
 
                 <div className="apply-modal__field">

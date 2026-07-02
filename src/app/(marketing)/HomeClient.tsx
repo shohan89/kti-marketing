@@ -65,7 +65,7 @@ interface ProcessStep { num: string; title: string; body: string }
 interface TestimonialItem { quote: string; name: string; role: string; company: string; result: string; rating: number }
 
 export interface HomepageContent {
-  hero?: { badge?: string; headline?: string; subheadline?: string; cta1Text?: string; cta1Url?: string; cta2Text?: string; cta2Url?: string; heroImageUrl?: string; heroVideoUrl?: string }
+  hero?: { badge?: string; headline?: string; highlightWord?: string; subheadline?: string; cta1Text?: string; cta1Url?: string; cta2Text?: string; cta2Url?: string; heroImageUrl?: string; heroVideoUrl?: string }
   stats?: StatItem[]
   brands?: BrandItem[]
   marquee?: string[]
@@ -98,6 +98,21 @@ function toEmbedUrl(url: string): string {
 function renderLines(text: string) {
   return text.split('\n').map((line, i, arr) => (
     <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+  ))
+}
+
+function renderHeadline(text: string, highlightWord?: string) {
+  const lines = text.split('\n')
+  const needle = highlightWord?.trim()
+  const escaped = needle ? needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : ''
+  const re = escaped ? new RegExp(`(${escaped})`, 'gi') : null
+  return lines.map((line, i, arr) => (
+    <span key={i}>
+      {re
+        ? line.split(re).map((part, j) => part.toLowerCase() === needle!.toLowerCase() ? <span className="hero-title__highlight" key={j}>{part}</span> : part)
+        : line}
+      {i < arr.length - 1 && <br />}
+    </span>
   ))
 }
 
@@ -175,7 +190,7 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
                 {hero.badge ?? 'Full-Service Growth Agency'}
               </div>
               {hero.headline ? (
-                <h1 className="home-hero__title fade-up-1">{renderLines(hero.headline)}</h1>
+                <h1 className="home-hero__title fade-up-1">{renderHeadline(hero.headline, hero.highlightWord ?? 'Revenue')}</h1>
               ) : (
                 <h1 className="home-hero__title fade-up-1">Bold Strategy.<br />Real{' '}<span className="hero-title__highlight">Revenue.</span><br />Zero Compromises.</h1>
               )}
@@ -354,17 +369,14 @@ export default function HomeClient({ content = {}, testimonials: dbTestimonials,
           </div>
           <div className="portfolio-grid">
             {portfolioItems.map(({ slug, tag, category, client, title, body, metrics }, i) => (
-              <div className="portfolio-card reveal" key={i} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>
+              <Link href={slug ? `/portfolio/${slug}` : '/portfolio'} className="portfolio-card reveal" key={i} style={{ '--reveal-delay': `${i * 0.12}s` } as React.CSSProperties}>
                 <div className="portfolio-card__top"><span className="portfolio-card__tag">{tag}</span><span className="portfolio-card__category">{category}</span></div>
                 <h3 className="portfolio-card__title">{title}</h3>
                 <p className="portfolio-card__client">{client}</p>
                 <p className="portfolio-card__body">{body}</p>
                 <div className="portfolio-card__metrics">{metrics.map(({ num, label }) => (<div className="portfolio-metric" key={label}><span className="portfolio-metric__num">{num}</span><span className="portfolio-metric__label">{label}</span></div>))}</div>
-                {slug
-                  ? <Link href={`/portfolio/${slug}`} className="portfolio-card__cta">View Project →</Link>
-                  : <Link href="/portfolio" className="portfolio-card__cta">View Portfolio →</Link>
-                }
-              </div>
+                <span className="portfolio-card__cta">{slug ? 'View Project →' : 'View Portfolio →'}</span>
+              </Link>
             ))}
           </div>
           <div className="home-portfolio__footer reveal" style={{ '--reveal-delay': '0.1s' } as React.CSSProperties}>

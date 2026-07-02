@@ -175,6 +175,31 @@ model PhotoshootPackage {
   updatedAt    DateTime @updatedAt
 }
 
+model VideoPackage {
+  id          String   @id @default(cuid())
+  category    String
+  name        String
+  price       Int
+  priceLabel  String?
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WebsiteTheme {
+  id          String   @id @default(cuid())
+  name        String
+  tags        String[]
+  description String   @db.Text
+  image       String
+  url         String
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model CalculatorService {
   id         String   @id @default(cuid())
   group      String

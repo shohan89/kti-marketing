@@ -14,6 +14,7 @@ const NAV = [
   { href: '/admin/blog', label: 'Blog', icon: '✎' },
   { href: '/admin/portfolio', label: 'Portfolio', icon: '◉' },
   { href: '/admin/pricing', label: 'Pricing', icon: '৳' },
+  { href: '/admin/website-development', label: 'Website Development', icon: '🎨' },
   { href: '/admin/jobs', label: 'Jobs', icon: '◎' },
   { href: '/admin/team', label: 'Team', icon: '◉' },
   { href: '/admin/testimonials', label: 'Testimonials', icon: '❝' },

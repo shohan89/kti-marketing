@@ -14,6 +14,7 @@ const DEFAULTS = {
   hero: {
     badge: 'Full-Service Growth Agency',
     headline: 'Bold Strategy.\nReal Revenue.\nZero Compromises.',
+    highlightWord: 'Revenue',
     subheadline: 'We build performance campaigns and bold creative for ambitious brands ready to stop blending in — and start owning their market.',
     cta1Text: 'Start Growing',
     cta1Url: '/contact',

@@ -822,6 +822,12 @@
   max-height: 48px;
   object-fit: contain;
   display: block;
+  filter: grayscale(1);
+  transition: filter var(--transition);
+}
+
+.about-client-card:hover .about-client-card__logo {
+  filter: grayscale(0);
 }
 
 .about-client-card__initials {

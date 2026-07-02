@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-interface Hero { badge: string; headline: string; subheadline: string; cta1Text: string; cta1Url: string; cta2Text: string; cta2Url: string; heroImageUrl: string; heroVideoUrl: string }
+interface Hero { badge: string; headline: string; highlightWord: string; subheadline: string; cta1Text: string; cta1Url: string; cta2Text: string; cta2Url: string; heroImageUrl: string; heroVideoUrl: string }
 interface StatItem { num: string; label: string }
 interface BrandItem { name: string; logoUrl: string }
 interface PillarItem { icon: string; title: string; body: string }
@@ -338,6 +338,9 @@ export default function HomepageEditorClient({ data }: { data: HomepageData }) {
           </div>
           <Field label="Headline (use line breaks with Enter — each line is a new line on the page)">
             <textarea style={{ ...taStyle, minHeight: '80px' }} value={hero.headline} onChange={e => setHero(h => ({ ...h, headline: e.target.value }))} placeholder={'Bold Strategy.\nReal Revenue.\nZero Compromises.'} />
+          </Field>
+          <Field label="Highlight Word (this word is shown in red wherever it appears in the headline)">
+            <input style={inputStyle} value={hero.highlightWord} onChange={e => setHero(h => ({ ...h, highlightWord: e.target.value }))} placeholder="Revenue" />
           </Field>
           <div style={row2}>
             <Field label="Primary CTA Text">

@@ -100,7 +100,6 @@ export default async function JobPostPage({ params }: { params: Promise<{ slug: 
             )}
             <div className="jp-article__footer reveal">
               <Link href="/careers" className="btn btn-outline" style={{ borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.6)' }}>← Back to Careers</Link>
-              {job.id ? <ApplyModal jobId={job.id} jobTitle={job.title} /> : <Link href="/contact" className="btn btn-outline">Apply Now →</Link>}
             </div>
           </article>
 
