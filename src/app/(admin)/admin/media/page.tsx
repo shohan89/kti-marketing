@@ -64,6 +64,9 @@ export default function MediaLibraryPage() {
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<MediaFile | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editAlt, setEditAlt] = useState('')
+  const [savingEdit, setSavingEdit] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const dismissToast = useCallback(() => setToast(null), [])
 
@@ -73,6 +76,35 @@ export default function MediaLibraryPage() {
       .then(setFiles)
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    setEditTitle(selected?.originalName ?? '')
+    setEditAlt(selected?.alt ?? '')
+  }, [selected])
+
+  async function handleSaveEdit() {
+    if (!selected) return
+    setSavingEdit(true)
+    try {
+      const res = await fetch(`/api/admin/media/${selected.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ originalName: editTitle, alt: editAlt }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setFiles(prev => prev.map(f => f.id === selected.id ? { ...f, originalName: updated.originalName, alt: updated.alt } : f))
+        setSelected(prev => prev ? { ...prev, originalName: updated.originalName, alt: updated.alt } : prev)
+        setToast({ message: 'Saved!', type: 'success' })
+      } else {
+        setToast({ message: 'Save failed.', type: 'error' })
+      }
+    } catch {
+      setToast({ message: 'Save failed.', type: 'error' })
+    } finally {
+      setSavingEdit(false)
+    }
+  }
 
   async function processFiles(rawFiles: File[]) {
     const images = rawFiles.filter(f => f.type.startsWith('image/'))
@@ -330,8 +362,33 @@ export default function MediaLibraryPage() {
             <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Filename</p>
             <p style={{ fontSize: '0.8rem', color: '#fff', marginBottom: '0.875rem', wordBreak: 'break-all', lineHeight: 1.4 }}>{selected.filename}</p>
 
-            <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Original</p>
-            <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.65)', marginBottom: '0.875rem', wordBreak: 'break-all', lineHeight: 1.4 }}>{selected.originalName}</p>
+            <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Title</label>
+            <input
+              value={editTitle}
+              onChange={e => setEditTitle(e.target.value)}
+              style={{ width: '100%', marginBottom: '0.75rem', padding: '0.4rem 0.6rem', fontSize: '0.8rem', color: '#fff', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px' }}
+            />
+
+            <label style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Alt Text</label>
+            <input
+              value={editAlt}
+              onChange={e => setEditAlt(e.target.value)}
+              placeholder="Describe this image…"
+              style={{ width: '100%', marginBottom: '0.5rem', padding: '0.4rem 0.6rem', fontSize: '0.8rem', color: '#fff', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px' }}
+            />
+            <button
+              onClick={handleSaveEdit}
+              disabled={savingEdit || (editTitle === selected.originalName && editAlt === (selected.alt || ''))}
+              style={{
+                width: '100%',
+                background: 'rgba(255,255,255,0.08)', color: '#fff',
+                border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px',
+                padding: '0.45rem', fontSize: '0.78rem', fontWeight: 600,
+                cursor: savingEdit ? 'default' : 'pointer', marginBottom: '0.875rem',
+              }}
+            >
+              {savingEdit ? 'Saving…' : 'Save Title & Alt Text'}
+            </button>
 
             <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.875rem' }}>
               {selected.width && selected.height && (

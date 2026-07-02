@@ -1,11 +1,16 @@
-/* ── Base — fully transparent, white text (sits over dark hero sections) */
+/* ── Base — translucent dark scrim, white text. Low enough opacity to read as
+   "transparent" over dark hero sections, but keeps white text legible over any
+   background (some pages' first section is light, e.g. Portfolio, Website
+   Development) without depending on what sits underneath it. */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  background: transparent;
+  background: rgba(10, 10, 14, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition:
     background  0.35s ease,
     box-shadow  0.35s ease,

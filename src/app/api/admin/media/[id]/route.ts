@@ -28,8 +28,11 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
   if (unauth) return unauth
   const { id } = await context.params
   try {
-    const { alt } = await req.json()
-    const media = await prisma.mediaFile.update({ where: { id }, data: { alt: alt ?? '' } })
+    const body = await req.json()
+    const data: { alt?: string; originalName?: string } = {}
+    if ('alt' in body) data.alt = body.alt ?? ''
+    if ('originalName' in body) data.originalName = body.originalName || ''
+    const media = await prisma.mediaFile.update({ where: { id }, data })
     return NextResponse.json(media)
   } catch {
     return NextResponse.json({ error: 'Update failed' }, { status: 500 })

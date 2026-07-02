@@ -62,38 +62,56 @@ async function listSupabaseImages() {
 export async function GET() {
   const unauth = await requireAdminSession()
   if (unauth) return unauth
+
+  // Two independent data sources — a failure in one (e.g. transient DB hiccup)
+  // must never zero out the other, or the whole library silently looks empty.
+  let localFiles: Awaited<ReturnType<typeof prisma.mediaFile.findMany>> = []
   try {
-    const [localFiles, supabaseFiles] = await Promise.all([
-      prisma.mediaFile.findMany({ orderBy: { createdAt: 'desc' } }),
-      listSupabaseImages(),
-    ])
-
-    const localItems = localFiles.map(f => ({
-      id: f.id,
-      filename: f.filename,
-      originalName: f.originalName,
-      url: f.url ?? `/upload/${f.filename}`,
-      size: f.size,
-      width: f.width,
-      height: f.height,
-      alt: f.alt,
-      createdAt: f.createdAt.toISOString(),
-      source: f.bucket ? ('supabase' as const) : ('local' as const),
-      bucket: f.bucket ?? undefined,
-      canDelete: true,
-    }))
-
-    const localFilenames = new Set(localFiles.map(f => f.filename))
-    const uniqueSupabase = supabaseFiles.filter(f => !localFilenames.has(f.filename))
-
-    const all = [...localItems, ...uniqueSupabase].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
-
-    return NextResponse.json(all)
-  } catch {
-    return NextResponse.json({ error: 'DB error' }, { status: 500 })
+    localFiles = await prisma.mediaFile.findMany({ orderBy: { createdAt: 'desc' } })
+  } catch (e) {
+    console.error('[media GET] mediaFile.findMany failed:', e)
   }
+
+  let supabaseFiles: Awaited<ReturnType<typeof listSupabaseImages>> = []
+  try {
+    supabaseFiles = await listSupabaseImages()
+  } catch (e) {
+    console.error('[media GET] listSupabaseImages failed:', e)
+  }
+
+  const localFilenames = new Set(localFiles.map(f => f.filename))
+  const untracked = supabaseFiles.filter(f => !localFilenames.has(f.filename))
+
+  // Lazily backfill a MediaFile row for every real Storage image we haven't
+  // tracked yet, so every image becomes editable/deletable through the same
+  // DB-backed flow (one-time cost — subsequent loads have nothing left to backfill).
+  const backfilled = (await Promise.all(untracked.map(async f => {
+    try {
+      return await prisma.mediaFile.create({
+        data: { filename: f.filename, originalName: f.originalName, size: f.size, url: f.url, bucket: f.bucket },
+      })
+    } catch (e) {
+      console.error('[media GET] backfill failed for', f.filename, e)
+      return null
+    }
+  }))).filter((f): f is NonNullable<typeof f> => f !== null)
+
+  const all = [...localFiles, ...backfilled].map(f => ({
+    id: f.id,
+    filename: f.filename,
+    originalName: f.originalName,
+    url: f.url ?? `/upload/${f.filename}`,
+    size: f.size,
+    width: f.width,
+    height: f.height,
+    alt: f.alt,
+    createdAt: f.createdAt.toISOString(),
+    source: f.bucket ? ('supabase' as const) : ('local' as const),
+    bucket: f.bucket ?? undefined,
+    canDelete: true,
+  })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+  return NextResponse.json(all)
 }
 
 export async function POST(req: NextRequest) {
