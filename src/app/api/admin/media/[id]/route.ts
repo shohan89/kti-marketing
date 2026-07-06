@@ -4,6 +4,9 @@ import { join } from 'path'
 import { prisma } from '@/lib/prisma'
 import { requireAdminSession } from '@/lib/auth'
 
+const SUPABASE_URL = () => process.env.NEXT_PUBLIC_SUPABASE_URL!
+const SERVICE_KEY  = () => process.env.SUPABASE_SERVICE_ROLE_KEY!
+
 export async function DELETE(_req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const unauth = await requireAdminSession()
   if (unauth) return unauth
@@ -12,8 +15,15 @@ export async function DELETE(_req: NextRequest, context: { params: Promise<{ id:
     const media = await prisma.mediaFile.findUnique({ where: { id } })
     if (!media) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    const filepath = join(process.cwd(), 'public', 'upload', media.filename)
-    await unlink(filepath).catch(() => {})
+    if (media.bucket) {
+      await fetch(`${SUPABASE_URL()}/storage/v1/object/${media.bucket}/${media.filename}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${SERVICE_KEY()}`, apikey: SERVICE_KEY() },
+      }).catch(() => {})
+    } else {
+      const filepath = join(process.cwd(), 'public', 'upload', media.filename)
+      await unlink(filepath).catch(() => {})
+    }
 
     await prisma.mediaFile.delete({ where: { id } })
     return NextResponse.json({ ok: true })

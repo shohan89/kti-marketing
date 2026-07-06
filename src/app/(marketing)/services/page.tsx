@@ -3,6 +3,7 @@ import ServicesClient from './ServicesClient'
 import { servicesData } from '@/data/staticData'
 import { getPageSeo, buildMetadata } from '@/lib/seo'
 import { prisma } from '@/lib/prisma'
+import { getWhatsAppUrl } from '@/lib/whatsapp'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,5 +21,6 @@ export default async function ServicesPage() {
       services = rows.map(s => ({ ...s, image: s.imageUrl ?? '', process: s.processSteps ?? [] }))
     }
   } catch { /* use static fallback */ }
-  return <ServicesClient services={services} />
+  const whatsappUrl = await getWhatsAppUrl()
+  return <ServicesClient services={services} whatsappUrl={whatsappUrl} />
 }

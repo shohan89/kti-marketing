@@ -8,9 +8,16 @@ import './Pricing.css'
 
 function fmt(n: number) { return '৳' + n.toLocaleString('en-IN') }
 
-function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, marketingPackages, photoshootPackages, videoPackages }: {
+function buildWhatsAppQuoteUrl(whatsappUrl: string, items: CartItem[], total: number): string {
+  const base = whatsappUrl.split('?')[0]
+  const lines = items.map(i => `• ${i.name} — ${fmt(i.price)}`)
+  const message = `Hi! I'd like a custom quote for:\n\n${lines.join('\n')}\n\nEstimated Total: ${fmt(total)}`
+  return `${base}?text=${encodeURIComponent(message)}`
+}
+
+function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, marketingPackages, photoshootPackages, videoPackages, whatsappUrl }: {
   cartItems: CartItem[]; addToCart: (item: CartItem) => void; removeFromCart: (id: string) => void; cartTotal: number
-  marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]; videoPackages: VideoPackage[]
+  marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]; videoPackages: VideoPackage[]; whatsappUrl: string
 }) {
   const [photoQtys, setPhotoQtys] = useState<Record<string, number>>(() =>
     Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig?.defaultQty ?? 1]))
@@ -169,7 +176,11 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
           <div className="cart-divider" />
           <div className="cart-total"><span>Estimated Total</span><span className="cart-total__num">{fmt(cartTotal)}</span></div>
           {cartItems.length > 0 && <p className="cart-note">Bundled package pricing is typically 15–25% lower than individual rates.</p>}
-          <Link href="/contact" className="btn cart-cta">Get a Custom Quote →</Link>
+          {whatsappUrl && cartItems.length > 0 ? (
+            <a href={buildWhatsAppQuoteUrl(whatsappUrl, cartItems, cartTotal)} target="_blank" rel="noopener noreferrer" className="btn cart-cta">Get a Custom Quote →</a>
+          ) : (
+            <Link href="/contact" className="btn cart-cta">Get a Custom Quote →</Link>
+          )}
         </div>
       </div>
     </div>
@@ -188,7 +199,7 @@ function groupByCategory(items: VideoPackage[]) {
   return groups
 }
 
-export default function PricingClient({ marketingPackages, photoshootPackages, videoPackages, FAQS }: { marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]; videoPackages: VideoPackage[]; FAQS: { q: string; a: string }[] }) {
+export default function PricingClient({ marketingPackages, photoshootPackages, videoPackages, FAQS, whatsappUrl = '' }: { marketingPackages: MarketingPackage[]; photoshootPackages: PhotoshootPackage[]; videoPackages: VideoPackage[]; FAQS: { q: string; a: string }[]; whatsappUrl?: string }) {
   const [activeTab, setActiveTab] = useState('marketing')
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [openFaq, setOpenFaq] = useState<number | null>(null)
@@ -310,7 +321,7 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
         <section className="pricing-calc-tab">
           <div className="container">
             <div className="pricing-calc-tab__header"><p className="eyebrow">Build Your Bundle</p><h2>Price <span className="accent">Calculator</span></h2><p className="pricing-calc-tab__sub">Browse our packages below and add them to your cart. Real bundle pricing is always lower than individual rates.</p></div>
-            <CalculatorTab cartItems={cartItems} addToCart={addToCart} removeFromCart={removeFromCart} cartTotal={cartTotal} marketingPackages={marketingPackages} photoshootPackages={photoshootPackages} videoPackages={videoPackages} />
+            <CalculatorTab cartItems={cartItems} addToCart={addToCart} removeFromCart={removeFromCart} cartTotal={cartTotal} marketingPackages={marketingPackages} photoshootPackages={photoshootPackages} videoPackages={videoPackages} whatsappUrl={whatsappUrl} />
           </div>
         </section>
       )}

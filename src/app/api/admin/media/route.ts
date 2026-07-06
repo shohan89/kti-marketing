@@ -1,16 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { existsSync } from 'fs'
-import { join } from 'path'
 import { prisma } from '@/lib/prisma'
 import { requireAdminSession } from '@/lib/auth'
 
-const UPLOAD_DIR = join(process.cwd(), 'public', 'upload')
 const IMAGE_BUCKETS = ['media', 'services', 'team', 'clients', 'hero', 'assets', 'portfolio', 'blog', 'founder', 'brand-logos', 'website-themes']
 const IMAGE_EXTS = /\.(jpe?g|png|gif|webp|avif|svg|bmp|tiff?)$/i
+const MEDIA_BUCKET = 'media'
 
-async function ensureDir() {
-  if (!existsSync(UPLOAD_DIR)) await mkdir(UPLOAD_DIR, { recursive: true })
+const SUPABASE_URL = () => process.env.NEXT_PUBLIC_SUPABASE_URL!
+const SERVICE_KEY  = () => process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+function supabaseHeaders() {
+  return { Authorization: `Bearer ${SERVICE_KEY()}`, apikey: SERVICE_KEY() }
+}
+
+function getPublicUrl(bucket: string, path: string) {
+  return `${SUPABASE_URL()}/storage/v1/object/public/${bucket}/${path}`
+}
+
+async function ensureBucket(bucket: string) {
+  await fetch(`${SUPABASE_URL()}/storage/v1/bucket`, {
+    method: 'POST',
+    headers: { ...supabaseHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: bucket, name: bucket, public: true }),
+  }).catch(() => {})
 }
 
 // The Supabase-backed compat layer returns timestamp columns as already-ISO
@@ -237,8 +249,15 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const unauth = await requireAdminSession()
   if (unauth) return unauth
+
+  if (!SERVICE_KEY() || !SUPABASE_URL()) {
+    return NextResponse.json(
+      { error: 'SUPABASE_SERVICE_ROLE_KEY is not configured in environment variables.' },
+      { status: 500 }
+    )
+  }
+
   try {
-    await ensureDir()
     const formData = await req.formData()
     const file = formData.get('file') as File | null
     const originalName = (formData.get('originalName') as string) || 'upload'
@@ -250,18 +269,34 @@ export async function POST(req: NextRequest) {
     }
 
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`
-    const filepath = join(UPLOAD_DIR, filename)
-    const bytes = await file.arrayBuffer()
-    await writeFile(filepath, Buffer.from(bytes))
+
+    // Upload to Supabase Storage — this app runs on Cloudflare Workers, which has
+    // no persistent writable filesystem, so writing to disk (the old approach)
+    // always failed in production even though it worked under `npm run dev`.
+    await ensureBucket(MEDIA_BUCKET)
+    const uploadRes = await fetch(`${SUPABASE_URL()}/storage/v1/object/${MEDIA_BUCKET}/${filename}`, {
+      method: 'POST',
+      headers: { ...supabaseHeaders(), 'Content-Type': file.type || 'image/webp', 'x-upsert': 'true' },
+      body: await file.arrayBuffer(),
+    })
+
+    if (!uploadRes.ok) {
+      const err = await uploadRes.text()
+      console.error('[media POST] Supabase upload error:', err)
+      return NextResponse.json({ error: err }, { status: 500 })
+    }
+
+    const url = getPublicUrl(MEDIA_BUCKET, filename)
 
     const media = await prisma.mediaFile.create({
-      data: { filename, originalName, size: file.size, width, height },
+      data: { filename, originalName, size: file.size, width, height, url, bucket: MEDIA_BUCKET },
     })
 
     return NextResponse.json({
       ...media,
-      url: `/upload/${media.filename}`,
-      source: 'local',
+      url,
+      source: 'supabase',
+      bucket: MEDIA_BUCKET,
       canDelete: true,
       createdAt: toIso(media.createdAt),
     }, { status: 201 })

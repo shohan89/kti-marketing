@@ -29,7 +29,7 @@ function InlineSelect({ name, value, onChange, options, required }: { name: stri
   )
 }
 
-export default function ScheduleForm() {
+export default function ScheduleForm({ whatsappUrl = '' }: { whatsappUrl?: string }) {
   const [form, setForm] = useState({ name: '', role: '', company: '', service: '', businessType: '', phone: '', email: '' })
   const [submitted, setSubmitted] = useState(false)
 
@@ -38,6 +38,22 @@ export default function ScheduleForm() {
 
   const isReady = form.name.trim() && form.service && (form.phone.trim() || form.email.trim())
   const serviceOptions = ['Select a service', ...servicesData.map(s => s.title)]
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!isReady) return
+    if (whatsappUrl) {
+      const lines = [
+        `Hi! My name is ${form.name}${form.role ? `, ${form.role}` : ''}${form.company ? ` at ${form.company}` : ''}.`,
+        `I am planning a ${form.service}${form.businessType ? ` for my ${form.businessType}` : ''} that I want to make awesome with KTI.`,
+        form.phone && `You can reach me on ${form.phone}.`,
+        form.email && `Email: ${form.email}.`,
+      ].filter(Boolean)
+      const base = whatsappUrl.split('?')[0]
+      window.open(`${base}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener,noreferrer')
+    }
+    setSubmitted(true)
+  }
 
   return (
     <section className="schedule-section reveal">
@@ -52,7 +68,7 @@ export default function ScheduleForm() {
             </button>
           </div>
         ) : (
-          <form className="schedule-form" onSubmit={e => { e.preventDefault(); if (isReady) setSubmitted(true) }} noValidate>
+          <form className="schedule-form" onSubmit={handleSubmit} noValidate>
             <p className="schedule-hi">Hi!</p>
             <p className="schedule-line">
               My name is <InlineInput name="name" placeholder="Your name" value={form.name} onChange={handleChange} required />

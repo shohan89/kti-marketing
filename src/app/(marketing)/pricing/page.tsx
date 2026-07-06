@@ -3,6 +3,7 @@ import PricingClient from './PricingClient'
 import { marketingPackages, photoshootPackages, videoPackages, FAQS } from '@/data/staticData'
 import { getPageSeo, buildMetadata } from '@/lib/seo'
 import { prisma } from '@/lib/prisma'
+import { getWhatsAppUrl } from '@/lib/whatsapp'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,5 +29,6 @@ export default async function PricingPage() {
     if (pRows.length > 0) pPkgs = pRows
     if (vRows.length > 0) vPkgs = vRows
   } catch { /* use static fallback */ }
-  return <PricingClient marketingPackages={mPkgs} photoshootPackages={pPkgs} videoPackages={vPkgs} FAQS={FAQS} />
+  const whatsappUrl = await getWhatsAppUrl()
+  return <PricingClient marketingPackages={mPkgs} photoshootPackages={pPkgs} videoPackages={vPkgs} FAQS={FAQS} whatsappUrl={whatsappUrl} />
 }

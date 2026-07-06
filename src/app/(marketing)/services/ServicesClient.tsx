@@ -8,7 +8,7 @@ import ServiceVideoModal from '@/components/ui/ServiceVideoModal'
 import ScheduleForm from '@/components/ui/ScheduleForm'
 import './Services.css'
 
-export default function ServicesClient({ services }: { services: Service[] }) {
+export default function ServicesClient({ services, whatsappUrl = '' }: { services: Service[]; whatsappUrl?: string }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [modalService, setModalService] = useState<Service | null>(null)
 
@@ -67,7 +67,7 @@ export default function ServicesClient({ services }: { services: Service[] }) {
         </div>
       </section>
 
-      <ScheduleForm />
+      <ScheduleForm whatsappUrl={whatsappUrl} />
 
       <PageCTA
         eyebrow="Let's Get to Work"
