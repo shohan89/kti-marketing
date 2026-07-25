@@ -6,13 +6,40 @@ import {
   sessionCookies,
   verifyAccessToken,
 } from '@/lib/session'
-import { prisma } from '@/lib/prisma'
 import { resolveModuleForPath, getRequiredLevel, hasLevel, type PermissionMap } from '@/lib/permissions'
 
-// Next 16 renamed the `middleware` file convention to `proxy`. This must live
-// under src/ (alongside app/) — at the repo root it is silently ignored, which
-// previously left every /admin page unprotected.
-export async function proxy(request: NextRequest) {
+// Deliberately NOT importing '@/lib/prisma' here (it pulls in @supabase/supabase-js).
+// This file must stay pure Edge-Runtime code — no Node built-ins, no heavy SDKs —
+// so it compiles as classic Edge middleware rather than Next 16's Node.js-only
+// `proxy.ts` primitive, which Cloudflare's adapter cannot deploy at all today
+// (see the note above `middleware()` below). This does the one DB lookup it
+// needs with a bare `fetch` straight to Supabase's PostgREST endpoint.
+async function fetchAdminAccess(supabaseId: string): Promise<{ isActive: boolean; permissions: PermissionMap } | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return null
+  try {
+    const res = await fetch(
+      `${url}/rest/v1/AdminUser?supabaseId=eq.${encodeURIComponent(supabaseId)}&select=isActive,permissions`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } },
+    )
+    if (!res.ok) return null
+    const rows = await res.json() as { isActive: boolean; permissions: PermissionMap }[]
+    return rows[0] ?? null
+  } catch {
+    return null
+  }
+}
+
+// Kept as the classic `middleware.ts` convention (not Next 16's `proxy.ts`
+// rename) — Next compiles `proxy.ts` exclusively to the Node.js runtime
+// (confirmed via `functions-config-manifest.json`), which
+// @opennextjs/cloudflare refuses to deploy ("Node.js middleware is not
+// currently supported"). `middleware.ts` still compiles as true Edge
+// middleware, which the Cloudflare adapter fully supports. This must live
+// under src/ (alongside app/) — at the repo root it is silently ignored,
+// which previously left every /admin page unprotected.
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const isAdminPage = pathname.startsWith('/admin')
@@ -58,17 +85,10 @@ export async function proxy(request: NextRequest) {
   // /admin/login) means "no gate beyond being logged in" — skip straight through.
   const moduleKey = resolveModuleForPath(pathname)
   if (moduleKey) {
-    let permissions: PermissionMap | null = null
-    let isActive = false
-    try {
-      const row = await prisma.adminUser.findUnique({ where: { supabaseId: user.id } })
-      if (row?.isActive) {
-        permissions = row.permissions as PermissionMap
-        isActive = true
-      }
-    } catch { /* treat as unauthorized below */ }
+    const access = await fetchAdminAccess(user.id)
+    const permissions = access?.isActive ? access.permissions : null
 
-    if (!isActive) {
+    if (!access?.isActive) {
       if (isAdminApi) return NextResponse.json({ error: 'No admin account for this session' }, { status: 403 })
       const loginUrl = new URL('/admin/login', request.url)
       loginUrl.searchParams.set('next', pathname)
