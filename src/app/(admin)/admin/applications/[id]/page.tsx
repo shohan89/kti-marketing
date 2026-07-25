@@ -161,7 +161,8 @@ export default function ApplicationDetailPage() {
           {(app.cvUrl || app.portfolioUrl) && (
             <div className="admin-card" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               {app.cvUrl && (
-                <a href={app.cvUrl} target="_blank" rel="noopener noreferrer" className="admin-btn admin-btn--outline">
+                // CVs live in a private bucket; this route signs a short-lived URL.
+                <a href={`/api/admin/applications/${app.id}/cv`} target="_blank" rel="noopener noreferrer" className="admin-btn admin-btn--outline">
                   Download CV ↗
                 </a>
               )}

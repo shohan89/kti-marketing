@@ -62,7 +62,7 @@ export default function ScheduleForm({ whatsappUrl = '' }: { whatsappUrl?: strin
           <div className="schedule-success">
             <div className="schedule-success__icon" aria-hidden="true">✓</div>
             <h2>Thanks, {form.name.split(' ')[0]}!</h2>
-            <p>We've received your request and will be in touch within 24 hours.</p>
+            <p>We&apos;ve received your request and will be in touch within 24 hours.</p>
             <button onClick={() => { setForm({ name:'',role:'',company:'',service:'',businessType:'',phone:'',email:'' }); setSubmitted(false) }}>
               Submit Another Request
             </button>

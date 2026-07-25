@@ -38,10 +38,20 @@ export default function Navbar({ services, logoUrl }: NavbarProps) {
     preventOpenRef.current = true
   }
 
-  useEffect(() => {
+  // Collapse every menu when the route changes. Derived from pathname during
+  // render rather than in an effect, which avoids the extra render pass (and
+  // the brief frame where the old menu is still open on the new page).
+  const [menuPathname, setMenuPathname] = useState(pathname)
+  if (menuPathname !== pathname) {
+    setMenuPathname(pathname)
     setOpen(false)
     setSvcOpen(false)
     setDesktopOpen(false)
+  }
+
+  // Ref writes belong outside render; this re-arms the desktop dropdown after
+  // a nav click suppressed it.
+  useEffect(() => {
     preventOpenRef.current = false
   }, [pathname])
 

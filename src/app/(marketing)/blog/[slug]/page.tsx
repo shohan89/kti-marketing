@@ -5,6 +5,7 @@ import { blogPosts, getBlogBySlug } from '@/data/staticData'
 import type { BlogPost } from '@/data/staticData'
 import PageCTA from '@/components/ui/PageCTA'
 import { prisma } from '@/lib/prisma'
+import { sanitizeHtml } from '@/lib/sanitize'
 import './BlogPost.css'
 
 export const dynamic = 'force-dynamic'
@@ -17,9 +18,6 @@ const BLOG_PALETTE = [
   { gradientFrom: '#0c1a0c', gradientTo: '#14532d', accentColor: '#86efac' },
   { gradientFrom: '#2d1b00', gradientTo: '#78350f', accentColor: '#fbbf24' },
 ]
-function assignBlogVisuals(index: number) {
-  return BLOG_PALETTE[index % BLOG_PALETTE.length]
-}
 
 export async function generateStaticParams() {
   return blogPosts.map(p => ({ slug: p.slug }))
@@ -114,7 +112,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <div className="container bp-content__grid">
           <article className="bp-article">
             {typeof post.body === 'string' ? (
-              <div className="bp-rich-content reveal" dangerouslySetInnerHTML={{ __html: post.body }} />
+              <div className="bp-rich-content reveal" dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.body) }} />
             ) : Array.isArray(post.body) ? post.body.map((section: { heading?: string; paragraphs: string[] }, i: number) => (
               <div key={i} className="bp-section reveal">
                 {section.heading && <h2 className="bp-section__heading">{section.heading}</h2>}

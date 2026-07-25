@@ -361,7 +361,7 @@ export default function PortfolioItemForm({ initialData }: { initialData: Portfo
         {/* ── 6. Results / Metrics ───────────────────────── */}
         <div style={cardStyle}>
           <p style={sectionTitle}>Results & Metrics</p>
-          <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1rem' }}>Numbers that prove the impact (e.g. "+320% reach", "2.5× ROAS").</p>
+          <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1rem' }}>Numbers that prove the impact (e.g. &quot;+320% reach&quot;, &quot;2.5× ROAS&quot;).</p>
           {results.map((r, i) => (
             <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '0.75rem', marginBottom: '0.75rem', alignItems: 'start' }}>
               <div>

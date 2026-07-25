@@ -56,6 +56,15 @@ function PlatIcon({ p, size = 18 }: { p: string; size?: number }) {
 let _id = 0
 const uid = () => String(++_id + Date.now())
 
+/* ── Sub-section label ──────────────────────────────────── */
+// Defined at module scope: a component created inside render gets a new
+// identity every pass, which remounts its subtree and drops focus/state.
+function SubLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '0.85rem' }}>{children}</p>
+  )
+}
+
 function UploadBtn({ folder, onUploaded, uploading, setUploading }: {
   folder: string; onUploaded: (url: string) => void
   uploading: boolean; setUploading: (v: boolean) => void
@@ -150,11 +159,6 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
   const removeSocial = (id: string) => setSocials(s => s.filter(x => x.id !== id))
   const setSocial    = (id: string, field: 'platform' | 'url', val: string) =>
     setSocials(s => s.map(x => x.id === id ? { ...x, [field]: val } : x))
-
-  /* ── Sub-section label ──────────────────────────────────── */
-  const SubLabel = ({ children }: { children: React.ReactNode }) => (
-    <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '0.85rem' }}>{children}</p>
-  )
 
   const tabStyle = (t: typeof tab): React.CSSProperties => ({
     padding: '0.55rem 1.2rem',

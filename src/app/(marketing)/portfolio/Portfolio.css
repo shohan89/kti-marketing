@@ -74,12 +74,15 @@
 
 .portfolio-card__thumb {
   position: relative;
-  width: 100%; aspect-ratio: 16 / 9;
+  width: 100%; aspect-ratio: 4 / 3;
   overflow: hidden; background: rgba(255,255,255,0.04);
   display: flex; align-items: center; justify-content: center;
 }
 .portfolio-card__thumb img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
+  /* contain, not cover: portfolio thumbnails arrive in mixed aspect ratios and
+     cropping them cut off product shots. The 16/9 box keeps the grid aligned
+     while the image letterboxes inside it. */
+  width: 100%; height: 100%; object-fit: contain; display: block;
   transition: transform 0.4s ease;
 }
 .portfolio-card:hover .portfolio-card__thumb img {

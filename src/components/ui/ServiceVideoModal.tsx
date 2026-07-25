@@ -69,7 +69,7 @@ export default function ServiceVideoModal({ service, onClose }: Props) {
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
               </div>
               <p className="svm-coming-soon__label">Video Coming Soon</p>
-              <p className="svm-coming-soon__sub">We're producing an overview video for this service. Check back soon.</p>
+              <p className="svm-coming-soon__sub">We&apos;re producing an overview video for this service. Check back soon.</p>
             </div>
           )}
         </div>

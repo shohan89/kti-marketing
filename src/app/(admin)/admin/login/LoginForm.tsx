@@ -3,12 +3,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-interface Props {
-  supabaseUrl: string
-  supabaseAnonKey: string
-}
-
-export default function LoginForm({ supabaseUrl, supabaseAnonKey }: Props) {
+export default function LoginForm() {
   const searchParams = useSearchParams()
   const next = searchParams.get('next') || '/admin'
   const [email, setEmail] = useState('')
@@ -20,18 +15,21 @@ export default function LoginForm({ supabaseUrl, supabaseAnonKey }: Props) {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    if (!supabaseUrl || !supabaseAnonKey) {
-      setError('Authentication service is not configured yet.')
-      setLoading(false)
-      return
-    }
     try {
-      const { createBrowserClient } = await import('@supabase/ssr')
-      const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
-      if (authError || !data.session) { setError('Invalid email or password.'); setLoading(false); return }
-      const { access_token, expires_in } = data.session
-      document.cookie = `admin_jwt=${access_token}; path=/; samesite=lax; max-age=${expires_in ?? 3600}`
+      // Credentials go to our own route, which signs in against Supabase and
+      // sets an HttpOnly cookie. The token is never exposed to client JS.
+      const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => null)
+        setError(body?.error ?? 'Invalid email or password.')
+        setLoading(false)
+        return
+      }
+      // Full navigation so middleware sees the freshly-set cookie.
       window.location.assign(next)
     } catch {
       setError('Sign in failed. Please try again.')

@@ -4,13 +4,21 @@ import PhotoshootForm from '../../PhotoshootForm'
 
 export const dynamic = 'force-dynamic'
 
+type PhotoshootData = Parameters<typeof PhotoshootForm>[0]['initialData']
+
 export default async function EditPhotoshootPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
+  // Only the query is wrapped: notFound() throws a control-flow signal, so
+  // calling it inside the try meant the catch swallowed its own redirect.
+  let pkg: unknown = null
   try {
-    const pkg = await prisma.photoshootPackage.findUnique({ where: { id } })
-    if (!pkg) notFound()
-    return <PhotoshootForm initialData={pkg as unknown as Parameters<typeof PhotoshootForm>[0]['initialData']} />
+    pkg = await prisma.photoshootPackage.findUnique({ where: { id } })
   } catch {
-    notFound()
+    pkg = null
   }
+
+  if (!pkg) notFound()
+
+  return <PhotoshootForm initialData={pkg as PhotoshootData} />
 }

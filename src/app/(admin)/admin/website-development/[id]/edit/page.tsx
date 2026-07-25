@@ -4,13 +4,21 @@ import ThemeForm from '../../ThemeForm'
 
 export const dynamic = 'force-dynamic'
 
+type ThemeData = Parameters<typeof ThemeForm>[0]['initialData']
+
 export default async function EditThemePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
+  // Only the query is wrapped: notFound() throws a control-flow signal, so
+  // calling it inside the try meant the catch swallowed its own redirect.
+  let theme: unknown = null
   try {
-    const theme = await prisma.websiteTheme.findUnique({ where: { id } })
-    if (!theme) notFound()
-    return <ThemeForm initialData={theme as unknown as Parameters<typeof ThemeForm>[0]['initialData']} />
+    theme = await prisma.websiteTheme.findUnique({ where: { id } })
   } catch {
-    notFound()
+    theme = null
   }
+
+  if (!theme) notFound()
+
+  return <ThemeForm initialData={theme as ThemeData} />
 }

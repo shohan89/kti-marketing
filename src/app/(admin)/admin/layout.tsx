@@ -32,12 +32,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (pathname === '/admin/login') return <>{children}</>
 
   async function handleSignOut() {
+    // The session cookie is HttpOnly, so only the server can clear it.
     try {
-      const { createSupabaseBrowserClient } = await import('@/lib/supabase-client')
-      const supabase = createSupabaseBrowserClient()
-      await supabase.auth.signOut()
+      await fetch('/api/auth/session', { method: 'DELETE' })
     } catch {}
-    document.cookie = 'admin_jwt=; path=/; max-age=0'
     router.push('/admin/login')
   }
 

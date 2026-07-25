@@ -1,39 +1,81 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
+
+export type Theme = 'dark' | 'light'
+
+const STORAGE_KEY = 'theme'
+const EVENT = 'themechange'
+
+/**
+ * The theme lives outside React: an inline script in the root layout sets
+ * `data-theme` on <html> before first paint (avoiding a flash), and the choice
+ * persists in localStorage. useSyncExternalStore subscribes to that store
+ * directly, so there is no setState-in-effect and no cascading render on mount.
+ */
+
+function readStoredTheme(): Theme | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    return saved === 'light' || saved === 'dark' ? saved : null
+  } catch {
+    return null
+  }
+}
+
+function getSnapshot(): Theme {
+  const attr = document.documentElement.getAttribute('data-theme')
+  return attr === 'light' ? 'light' : 'dark'
+}
+
+// Must match what the server renders, so hydration stays consistent.
+function getServerSnapshot(): Theme {
+  return 'dark'
+}
+
+function subscribe(onChange: () => void): () => void {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)')
+
+  const onSystemChange = (e: MediaQueryListEvent) => {
+    // System preference only applies while the user hasn't chosen explicitly.
+    if (readStoredTheme()) return
+    applyTheme(e.matches ? 'dark' : 'light', { persist: false })
+  }
+
+  // Another tab changing the theme, and same-tab toggles.
+  const onStorage = (e: StorageEvent) => {
+    if (e.key !== STORAGE_KEY) return
+    const saved = readStoredTheme()
+    if (saved) applyTheme(saved, { persist: false })
+  }
+
+  mq.addEventListener('change', onSystemChange)
+  window.addEventListener('storage', onStorage)
+  window.addEventListener(EVENT, onChange)
+  return () => {
+    mq.removeEventListener('change', onSystemChange)
+    window.removeEventListener('storage', onStorage)
+    window.removeEventListener(EVENT, onChange)
+  }
+}
+
+function applyTheme(theme: Theme, { persist }: { persist: boolean }) {
+  document.documentElement.setAttribute('data-theme', theme)
+  if (persist) {
+    try { localStorage.setItem(STORAGE_KEY, theme) } catch {}
+  }
+  window.dispatchEvent(new Event(EVENT))
+}
 
 export default function useTheme() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('theme')
-      if (saved === 'light' || saved === 'dark') setTheme(saved)
-    } catch {}
-  }, [])
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-  }, [theme])
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = (e: MediaQueryListEvent) => {
-      try {
-        if (!localStorage.getItem('theme')) setTheme(e.matches ? 'dark' : 'light')
-      } catch {}
-    }
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
-
-  const toggle = () => {
-    const next: 'dark' | 'light' = theme === 'dark' ? 'light' : 'dark'
+  const toggle = useCallback(() => {
+    const next: Theme = getSnapshot() === 'dark' ? 'light' : 'dark'
     document.documentElement.classList.add('theme-transitioning')
-    setTheme(next)
-    try { localStorage.setItem('theme', next) } catch {}
+    applyTheme(next, { persist: true })
     setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 320)
-  }
+  }, [])
 
   return { theme, toggle }
 }

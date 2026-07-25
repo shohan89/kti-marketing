@@ -271,7 +271,7 @@ export default async function AboutPage() {
         <div className="container">
           <div className="about-mission__inner reveal">
             <p className="eyebrow">Our Mission</p>
-            <blockquote className="about-mission__quote">"We exist to help ambitious brands grow. Not just in followers or impressions, but in the metrics that actually matter: qualified leads, conversions, revenue, and market share. Since 2016, we have helped over 120 businesses transform their marketing from a cost centre into their most powerful competitive advantage."</blockquote>
+            <blockquote className="about-mission__quote">&quot;We exist to help ambitious brands grow. Not just in followers or impressions, but in the metrics that actually matter: qualified leads, conversions, revenue, and market share. Since 2016, we have helped over 120 businesses transform their marketing from a cost centre into their most powerful competitive advantage.&quot;</blockquote>
             <cite className="about-mission__cite">— The KTI Marketing Team</cite>
           </div>
         </div>

@@ -77,10 +77,15 @@ export default function MediaLibraryPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  useEffect(() => {
+  // Reset the edit fields when a different file is selected. Derived during
+  // render instead of in an effect, so the panel never shows the previous
+  // file's values for a frame.
+  const [editingId, setEditingId] = useState<string | null>(selected?.id ?? null)
+  if ((selected?.id ?? null) !== editingId) {
+    setEditingId(selected?.id ?? null)
     setEditTitle(selected?.originalName ?? '')
     setEditAlt(selected?.alt ?? '')
-  }, [selected])
+  }
 
   async function handleSaveEdit() {
     if (!selected) return

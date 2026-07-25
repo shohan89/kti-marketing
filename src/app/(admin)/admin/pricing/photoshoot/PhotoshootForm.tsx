@@ -124,7 +124,7 @@ export default function PhotoshootForm({ initialData }: { initialData: Photoshoo
             <div className="admin-field">
               <label className="admin-label">Display Price *</label>
               <input className="admin-input" value={price} onChange={e => setPrice(e.target.value)} placeholder="৳3,000" required />
-              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)', marginTop: '0.35rem' }}>Display string shown on the card (e.g. "৳3,000")</p>
+              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)', marginTop: '0.35rem' }}>Display string shown on the card (e.g. &quot;৳3,000&quot;)</p>
             </div>
             <div className="admin-field">
               <label className="admin-label">Price Per Session (numeric) *</label>
@@ -178,7 +178,7 @@ export default function PhotoshootForm({ initialData }: { initialData: Photoshoo
               <div className="admin-field">
                 <label className="admin-label">Quantity Unit</label>
                 <input className="admin-input" value={qtyUnit} onChange={e => setQtyUnit(e.target.value)} placeholder="products" />
-                <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', marginTop: '0.3rem' }}>Unit label next to the number (e.g. "products", "hours")</p>
+                <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', marginTop: '0.3rem' }}>Unit label next to the number (e.g. &quot;products&quot;, &quot;hours&quot;)</p>
               </div>
             </div>
             <div className="admin-form-row">
@@ -190,7 +190,7 @@ export default function PhotoshootForm({ initialData }: { initialData: Photoshoo
               <div className="admin-field">
                 <label className="admin-label">Session Label</label>
                 <input className="admin-input" value={sessionLabel} onChange={e => setSessionLabel(e.target.value)} placeholder="session" />
-                <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', marginTop: '0.3rem' }}>Word used for one session (e.g. "session", "day", "hour")</p>
+                <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', marginTop: '0.3rem' }}>Word used for one session (e.g. &quot;session&quot;, &quot;day&quot;, &quot;hour&quot;)</p>
               </div>
             </div>
             <div className="admin-field">

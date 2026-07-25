@@ -147,7 +147,9 @@
   box-shadow: 0 0 0 1px rgba(215,38,46,0.2), 0 16px 48px rgba(0,0,0,0.4);
 }
 .pd-gallery__item img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
+  /* contain so the full shot is visible — these are client deliverables in
+     mixed aspect ratios, and cover was cutting off product and packaging. */
+  width: 100%; height: 100%; object-fit: contain; display: block;
   transition: transform 0.5s ease;
 }
 .pd-gallery__item:hover img { transform: scale(1.04); }

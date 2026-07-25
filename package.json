@@ -2,6 +2,9 @@
   "name": "kti-marketing",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.19.0 <21 || >=22.12.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,7 +22,6 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "pg-cloudflare": "^1.1.1",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "@tiptap/extension-image": "^3.27.1",
@@ -32,9 +34,11 @@
     "@types/pg": "^8.20.0",
     "next": "16.2.7",
     "pg": "^8.21.0",
+    "pg-cloudflare": "^1.1.1",
     "prisma": "^7.8.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "xss": "^1.0.15"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.19.0",

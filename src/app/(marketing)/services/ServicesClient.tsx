@@ -71,7 +71,7 @@ export default function ServicesClient({ services, whatsappUrl = '' }: { service
 
       <PageCTA
         eyebrow="Let's Get to Work"
-        title={<>Let's Grow<br />Your Brand.</>}
+        title={<>Let&apos;s Grow<br />Your Brand.</>}
         sub="Tell us where you are and where you want to be. We'll build a custom strategy that gets you there — faster than you think."
         primaryLabel="Start Your Project →"
         secondaryLabel="Meet the Team"
