@@ -59,7 +59,7 @@ function asQuery(builder: unknown): QueryBuilder {
 
 let _supabase: SupabaseClient | null = null
 
-function getSupabase(): SupabaseClient {
+export function getSupabase(): SupabaseClient {
   if (_supabase) return _supabase
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -261,7 +261,7 @@ interface UpsertArgs {
 // Tables whose schema has no updatedAt column (Prisma @updatedAt not present).
 // All other tables need updatedAt injected by the application layer because
 // Prisma's @updatedAt directive sets the value in code, not via a DB default.
-const TABLES_WITHOUT_UPDATED_AT = new Set(['AdminUser', 'MediaFile'])
+const TABLES_WITHOUT_UPDATED_AT = new Set(['MediaFile'])
 
 function makeModel(tableName: string) {
   const hasUpdatedAt = !TABLES_WITHOUT_UPDATED_AT.has(tableName)

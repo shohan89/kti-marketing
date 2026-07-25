@@ -6,6 +6,7 @@ import AdminToast from '@/components/ui/AdminToast'
 type ClientItem = { name: string; logoUrl: string; website: string }
 type AchievementItem = { year: string; title: string; description: string }
 type FounderTag = { label: string; url: string }
+type FounderSection = { title: string; description: string; images: string[] }
 type FounderContent = {
   photoUrl: string; badge: string; sinceBadge: string; name: string; nickname: string
   bio: string; pullquote: string; email: string; facebookUrl: string
@@ -19,23 +20,51 @@ type Props = {
   achievementsTitle: string
   founderTags: FounderTag[]
   founder: FounderContent
+  founderSections: FounderSection[]
 }
 
-export default function AboutEditorClient({ clients: initClients, achievements: initAchievements, clientsTitle: initClientsTitle, achievementsTitle: initAchievementsTitle, founderTags: initFounderTags, founder: initFounder }: Props) {
+export default function AboutEditorClient({ clients: initClients, achievements: initAchievements, clientsTitle: initClientsTitle, achievementsTitle: initAchievementsTitle, founderTags: initFounderTags, founder: initFounder, founderSections: initFounderSections }: Props) {
   const [clients, setClients] = useState<ClientItem[]>(initClients)
   const [achievements, setAchievements] = useState<AchievementItem[]>(initAchievements)
   const [clientsTitle, setClientsTitle] = useState(initClientsTitle)
   const [achievementsTitle, setAchievementsTitle] = useState(initAchievementsTitle)
   const [founderTags, setFounderTags] = useState<FounderTag[]>(initFounderTags)
   const [founder, setFounder] = useState<FounderContent>(initFounder)
+  const [founderSections, setFounderSections] = useState<FounderSection[]>(initFounderSections)
   const [founderPhotoUploading, setFounderPhotoUploading] = useState(false)
   const [logoUploading, setLogoUploading] = useState<number | null>(null)
+  const [sectionImgUploading, setSectionImgUploading] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
 
   function updateFounder(field: keyof FounderContent, val: string) {
     setFounder(prev => ({ ...prev, [field]: val }))
+  }
+
+  function updateFounderSection(i: number, field: 'title' | 'description', val: string) {
+    setFounderSections(prev => prev.map((s, j) => j === i ? { ...s, [field]: val } : s))
+  }
+
+  function removeFounderSectionImage(i: number, imgIdx: number) {
+    setFounderSections(prev => prev.map((s, j) => j === i ? { ...s, images: s.images.filter((_, k) => k !== imgIdx) } : s))
+  }
+
+  async function handleSectionImageUpload(e: React.ChangeEvent<HTMLInputElement>, i: number) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setSectionImgUploading(i)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'founder-sections')
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (res.ok) setFounderSections(prev => prev.map((s, j) => j === i ? { ...s, images: [...s.images, data.url] } : s))
+    } finally {
+      setSectionImgUploading(null)
+      e.target.value = ''
+    }
   }
 
   async function handleFounderPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -90,7 +119,7 @@ export default function AboutEditorClient({ clients: initClients, achievements: 
       const res = await fetch('/api/admin/about', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clients, achievements, clientsTitle, achievementsTitle, founderTags, founder }),
+        body: JSON.stringify({ clients, achievements, clientsTitle, achievementsTitle, founderTags, founder, founderSections }),
       })
       if (res.ok) {
         setToast({ message: 'Changes saved successfully!', type: 'success' })
@@ -221,6 +250,48 @@ export default function AboutEditorClient({ clients: initClients, achievements: 
         ))}
         <button type="button" className="admin-btn admin-btn--outline admin-btn--sm" style={{ marginTop: '0.5rem' }} onClick={() => setFounderTags(prev => [...prev, { label: '', url: '' }])}>
           + Add Tag
+        </button>
+      </div>
+
+      {/* Founder Key Points */}
+      <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
+        <h2 className="admin-section-title">Founder Key Points</h2>
+        <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1.25rem' }}>
+          Add sections like &quot;Early Life and Education&quot; or &quot;Career&quot; — each with its own description and images, shown below the founder bio on the About page.
+        </p>
+        {founderSections.map((sec, i) => (
+          <div key={i} style={{ marginBottom: '1.25rem', paddingBottom: '1.25rem', borderBottom: i < founderSections.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Section {i + 1}</span>
+              <button type="button" style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '0.78rem' }} onClick={() => setFounderSections(prev => prev.filter((_, j) => j !== i))}>Remove</button>
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Title *</label>
+              <input className="admin-input" value={sec.title} onChange={e => updateFounderSection(i, 'title', e.target.value)} placeholder="e.g. Early Life and Education" />
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Description</label>
+              <textarea className="admin-textarea" rows={3} value={sec.description} onChange={e => updateFounderSection(i, 'description', e.target.value)} placeholder="A short description of this section…" />
+            </div>
+            <div className="admin-field">
+              <label className="admin-label">Images</label>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                {sec.images.map((img, j) => (
+                  <div key={j} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button type="button" onClick={() => removeFounderSectionImage(i, j)} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                  </div>
+                ))}
+              </div>
+              <label className="admin-btn admin-btn--outline" style={{ cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '0.8rem' }}>
+                {sectionImgUploading === i ? 'Uploading…' : '+ Add Image'}
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleSectionImageUpload(e, i)} disabled={sectionImgUploading !== null} />
+              </label>
+            </div>
+          </div>
+        ))}
+        <button type="button" className="admin-btn admin-btn--outline admin-btn--sm" onClick={() => setFounderSections(prev => [...prev, { title: '', description: '', images: [] }])}>
+          + Add Section
         </button>
       </div>
 

@@ -83,7 +83,36 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
         </div>
       </section>
 
-      {/* ── 2. Image Gallery ────────────────────────────── */}
+      {/* ── 2. Video Gallery ────────────────────────────── */}
+      {embedUrls.length > 0 && (
+        <section className="pd-video-gallery-section">
+          <div className="container">
+            <div className="pd-section-header" style={{ textAlign: 'center' }}>
+              <p className="pd-section-eyebrow">Video Gallery</p>
+              <h2 className="pd-section-title">Watch It <span>Come to Life.</span></h2>
+            </div>
+            <div className={`pd-video-gallery pd-video-gallery--${embedUrls.length === 1 ? 'single' : 'grid'}`}>
+              {embedUrls.map((src, i) => (
+                <div key={i} className="pd-video-item">
+                  <div className="pd-video-glow" aria-hidden="true" />
+                  <div className="pd-video-frame-outer">
+                    <div className="pd-video-frame">
+                      <iframe
+                        src={src}
+                        title={`${item.title} — video ${i + 1}`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 3. Image Gallery ────────────────────────────── */}
       {images.length > 0 && (
         <section className="pd-gallery-section">
           <div className="container">
@@ -107,35 +136,6 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
                     loading={i === 0 ? 'eager' : 'lazy'}
                   />
                 </a>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── 3. Video Gallery ────────────────────────────── */}
-      {embedUrls.length > 0 && (
-        <section className="pd-video-gallery-section">
-          <div className="container">
-            <div className="pd-section-header" style={{ textAlign: 'center' }}>
-              <p className="pd-section-eyebrow">Video Gallery</p>
-              <h2 className="pd-section-title">Watch It <span>Come to Life.</span></h2>
-            </div>
-            <div className={`pd-video-gallery pd-video-gallery--${embedUrls.length === 1 ? 'single' : 'grid'}`}>
-              {embedUrls.map((src, i) => (
-                <div key={i} className="pd-video-item">
-                  <div className="pd-video-glow" aria-hidden="true" />
-                  <div className="pd-video-frame-outer">
-                    <div className="pd-video-frame">
-                      <iframe
-                        src={src}
-                        title={`${item.title} — video ${i + 1}`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  </div>
-                </div>
               ))}
             </div>
           </div>

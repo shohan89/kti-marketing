@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-interface Submission { id: string; name: string; email: string; company: string | null; budget: string | null; message: string; status: string; createdAt: string }
+interface Submission { id: string; name: string; email: string | null; phone: string | null; company: string | null; budget: string | null; message: string | null; status: string; createdAt: string }
 
 export default function InboxDetailPage() {
   const { id } = useParams() as { id: string }
@@ -37,21 +37,22 @@ export default function InboxDetailPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1.5rem', alignItems: 'start' }}>
         <div className="admin-card">
           <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1rem' }}>Received {new Date(sub.createdAt).toLocaleString()}</p>
-          <div style={{ lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', whiteSpace: 'pre-wrap' }}>{sub.message}</div>
+          <div style={{ lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', whiteSpace: 'pre-wrap' }}>{sub.message || 'No project details provided.'}</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="admin-card">
             <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', marginBottom: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Contact Details</p>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {[['Name', sub.name], ['Email', sub.email], ['Company', sub.company || '—'], ['Budget', sub.budget || '—']].map(([k, v]) => (
+              {[['Name', sub.name], ['Email', sub.email || '—'], ['Phone', sub.phone || '—'], ['Company', sub.company || '—'], ['Budget', sub.budget || '—']].map(([k, v]) => (
                 <li key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                   <span style={{ color: 'rgba(255,255,255,0.4)' }}>{k}</span>
                   <span style={{ color: '#fff', fontWeight: 500 }}>{v}</span>
                 </li>
               ))}
             </ul>
-            <a href={`mailto:${sub.email}`} className="admin-btn admin-btn--primary" style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}>Reply via Email →</a>
+            {sub.email && <a href={`mailto:${sub.email}`} className="admin-btn admin-btn--primary" style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}>Reply via Email →</a>}
+            {sub.phone && <a href={`tel:${sub.phone}`} className="admin-btn admin-btn--outline" style={{ marginTop: '0.5rem', width: '100%', justifyContent: 'center' }}>Call {sub.phone} →</a>}
           </div>
 
           <div className="admin-card">

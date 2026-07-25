@@ -39,8 +39,12 @@ export interface MarketingPackage {
   description: string; platforms: string[]; deliverables: string[]; cta: string
 }
 
+export interface VideoQtyTier { qty: number; price: number }
+export interface VideoDurationTier { label: string; qtyTiers: VideoQtyTier[] }
+
 export interface VideoPackage {
-  id: string; category: string; name: string; price: number; priceLabel?: string | null
+  id: string; shootingType: string; category: string; name: string; price: number; priceLabel?: string | null
+  durationTiers?: VideoDurationTier[] | null
 }
 
 export interface PhotoshootPackage {
@@ -511,20 +515,37 @@ export const photoshootPackages: PhotoshootPackage[] = [
 ]
 
 export const videoPackages: VideoPackage[] = [
+  // ── Indoor Shooting ──
   // Video Services
-  { id: 'v1', category: 'Video Services', name: 'Model Video (Promotional)', price: 8000 },
-  { id: 'v2', category: 'Video Services', name: 'Model Video (Explain)', price: 8000 },
-  { id: 'v3', category: 'Video Services', name: 'Video (Without Model)', price: 6000 },
-  { id: 'v4', category: 'Video Services', name: 'Voiceover Video', price: 5000 },
-  { id: 'v5', category: 'Video Services', name: 'Cinematic Video Shoot', price: 3500 },
-  { id: 'v6', category: 'Video Services', name: 'Reel Video (Professional)', price: 4000 },
-  { id: 'v7', category: 'Video Services', name: 'Reel Video (Mid Range)', price: 3000 },
-  { id: 'v8', category: 'Video Services', name: 'Reel Video (Lower)', price: 2000 },
+  { id: 'v1', shootingType: 'Indoor Shooting', category: 'Video Services', name: 'Model Video (Promotional)', price: 8000 },
+  { id: 'v2', shootingType: 'Indoor Shooting', category: 'Video Services', name: 'Model Video (Explain)', price: 8000 },
+  { id: 'v3', shootingType: 'Indoor Shooting', category: 'Video Services', name: 'Video (Without Model)', price: 6000 },
+  { id: 'v4', shootingType: 'Indoor Shooting', category: 'Video Services', name: 'Voiceover Video', price: 5000 },
+  { id: 'v5', shootingType: 'Indoor Shooting', category: 'Video Services', name: 'Cinematic Video Shoot', price: 3500 },
+  { id: 'v6', shootingType: 'Indoor Shooting', category: 'Video Services', name: 'Reel Video (Professional)', price: 4000 },
+  { id: 'v7', shootingType: 'Indoor Shooting', category: 'Video Services', name: 'Reel Video (Mid Range)', price: 3000 },
+  { id: 'v8', shootingType: 'Indoor Shooting', category: 'Video Services', name: 'Reel Video (Lower)', price: 2000 },
   // Branding Videos
-  { id: 'v9', category: 'Branding Videos', name: 'Branding Video + Professional Voiceover', price: 5000, priceLabel: '15–20 sec' },
-  { id: 'v10', category: 'Branding Videos', name: 'Branding Video + Professional Shoot', price: 8000, priceLabel: '20–40 sec' },
-  { id: 'v11', category: 'Branding Videos', name: 'Outdoor Video (With Model)', price: 15000 },
-  { id: 'v12', category: 'Branding Videos', name: 'Showroom Content Video (With Model)', price: 20000 },
+  { id: 'v9', shootingType: 'Indoor Shooting', category: 'Branding Videos', name: 'Branding Video + Professional Voiceover', price: 5000, priceLabel: '15–20 sec' },
+  { id: 'v10', shootingType: 'Indoor Shooting', category: 'Branding Videos', name: 'Branding Video + Professional Shoot', price: 8000, priceLabel: '20–40 sec' },
+  { id: 'v11', shootingType: 'Indoor Shooting', category: 'Branding Videos', name: 'Outdoor Video (With Model)', price: 15000 },
+  { id: 'v12', shootingType: 'Indoor Shooting', category: 'Branding Videos', name: 'Showroom Content Video (With Model)', price: 20000 },
+
+  // ── Outdoor Shooting ──
+  // Video Services
+  { id: 'v13', shootingType: 'Outdoor Shooting', category: 'Video Services', name: 'Model Video (Promotional)', price: 8000 },
+  { id: 'v14', shootingType: 'Outdoor Shooting', category: 'Video Services', name: 'Model Video (Explain)', price: 8000 },
+  { id: 'v15', shootingType: 'Outdoor Shooting', category: 'Video Services', name: 'Video (Without Model)', price: 6000 },
+  { id: 'v16', shootingType: 'Outdoor Shooting', category: 'Video Services', name: 'Voiceover Video', price: 5000 },
+  { id: 'v17', shootingType: 'Outdoor Shooting', category: 'Video Services', name: 'Cinematic Video Shoot', price: 3500 },
+  { id: 'v18', shootingType: 'Outdoor Shooting', category: 'Video Services', name: 'Reel Video (Professional)', price: 4000 },
+  { id: 'v19', shootingType: 'Outdoor Shooting', category: 'Video Services', name: 'Reel Video (Mid Range)', price: 3000 },
+  { id: 'v20', shootingType: 'Outdoor Shooting', category: 'Video Services', name: 'Reel Video (Lower)', price: 2000 },
+  // Branding Videos
+  { id: 'v21', shootingType: 'Outdoor Shooting', category: 'Branding Videos', name: 'Branding Video + Professional Voiceover', price: 5000, priceLabel: '15–20 sec' },
+  { id: 'v22', shootingType: 'Outdoor Shooting', category: 'Branding Videos', name: 'Branding Video + Professional Shoot', price: 8000, priceLabel: '20–40 sec' },
+  { id: 'v23', shootingType: 'Outdoor Shooting', category: 'Branding Videos', name: 'Outdoor Video (With Model)', price: 15000 },
+  { id: 'v24', shootingType: 'Outdoor Shooting', category: 'Branding Videos', name: 'Showroom Content Video (With Model)', price: 20000 },
 ]
 
 export const FAQS = [

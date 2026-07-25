@@ -27,7 +27,7 @@
 
 /* ── 1. Hero ──────────────────────────────────────────── */
 .sd-hero {
-  padding: 7.5rem 0 7rem;
+  padding: 5.5rem 0 4.5rem;
   background:
     radial-gradient(ellipse at top right, rgba(215, 38, 46, 0.09) 0%, transparent 55%),
     var(--dark);
@@ -71,21 +71,21 @@
 }
 
 .sd-hero__title {
-  font-size: clamp(2rem, 8vw, 4.25rem);
+  font-size: clamp(1.7rem, 5vw, 2.75rem);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
   color: var(--white);
-  max-width: 800px;
-  margin: 0 0 1.5rem;
+  max-width: 700px;
+  margin: 0 0 1rem;
 }
 
 .sd-hero__sub {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.55);
-  line-height: 1.8;
-  max-width: 540px;
-  margin: 0 0 2.5rem;
+  line-height: 1.65;
+  max-width: 520px;
+  margin: 0 0 1.75rem;
 }
 
 .sd-hero__cta {
@@ -849,7 +849,7 @@
 }
 
 @media (max-width: 768px) {
-  .sd-hero              { padding: 5rem 0 4.5rem; }
+  .sd-hero              { padding: 4.5rem 0 3.5rem; }
   .sd-overview,
   .sd-deliverables,
   .sd-process,

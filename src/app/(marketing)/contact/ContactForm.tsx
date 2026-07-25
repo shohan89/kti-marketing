@@ -2,16 +2,8 @@
 
 import { useState } from 'react'
 
-const BUDGETS = [
-  'Under ৳50,000 / month',
-  '৳50,000 – ৳1,50,000 / month',
-  '৳1,50,000 – ৳5,00,000 / month',
-  '৳5,00,000 – ৳15,00,000 / month',
-  '৳15,00,000+ / month',
-]
-
-type FormState = { name: string; email: string; company: string; budget: string; message: string }
-const EMPTY: FormState = { name: '', email: '', company: '', budget: '', message: '' }
+type FormState = { name: string; email: string; phone: string; company: string; budget: string; message: string }
+const EMPTY: FormState = { name: '', email: '', phone: '', company: '', budget: '', message: '' }
 
 export default function ContactForm() {
   const [form, setForm]           = useState<FormState>(EMPTY)
@@ -60,34 +52,36 @@ export default function ContactForm() {
 
   return (
     <form className="contact-form" onSubmit={handleSubmit} noValidate>
+      <div className="form-group">
+        <label htmlFor="budget">Monthly Budget (৳)</label>
+        <input id="budget" name="budget" type="number" min="0" step="1" inputMode="numeric" placeholder="e.g. 50000" value={form.budget} onChange={handleChange} />
+      </div>
+
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="name">Full Name <span aria-hidden="true">*</span></label>
           <input id="name" name="name" type="text" required placeholder="Jane Smith" value={form.name} onChange={handleChange} />
         </div>
         <div className="form-group">
-          <label htmlFor="email">Email Address <span aria-hidden="true">*</span></label>
-          <input id="email" name="email" type="email" required placeholder="jane@company.com" value={form.email} onChange={handleChange} />
+          <label htmlFor="email">Email Address</label>
+          <input id="email" name="email" type="email" placeholder="jane@company.com" value={form.email} onChange={handleChange} />
         </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="company">Company / Brand</label>
-          <input id="company" name="company" type="text" placeholder="Acme Inc." value={form.company} onChange={handleChange} />
+          <label htmlFor="phone">Phone Number</label>
+          <input id="phone" name="phone" type="tel" placeholder="+880 1XXX-XXXXXX" value={form.phone} onChange={handleChange} />
         </div>
         <div className="form-group">
-          <label htmlFor="budget">Monthly Budget</label>
-          <select id="budget" name="budget" value={form.budget} onChange={handleChange}>
-            <option value="">Select a range…</option>
-            {BUDGETS.map(b => <option key={b} value={b}>{b}</option>)}
-          </select>
+          <label htmlFor="company">Company / Brand</label>
+          <input id="company" name="company" type="text" placeholder="Acme Inc." value={form.company} onChange={handleChange} />
         </div>
       </div>
 
       <div className="form-group">
-        <label htmlFor="message">Tell Us About Your Project <span aria-hidden="true">*</span></label>
-        <textarea id="message" name="message" rows={6} required placeholder="What are your goals? What does success look like for you?" value={form.message} onChange={handleChange} />
+        <label htmlFor="message">Tell Us About Your Project</label>
+        <textarea id="message" name="message" rows={6} placeholder="What are your goals? What does success look like for you?" value={form.message} onChange={handleChange} />
       </div>
 
       {error && <p style={{ color: 'var(--red)', fontSize: '0.9rem', margin: 0 }}>{error}</p>}

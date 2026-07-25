@@ -34,6 +34,7 @@ const DEFAULT_FOUNDER = {
 const DEFAULTS = {
   founderTags: DEFAULT_FOUNDER_TAGS,
   founder: DEFAULT_FOUNDER,
+  founderSections: [] as { title: string; description: string; images: string[] }[],
   clients: [] as { name: string; logoUrl: string; website: string }[],
   achievements: [] as { year: string; title: string; description: string }[],
   clientsTitle: "Brands We've Helped Grow",
@@ -49,6 +50,7 @@ export default async function AboutAdminPage() {
     data = {
       founderTags: safeJson(map['about_founder_tags'], DEFAULTS.founderTags),
       founder: { ...DEFAULT_FOUNDER, ...safeJson(map['about_founder'], DEFAULT_FOUNDER) },
+      founderSections: safeJson(map['about_founder_sections'], DEFAULTS.founderSections),
       clients: safeJson(map['about_clients'], DEFAULTS.clients),
       achievements: safeJson(map['about_achievements'], DEFAULTS.achievements),
       clientsTitle: extra.clientsTitle ?? DEFAULTS.clientsTitle,

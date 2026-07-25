@@ -14,7 +14,7 @@
     radial-gradient(ellipse 55% 50% at 85% 10%, rgba(215, 38, 46, 0.1) 0%, transparent 65%),
     radial-gradient(ellipse 30% 50% at 10% 90%, rgba(215, 38, 46, 0.05) 0%, transparent 65%),
     #0B0B0B;
-  padding: 10rem 0 7rem;
+  padding: 5.5rem 0 4.5rem;
   overflow: hidden;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -57,12 +57,12 @@
 }
 
 .cs-hero__title {
-  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-size: clamp(1.9rem, 5vw, 2.9rem);
   font-weight: 900;
-  letter-spacing: -0.05em;
-  line-height: 1.02;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
   color: var(--white);
-  margin: 0 0 1.75rem;
+  margin: 0 0 1rem;
 }
 
 .cs-hero__accent {
@@ -73,11 +73,11 @@
 }
 
 .cs-hero__sub {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.48);
-  line-height: 1.85;
-  max-width: 560px;
-  margin: 0 auto 3.5rem;
+  line-height: 1.65;
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
 }
 
 .cs-hero__stats {
@@ -483,8 +483,7 @@
 }
 
 @media (max-width: 768px) {
-  .cs-hero           { padding: 8rem 0 5rem; }
-  .cs-hero__title    { font-size: clamp(2.5rem, 9vw, 5.5rem); }
+  .cs-hero           { padding: 4.5rem 0 3.5rem; }
   .cs-hero__stats    { gap: 2rem; }
   .cs-featured       { padding: 5rem 0; }
   .cs-featured__card { padding: 2.5rem; }
@@ -495,7 +494,7 @@
 }
 
 @media (max-width: 480px) {
-  .cs-hero           { padding: 7rem 0 4rem; }
+  .cs-hero           { padding: 3.5rem 0 3rem; }
   .cs-featured__card { padding: 1.75rem; }
   .cs-card           { padding: 2rem; }
   .cs-cta__title     { font-size: clamp(2rem, 9vw, 4.5rem); }

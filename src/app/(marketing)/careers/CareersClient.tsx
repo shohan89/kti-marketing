@@ -7,12 +7,10 @@ import type { JobListing } from '@/data/staticData'
 import PageCTA from '@/components/ui/PageCTA'
 import './Careers.css'
 
-const FILTERS = ['All', 'Marketing', 'Creative', 'Technology']
-
 function JobCard({ job }: { job: JobListing }) {
   const dept = DEPT_COLORS[job.department as keyof typeof DEPT_COLORS] || DEPT_COLORS.Marketing
   return (
-    <article className="job-card">
+    <Link href={`/careers/${job.slug}`} className="job-card">
       <div className="job-card__top">
         <span className="job-card__dept" style={{ background: dept.bg, color: dept.text }}>{job.department}</span>
         <span className="job-card__type">{job.type}</span>
@@ -28,16 +26,18 @@ function JobCard({ job }: { job: JobListing }) {
       <p className="job-card__excerpt">{job.excerpt}</p>
       <div className="job-card__footer">
         <span className="job-card__posted">Posted {job.posted}</span>
-        <Link href={`/careers/${job.slug}`} className="job-card__cta">
+        <span className="job-card__cta">
           View Role
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        </Link>
+        </span>
       </div>
-    </article>
+    </Link>
   )
 }
 
 export default function CareersClient({ jobs }: { jobs: JobListing[] }) {
+  const departments = Array.from(new Set(jobs.map(j => j.department).filter(Boolean))).sort()
+  const FILTERS = ['All', ...departments]
   const [filter, setFilter] = useState('All')
   const visible = filter === 'All' ? jobs : jobs.filter(j => j.department === filter)
   const countFor = (dept: string) => dept === 'All' ? jobs.length : jobs.filter(j => j.department === dept).length
@@ -51,7 +51,7 @@ export default function CareersClient({ jobs }: { jobs: JobListing[] }) {
           <p className="careers-hero__sub fade-up-2">KTI Marketing is a fast-moving creative agency helping brands grow across social, search, and beyond. We are looking for passionate people who are ready to do their best work — and have fun doing it.</p>
           <div className="careers-hero__badges fade-up-3">
             <span className="careers-badge"><span className="careers-badge__dot" aria-hidden="true" />{jobs.length} Open Roles</span>
-            <span className="careers-badge"><span className="careers-badge__dot" aria-hidden="true" />3 Departments</span>
+            <span className="careers-badge"><span className="careers-badge__dot" aria-hidden="true" />{departments.length} Department{departments.length === 1 ? '' : 's'}</span>
             <span className="careers-badge"><span className="careers-badge__dot" aria-hidden="true" />Hybrid / Remote</span>
           </div>
         </div>

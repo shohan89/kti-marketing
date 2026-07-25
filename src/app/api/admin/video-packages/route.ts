@@ -20,8 +20,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const pkg = await prisma.videoPackage.create({
       data: {
+        shootingType: body.shootingType || 'Indoor Shooting',
         category: body.category, name: body.name, price: Number(body.price) || 0,
         priceLabel: body.priceLabel || null,
+        durationTiers: Array.isArray(body.durationTiers) && body.durationTiers.length > 0 ? body.durationTiers : null,
         sortOrder: Number(body.sortOrder) || 0,
         isPublished: body.isPublished ?? true,
       },

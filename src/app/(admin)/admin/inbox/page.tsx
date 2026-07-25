@@ -34,13 +34,14 @@ export default async function InboxPage() {
         <div className="admin-card admin-table-wrap">
           <table className="admin-table">
             <thead>
-              <tr><th>Name</th><th>Email</th><th>Company</th><th>Budget</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+              <tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Budget</th><th>Status</th><th>Date</th><th>Actions</th></tr>
             </thead>
             <tbody>
               {submissions.map(s => (
                 <tr key={s.id} style={s.status === 'NEW' ? { background: 'rgba(251,191,36,0.03)' } : undefined}>
                   <td style={{ fontWeight: s.status === 'NEW' ? 600 : 400, color: '#fff' }}>{s.name}</td>
-                  <td style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>{s.email}</td>
+                  <td style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>{s.email || '—'}</td>
+                  <td style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>{s.phone || '—'}</td>
                   <td style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.45)' }}>{s.company || '—'}</td>
                   <td style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.45)' }}>{s.budget || '—'}</td>
                   <td><span className={`admin-badge admin-badge--${statusColor[s.status] ?? 'gray'}`}>{s.status}</span></td>

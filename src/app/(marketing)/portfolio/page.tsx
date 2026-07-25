@@ -44,18 +44,6 @@ export default async function PortfolioPage() {
 
   return (
     <main className="portfolio-page">
-      <section className="portfolio-hero">
-        <div className="portfolio-hero__bg" aria-hidden="true">
-          <div className="portfolio-hero__shape--1" />
-          <div className="portfolio-hero__shape--2" />
-        </div>
-        <div className="container portfolio-hero__inner">
-          <p className="portfolio-hero__eyebrow">Our Work</p>
-          <h1 className="portfolio-hero__title">Campaigns That <span className="portfolio-hero__accent">Move the Needle.</span></h1>
-          <p className="portfolio-hero__sub">A showcase of our creative and strategic work across brands, industries, and channels.</p>
-        </div>
-      </section>
-
       <section className="portfolio-grid-section">
         <div className="container">
           {items.length === 0 ? (

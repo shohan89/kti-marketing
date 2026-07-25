@@ -16,7 +16,7 @@ interface Application {
   notes: string | null
   ipAddress: string | null
   createdAt: string
-  job: { title: string; slug: string } | null
+  job: { title: string; slug: string; department: string } | null
 }
 
 const STATUS_OPTIONS = ['NEW', 'REVIEWING', 'SHORTLISTED', 'REJECTED', 'HIRED']
@@ -137,6 +137,7 @@ export default function ApplicationDetailPage() {
               <Link href={`/careers/${app.job.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.7)' }}>
                 {app.job.title} ↗
               </Link>
+              {' · '}{app.job.department}
             </p>
           )}
         </div>

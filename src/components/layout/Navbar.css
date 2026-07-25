@@ -83,6 +83,40 @@
 .nav-link:hover  { color: #FFFFFF; background: rgba(255, 255, 255, 0.12); }
 .nav-link.active { color: #FFFFFF; background: rgba(215, 38, 46, 0.35); font-weight: 600; }
 
+/* ── Hiring badge (matches footer's Careers badge) ────── */
+.nav-hiring-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--red, #D7262E);
+  border-radius: 20px;
+  padding: 2px 7px 2px 5px;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.nav-hiring-badge::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  animation: navHiringBlink 1.1s ease-in-out infinite;
+}
+
+@keyframes navHiringBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.15; }
+}
+
 /* Scrolled state — same dark text, slightly bolder contrast */
 .navbar--scrolled .nav-link        { color: #374151; }
 .navbar--scrolled .nav-link:hover  { color: #0F1117; background: #F4F4F5; }

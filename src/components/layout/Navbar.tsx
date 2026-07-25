@@ -8,7 +8,7 @@ import ThemeToggle from '@/components/ui/ThemeToggle'
 import './Navbar.css'
 
 interface ServiceLink { slug: string; title: string }
-interface NavbarProps { services: ServiceLink[]; logoUrl?: string }
+interface NavbarProps { services: ServiceLink[]; logoUrl?: string; isHiring?: boolean }
 
 const NAV_LINKS = [
   { to: '/',             label: 'Home' },
@@ -22,7 +22,7 @@ const NAV_LINKS = [
   { to: '/contact',      label: 'Contact' },
 ]
 
-export default function Navbar({ services, logoUrl }: NavbarProps) {
+export default function Navbar({ services, logoUrl, isHiring = false }: NavbarProps) {
   const [open, setOpen]               = useState(false)
   const [scrolled, setScrolled]       = useState(false)
   const [svcOpen, setSvcOpen]         = useState(false)
@@ -96,6 +96,7 @@ export default function Navbar({ services, logoUrl }: NavbarProps) {
                   ].filter(Boolean).join(' ')}
                 >
                   {label}
+                  {to === '/careers' && isHiring && <span className="nav-hiring-badge">Hiring</span>}
                   {dropdown && <span className="nav-dropdown-caret" aria-hidden="true">▾</span>}
                 </Link>
 
@@ -171,6 +172,7 @@ export default function Navbar({ services, logoUrl }: NavbarProps) {
                     onClick={close}
                   >
                     {label}
+                    {to === '/careers' && isHiring && <span className="nav-hiring-badge">Hiring</span>}
                   </Link>
                 </li>
               )

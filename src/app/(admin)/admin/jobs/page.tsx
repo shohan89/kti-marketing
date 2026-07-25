@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { jobListings } from '@/data/staticData'
+import { getCurrentAdminUser } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,7 +17,10 @@ async function getJobs() {
 }
 
 export default async function AdminJobsPage() {
-  const jobs = await getJobs()
+  const [allJobs, me] = await Promise.all([getJobs(), getCurrentAdminUser()])
+  const jobs = me && me.departments.length > 0
+    ? allJobs.filter(j => me.departments.includes(j.department))
+    : allJobs
 
   return (
     <>

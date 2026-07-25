@@ -1,82 +1,3 @@
-/* ── Hero ─────────────────────────────────────────────── */
-.about-hero { text-align: center; }
-
-.about-hero__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 1rem 0.45rem 0.8rem;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 1.25rem;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.about-hero__badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #4ade80;
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
-  animation: liveDotPulse 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes liveDotPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.7); }
-}
-
-.about-hero {
-  padding: 9.5rem 0 7.5rem;
-  background:
-    radial-gradient(ellipse 60% 55% at 80% 0%,  rgba(215, 38, 46, 0.11) 0%, transparent 60%),
-    radial-gradient(ellipse 45% 65% at 10% 110%, rgba(215, 38, 46, 0.06) 0%, transparent 60%),
-    #0B0B0B;
-  position: relative;
-  overflow: hidden;
-}
-
-.about-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 80px 80px;
-  mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 25%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 25%, transparent 80%);
-  pointer-events: none;
-}
-
-.about-hero .container { position: relative; z-index: 1; }
-
-.about-hero .eyebrow { color: #f87171; }
-
-.about-hero__title {
-  font-size: clamp(2.2rem, 8vw, 4.5rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.08;
-  color: var(--white);
-  max-width: 760px;
-  margin: 0 auto 1.5rem;
-}
-
-.about-hero__sub {
-  font-size: 1.15rem;
-  color: rgba(255, 255, 255, 0.55);
-  line-height: 1.8;
-  max-width: 560px;
-  margin: 0 auto;
-}
-
 /* ── Mission ──────────────────────────────────────────── */
 .about-mission {
   padding: 8rem 0;
@@ -522,6 +443,57 @@
   line-height: 1.6;
 }
 
+/* ── Founder Key Points (Early Life, Career, etc.) ───── */
+.about-founder__sections {
+  margin-top: 5rem;
+  padding-top: 4rem;
+  border-top: 1px solid var(--gray-100);
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.founder-section__title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--gray-900);
+  margin: 0 0 0.75rem;
+}
+
+.founder-section__desc {
+  font-size: 0.95rem;
+  color: var(--gray-500);
+  line-height: 1.8;
+  max-width: 720px;
+  margin: 0 0 1.5rem;
+}
+
+.founder-section__images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.founder-section__image-wrap {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--gray-100);
+}
+
+.founder-section__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.founder-section__image-wrap:hover .founder-section__image {
+  transform: scale(1.04);
+}
+
 /* ── CTA ──────────────────────────────────────────────── */
 .about-cta {
   padding: 9rem 0;
@@ -569,7 +541,8 @@
   .about-story__grid   { grid-template-columns: 1fr; gap: 2.5rem; }
   .about-story__left h2 { position: static; }
   .about-values__grid  { grid-template-columns: 1fr; }
-  .about-hero          { padding: 6.5rem 0 5rem; }
+  .about-founder__sections { margin-top: 3rem; padding-top: 2.5rem; gap: 2.25rem; }
+  .founder-section__images { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .about-mission       { padding: 5.5rem 0; }
   .about-values        { padding: 6rem 0; }
   .about-story         { padding: 6rem 0; }
@@ -603,7 +576,6 @@
   .about-stat               { padding: 1.75rem 0.75rem; }
   .about-mission__quote     { font-size: 1.05rem; padding-left: 1.25rem; }
 
-  .about-hero               { padding: 5.5rem 0 4rem; }
   .about-mission            { padding: 4.5rem 0; }
   .about-stats              { padding: 4rem 0; }
   .about-values             { padding: 5rem 0; }

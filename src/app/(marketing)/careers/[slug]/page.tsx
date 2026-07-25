@@ -98,9 +98,6 @@ export default async function JobPostPage({ params }: { params: Promise<{ slug: 
                 <ul className="jp-list">{job.benefits.map((item: string, i: number) => (<li key={i}>{item}</li>))}</ul>
               </div>
             )}
-            <div className="jp-article__footer reveal">
-              <Link href="/careers" className="btn btn-outline">← Back to Careers</Link>
-            </div>
           </article>
 
           <aside className="jp-sidebar">
@@ -121,6 +118,10 @@ export default async function JobPostPage({ params }: { params: Promise<{ slug: 
               {job.id ? <ApplyModal jobId={job.id} jobTitle={job.title} variant="sidebar" /> : <Link href="/contact" className="btn jp-sidebar-cta__btn">Apply Now →</Link>}
             </div>
           </aside>
+
+          <div className="jp-article__footer reveal">
+            <Link href="/careers" className="btn btn-outline">← Back to Careers</Link>
+          </div>
         </div>
       </section>
 

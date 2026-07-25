@@ -8,11 +8,28 @@ import './Pricing.css'
 
 function fmt(n: number) { return '৳' + n.toLocaleString('en-IN') }
 
-function buildWhatsAppQuoteUrl(whatsappUrl: string, items: CartItem[], total: number): string {
+function buildWhatsAppMessageUrl(whatsappUrl: string, message: string): string {
   const base = whatsappUrl.split('?')[0]
+  return `${base}?text=${encodeURIComponent(message)}`
+}
+
+function buildWhatsAppQuoteUrl(whatsappUrl: string, items: CartItem[], total: number): string {
   const lines = items.map(i => `• ${i.name} — ${fmt(i.price)}`)
   const message = `Hi! I'd like a custom quote for:\n\n${lines.join('\n')}\n\nEstimated Total: ${fmt(total)}`
-  return `${base}?text=${encodeURIComponent(message)}`
+  return buildWhatsAppMessageUrl(whatsappUrl, message)
+}
+
+interface VideoService { category: string; name: string; variants: Partial<Record<string, VideoPackage>> }
+
+function groupVideoServices(items: VideoPackage[]): VideoService[] {
+  const map = new Map<string, VideoService>()
+  for (const item of items) {
+    const key = `${item.category}::${item.name}`
+    let svc = map.get(key)
+    if (!svc) { svc = { category: item.category, name: item.name, variants: {} }; map.set(key, svc) }
+    svc.variants[item.shootingType] = item
+  }
+  return Array.from(map.values())
 }
 
 function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, marketingPackages, photoshootPackages, videoPackages, whatsappUrl }: {
@@ -25,6 +42,12 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
   const [photoImages, setPhotoImages] = useState<Record<string, number>>(() =>
     Object.fromEntries(photoshootPackages.map(p => [p.type, p.qtyConfig?.imagesConfig?.defaultImages ?? 0]))
   )
+  const [videoShootType, setVideoShootType] = useState<Record<string, string>>({})
+  const [videoDuration, setVideoDuration] = useState<Record<string, string>>({})
+  const [videoQty, setVideoQty] = useState<Record<string, number>>({})
+  const [videoSimpleQty, setVideoSimpleQty] = useState<Record<string, number>>({})
+  const [videoSeconds, setVideoSeconds] = useState<Record<string, number>>({})
+  const videoServices = groupVideoServices(videoPackages)
   function calcPhoto(pkg: PhotoshootPackage, qty: number, images: number) {
     const capacity = pkg.qtyConfig?.capacity ?? 1
     const ppi = pkg.qtyConfig?.imagesConfig?.pricePerImage ?? 0
@@ -125,22 +148,106 @@ function CalculatorTab({ cartItems, addToCart, removeFromCart, cartTotal, market
 
       {/* ── Video Packages column ───────────────────────── */}
       <div className="calc-tab-col">
-        {colHead('Video Packages', videoPackages.length)}
+        {colHead('Video Packages', videoServices.length)}
         <div className="calc-col-list">
-          {videoPackages.map(pkg => {
-            const itemId = `video-${pkg.id}`
+          {videoServices.map(svc => {
+            const key = `${svc.category}::${svc.name}`
+            const itemId = `video-${key}`
             const inCart = cartItems.some(c => c.id === itemId)
+            const availableTypes = Object.keys(svc.variants)
+            const selectedType = videoShootType[key] ?? availableTypes[0]
+            const variant = svc.variants[selectedType]
+            const tiers = variant?.durationTiers ?? []
+            const hasTiers = tiers.length > 0
+            const selectedDuration = videoDuration[key] ?? tiers[0]?.label ?? ''
+            const activeDurationTier = tiers.find(t => t.label === selectedDuration)
+            const qtyOptions = activeDurationTier?.qtyTiers ?? []
+            const selectedQty = videoQty[key] ?? qtyOptions[0]?.qty ?? 1
+            const matchedTier = qtyOptions.find(q => q.qty === selectedQty)
+
+            const simpleQty = videoSimpleQty[key] ?? 1
+            const simpleSeconds = videoSeconds[key] ?? 15
+
+            const computedPrice = hasTiers ? (matchedTier?.price ?? 0) : (variant?.price ?? 0) * simpleQty
+            const cartName = hasTiers
+              ? `${svc.name} — ${selectedType} · ${selectedDuration} × ${selectedQty}`
+              : `${svc.name} — ${selectedType} · ${simpleSeconds}s × ${simpleQty}`
+
+            function selectShootType(type: string) {
+              setVideoShootType(prev => ({ ...prev, [key]: type }))
+              setVideoDuration(prev => { const next = { ...prev }; delete next[key]; return next })
+              setVideoQty(prev => { const next = { ...prev }; delete next[key]; return next })
+            }
+            function selectDuration(label: string) {
+              setVideoDuration(prev => ({ ...prev, [key]: label }))
+              setVideoQty(prev => { const next = { ...prev }; delete next[key]; return next })
+            }
+
             return (
-              <div key={pkg.id} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
+              <div key={key} className={`calc-pkg-option${inCart ? ' calc-pkg-option--added' : ''}`}>
                 <div className="calc-pkg-option__info">
                   <div className="calc-pkg-option__top">
-                    <span className="calc-pkg-option__name">{pkg.name}</span>
-                    <span className="calc-pkg-option__price">{fmt(pkg.price)}{pkg.priceLabel && <small> {pkg.priceLabel}</small>}</span>
+                    <span className="calc-pkg-option__name">{svc.name}</span>
+                    <span className="calc-pkg-option__price">{fmt(computedPrice)}{!hasTiers && simpleQty === 1 && variant?.priceLabel && <small> {variant.priceLabel}</small>}</span>
                   </div>
-                  <ul className="calc-pkg-option__highlights"><li>{pkg.category}</li></ul>
+                  <ul className="calc-pkg-option__highlights"><li>{svc.category}</li></ul>
                 </div>
-                <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => !inCart && addToCart({ id: itemId, name: pkg.name, category: 'video', price: pkg.price })} disabled={inCart}>
-                  {inCart ? '✓ Added' : '+ Add to Cart'}
+
+                {availableTypes.length > 1 && (
+                  <div className="calc-qty-control">
+                    <span className="calc-qty-control__label">Shooting Type</span>
+                    <div className="calc-video-type-row">
+                      {availableTypes.map(type => (
+                        <button
+                          key={type} type="button"
+                          className={`calc-video-type-btn${selectedType === type ? ' calc-video-type-btn--active' : ''}`}
+                          onClick={() => selectShootType(type)}
+                        >{type}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="calc-qty-control">
+                  <span className="calc-qty-control__label">Video Length</span>
+                  {hasTiers ? (
+                    <select className="calc-video-select" value={selectedDuration} onChange={e => selectDuration(e.target.value)}>
+                      {tiers.map(t => <option key={t.label} value={t.label}>{t.label}</option>)}
+                    </select>
+                  ) : (
+                    <div className="calc-qty-control__row">
+                      <input
+                        type="number" className="calc-qty-control__input" min="1" value={simpleSeconds}
+                        onChange={e => setVideoSeconds(prev => ({ ...prev, [key]: Math.max(1, parseInt(e.target.value) || 1) }))}
+                        aria-label="Video length in seconds"
+                      />
+                      <span className="calc-qty-control__unit">sec</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="calc-qty-control">
+                  <span className="calc-qty-control__label">Quantity</span>
+                  {hasTiers ? (
+                    <select className="calc-video-select" value={selectedQty} onChange={e => setVideoQty(prev => ({ ...prev, [key]: Number(e.target.value) }))}>
+                      {qtyOptions.map(q => <option key={q.qty} value={q.qty}>{q.qty}</option>)}
+                    </select>
+                  ) : (
+                    <div className="calc-qty-control__row">
+                      <button type="button" className="calc-qty-control__btn" onClick={() => setVideoSimpleQty(prev => ({ ...prev, [key]: Math.max(1, (prev[key] || 1) - 1) }))} aria-label="Decrease quantity">−</button>
+                      <input
+                        type="number" className="calc-qty-control__input" min="1" value={simpleQty}
+                        onChange={e => setVideoSimpleQty(prev => ({ ...prev, [key]: Math.max(1, parseInt(e.target.value) || 1) }))}
+                        aria-label="Quantity"
+                      />
+                      <button type="button" className="calc-qty-control__btn" onClick={() => setVideoSimpleQty(prev => ({ ...prev, [key]: (prev[key] || 1) + 1 }))} aria-label="Increase quantity">+</button>
+                      <span className="calc-qty-control__unit">videos</span>
+                    </div>
+                  )}
+                </div>
+
+                <button className={`calc-pkg-option__add${inCart ? ' calc-pkg-option__add--added' : ''}`} onClick={() => addToCart({ id: itemId, name: cartName, category: 'video', price: computedPrice })}>
+                  {inCart ? '✓ Update' : '+ Add to Cart'}
                 </button>
               </div>
             )
@@ -208,7 +315,11 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
   function removeFromCart(id: string) { setCartItems(prev => prev.filter(c => c.id !== id)) }
   const cartTotal = cartItems.reduce((sum, item) => sum + item.price, 0)
 
-  const videoGroups = groupByCategory(videoPackages)
+  const shootingTypes = Array.from(new Set(videoPackages.map(v => v.shootingType))).sort((a, b) =>
+    a === 'Indoor Shooting' ? -1 : b === 'Indoor Shooting' ? 1 : a.localeCompare(b)
+  )
+  const [activeShootingType, setActiveShootingType] = useState(shootingTypes[0] ?? 'Indoor Shooting')
+  const videoGroups = groupByCategory(videoPackages.filter(v => v.shootingType === activeShootingType))
 
   const TABS = [{ key: 'marketing', label: 'Marketing Packages' }, { key: 'photoshoot', label: 'Photoshoot' }, { key: 'video', label: 'Video Package' }, { key: 'calculator', label: 'Price Calculator' }]
 
@@ -245,7 +356,7 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
         <section className="pricing-packages">
           <div className="container">
             <div className="pricing-packages__header">
-              <p className="eyebrow" style={{ color: 'rgba(255,255,255,0.45)' }}>Monthly Retainer</p>
+              <p className="eyebrow">Monthly Retainer</p>
               <h2 className="pricing-packages__title">Marketing <span className="accent">Packages</span></h2>
               <p className="pricing-packages__sub">All packages include strategy, creative production, platform management, and performance reporting. Ad spend is separate.</p>
             </div>
@@ -257,7 +368,15 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
                   <div className="pkg-card__divider" />
                   <div className="pkg-card__platforms"><p className="pkg-card__section-label">Platforms</p><ul>{pkg.platforms.map(p => (<li key={p} className="pkg-card__platform-item"><span className="pkg-card__dot" aria-hidden="true" />{p}</li>))}</ul></div>
                   <div className="pkg-card__deliverables"><p className="pkg-card__section-label">Deliverables</p><ul>{pkg.deliverables.map(d => (<li key={d} className="pkg-card__check-item"><span className="pkg-card__check" aria-hidden="true">✓</span>{d}</li>))}</ul></div>
-                  <Link href="/contact" className={`btn pkg-card__cta${pkg.highlight ? ' pkg-card__cta--featured' : ''}`}>{pkg.cta} →</Link>
+                  {whatsappUrl ? (
+                    <a
+                      href={buildWhatsAppMessageUrl(whatsappUrl, `Hi! I'm interested in the ${pkg.name} package (${fmt(pkg.price)}/month). Can we get started?`)}
+                      target="_blank" rel="noopener noreferrer"
+                      className={`btn pkg-card__cta${pkg.highlight ? ' pkg-card__cta--featured' : ''}`}
+                    >{pkg.cta} →</a>
+                  ) : (
+                    <Link href="/contact" className={`btn pkg-card__cta${pkg.highlight ? ' pkg-card__cta--featured' : ''}`}>{pkg.cta} →</Link>
+                  )}
                 </div>
               ))}
             </div>
@@ -272,15 +391,27 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
             <div className="pricing-photo__header"><p className="eyebrow">Photography &amp; Shoots</p><h2>Photoshoot <span className="accent">Pricing</span></h2><p className="pricing-photo__sub">Professional photography for products, models, and commercial campaigns. All sessions include editing and high-resolution delivery.</p></div>
             <div className="pricing-photo__grid">
               {photoshootPackages.map(pkg => (
-                <div key={pkg.type} className="photo-card">
-                  <div className="photo-card__icon">{pkg.icon}</div>
-                  <div className="photo-card__body">
-                    <h3 className="photo-card__type">{pkg.type}</h3>
-                    <p className="photo-card__desc">{pkg.description}</p>
-                    <ul className="photo-card__includes">{pkg.includes.map(item => (<li key={item}><span aria-hidden="true">✓</span> {item}</li>))}</ul>
-                    {pkg.addOn && <p className="photo-card__addon">+ {pkg.addOn}</p>}
+                <div key={pkg.type} className="pkg-card">
+                  <div className="pkg-card__top">
+                    <p className="pkg-card__name">{pkg.icon} {pkg.type}</p>
+                    <div className="pkg-card__price-row"><span className="pkg-card__price">{fmt(pkg.priceNumeric)}</span><span className="pkg-card__mo">{pkg.unit}</span></div>
+                    <p className="pkg-card__desc">{pkg.description}</p>
                   </div>
-                  <div className="photo-card__price-col"><span className="photo-card__price">{pkg.price}</span><span className="photo-card__unit">{pkg.unit}</span><Link href="/contact" className="btn btn-outline photo-card__btn">Book Now</Link></div>
+                  <div className="pkg-card__divider" />
+                  <div className="pkg-card__deliverables">
+                    <p className="pkg-card__section-label">What&apos;s Included</p>
+                    <ul>{pkg.includes.map(item => (<li key={item} className="pkg-card__check-item"><span className="pkg-card__check" aria-hidden="true">✓</span>{item}</li>))}</ul>
+                  </div>
+                  {pkg.addOn && <p className="pkg-card__desc pkg-card__addon">+ {pkg.addOn}</p>}
+                  {whatsappUrl ? (
+                    <a
+                      href={buildWhatsAppMessageUrl(whatsappUrl, `Hi! I'd like to book the ${pkg.type} package (${fmt(pkg.priceNumeric)} ${pkg.unit}).`)}
+                      target="_blank" rel="noopener noreferrer"
+                      className="btn pkg-card__cta"
+                    >Book Now →</a>
+                  ) : (
+                    <Link href="/contact" className="btn pkg-card__cta">Book Now →</Link>
+                  )}
                 </div>
               ))}
             </div>
@@ -292,6 +423,17 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
         <section className="pricing-photo pricing-video">
           <div className="container">
             <div className="pricing-photo__header"><p className="eyebrow">Video Production</p><h2>Video <span className="accent">Package</span></h2><p className="pricing-photo__sub">Elevate your content with professional video editing. Flat, one-time pricing per video — no calculator, no surprises.</p></div>
+            {shootingTypes.length > 1 && (
+              <div className="shooting-type-toggle" role="tablist">
+                {shootingTypes.map(type => (
+                  <button
+                    key={type} type="button" role="tab" aria-selected={activeShootingType === type}
+                    className={`shooting-type-toggle__btn${activeShootingType === type ? ' shooting-type-toggle__btn--active' : ''}`}
+                    onClick={() => setActiveShootingType(type)}
+                  >{type}</button>
+                ))}
+              </div>
+            )}
             <div className="pricing-video__grid">
               {videoGroups.map(group => (
                 <div key={group.category} className="video-pkg-col">
@@ -305,7 +447,15 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
                         </div>
                         <div className="video-pkg-row__cta">
                           <span className="video-pkg-row__price">{fmt(item.price)}</span>
-                          <Link href="/contact" className="btn btn-outline video-pkg-row__btn">Book Now</Link>
+                          {whatsappUrl ? (
+                            <a
+                              href={buildWhatsAppMessageUrl(whatsappUrl, `Hi! I'd like to book ${item.name} — ${item.shootingType} (${fmt(item.price)}${item.priceLabel ? `, ${item.priceLabel}` : ''}).`)}
+                              target="_blank" rel="noopener noreferrer"
+                              className="btn btn-outline video-pkg-row__btn"
+                            >Book Now</a>
+                          ) : (
+                            <Link href="/contact" className="btn btn-outline video-pkg-row__btn">Book Now</Link>
+                          )}
                         </div>
                       </div>
                     ))}

@@ -198,6 +198,56 @@
   padding: 1.25rem;
 }
 
+/* Department filter tabs */
+.admin-dept-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-dept-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.admin-dept-tab:hover {
+  border-color: rgba(248,113,113,0.4);
+  color: #fff;
+}
+
+.admin-dept-tab--active {
+  background: #D7262E;
+  border-color: #D7262E;
+  color: #fff;
+}
+
+.admin-dept-tab__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.3rem;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.12);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.admin-dept-tab--active .admin-dept-tab__count { background: rgba(255,255,255,0.25); }
+
 .admin-table-wrap { overflow-x: auto; }
 
 .admin-table {
@@ -286,6 +336,11 @@
 .admin-textarea { resize: vertical; min-height: 100px; }
 .admin-input[type="date"] { color-scheme: dark; cursor: pointer; }
 .admin-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) brightness(0.7); cursor: pointer; }
+
+/* Native dropdown popups render with the OS light theme by default, which
+   left option text white-on-white (inherited from .admin-select's #fff). */
+.admin-select { color-scheme: dark; cursor: pointer; }
+.admin-select option { background: #1a1a1e; color: #fff; }
 
 .admin-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 

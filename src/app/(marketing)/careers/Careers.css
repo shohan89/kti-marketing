@@ -1,7 +1,7 @@
 /* ── Hero ─────────────────────────────────────────────── */
 .careers-hero {
   text-align: center;
-  padding: 9.5rem 0 7.5rem;
+  padding: 5.5rem 0 4.5rem;
   background:
     radial-gradient(ellipse 65% 55% at 85% 0%,  rgba(215, 38, 46, 0.11) 0%, transparent 60%),
     radial-gradient(ellipse 40% 60% at 5%  110%, rgba(215, 38, 46, 0.06) 0%, transparent 60%),
@@ -26,21 +26,21 @@
 .careers-hero .container { position: relative; z-index: 1; }
 
 .careers-hero__title {
-  font-size: clamp(2.2rem, 8vw, 4.5rem);
+  font-size: clamp(1.8rem, 5vw, 2.85rem);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.08;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
   color: var(--white);
-  max-width: 680px;
-  margin: 0 auto 1.25rem;
+  max-width: 620px;
+  margin: 0 auto 0.9rem;
 }
 
 .careers-hero__sub {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.55);
-  line-height: 1.8;
-  max-width: 560px;
-  margin: 0 auto 2.25rem;
+  line-height: 1.65;
+  max-width: 520px;
+  margin: 0 auto 1.75rem;
 }
 
 /* Badges */
@@ -155,6 +155,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
   animation: jobCardIn 0.32s ease both;
   transition:
     border-left-color var(--transition),
@@ -261,7 +264,7 @@
   transition: gap var(--transition), opacity var(--transition);
 }
 
-.job-card__cta:hover {
+.job-card:hover .job-card__cta {
   gap: 0.6rem;
   opacity: 0.8;
 }
@@ -280,17 +283,17 @@
 
 /* ── Responsive ───────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .careers-hero { padding: 7.5rem 0 6rem; }
+  .careers-hero { padding: 5rem 0 4rem; }
 }
 
 @media (max-width: 768px) {
-  .careers-hero { padding: 6.5rem 0 5rem; }
+  .careers-hero { padding: 4.5rem 0 3.5rem; }
   .careers-listings { padding: 4.5rem 0 5.5rem; }
   .careers-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
-  .careers-hero { padding: 5.5rem 0 4rem; }
+  .careers-hero { padding: 3.5rem 0 3rem; }
   .careers-hero__badges { gap: 0.4rem; }
   .careers-badge { font-size: 0.72rem; padding: 0.35rem 0.75rem; }
   .job-card { padding: 1.5rem; }

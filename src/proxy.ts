@@ -6,6 +6,8 @@ import {
   sessionCookies,
   verifyAccessToken,
 } from '@/lib/session'
+import { prisma } from '@/lib/prisma'
+import { resolveModuleForPath, getRequiredLevel, hasLevel, type PermissionMap } from '@/lib/permissions'
 
 // Next 16 renamed the `middleware` file convention to `proxy`. This must live
 // under src/ (alongside app/) — at the repo root it is silently ignored, which
@@ -22,9 +24,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Strip any client-supplied spoofed header up front
+  // Strip any client-supplied spoofed headers up front
   const requestHeaders = new Headers(request.headers)
   requestHeaders.delete('x-admin-authorized')
+  requestHeaders.delete('x-admin-user-id')
+  requestHeaders.delete('x-admin-user-email')
 
   const accessToken = request.cookies.get(ACCESS_COOKIE)?.value
   let user = await verifyAccessToken(accessToken)
@@ -50,8 +54,39 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Session is valid — stamp header so route handlers skip re-verifying the token
+  // Module-level permission check. A module of `null` (dashboard, /api/admin/me,
+  // /admin/login) means "no gate beyond being logged in" — skip straight through.
+  const moduleKey = resolveModuleForPath(pathname)
+  if (moduleKey) {
+    let permissions: PermissionMap | null = null
+    let isActive = false
+    try {
+      const row = await prisma.adminUser.findUnique({ where: { supabaseId: user.id } })
+      if (row?.isActive) {
+        permissions = row.permissions as PermissionMap
+        isActive = true
+      }
+    } catch { /* treat as unauthorized below */ }
+
+    if (!isActive) {
+      if (isAdminApi) return NextResponse.json({ error: 'No admin account for this session' }, { status: 403 })
+      const loginUrl = new URL('/admin/login', request.url)
+      loginUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    const required = getRequiredLevel(request.method)
+    if (!hasLevel(permissions, moduleKey, required)) {
+      if (isAdminApi) return NextResponse.json({ error: 'You do not have permission to do this.' }, { status: 403 })
+      return NextResponse.redirect(new URL('/admin/not-authorized', request.url))
+    }
+  }
+
+  // Session is valid — stamp headers so route handlers skip re-verifying the token
+  // and re-querying identity.
   requestHeaders.set('x-admin-authorized', '1')
+  requestHeaders.set('x-admin-user-id', user.id)
+  if (user.email) requestHeaders.set('x-admin-user-email', user.email)
   const response = NextResponse.next({ request: { headers: requestHeaders } })
   for (const { name, value, options } of refreshed ?? []) {
     response.cookies.set(name, value, options)

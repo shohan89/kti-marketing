@@ -56,7 +56,7 @@ export default function Footer({ isHiring, phones = [], emails = [], address = '
 
             {/* Column 1 — Brand + contact info */}
             <div className="footer-brand">
-              <Link href="/" className="footer-logo">KTI <span>Marketing</span></Link>
+              <Link href="/" className="footer-logo">KTI <span>- Marketing Agency</span></Link>
               <p className="footer-tagline">
                 A results-obsessed, full-service marketing agency building brands that dominate their markets.
               </p>
@@ -165,7 +165,7 @@ export default function Footer({ isHiring, phones = [], emails = [], address = '
 
       <div className="footer-bottom">
         <div className="container">
-          <p>© {new Date().getFullYear()} KTI Marketing. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} KTI - Marketing Agency. All rights reserved.</p>
           <p className="footer-bottom__right">Built for ambitious brands.</p>
         </div>
       </div>

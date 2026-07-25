@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAdminSession } from '@/lib/auth'
+import { requireAdminSession, getCurrentAdminUser } from '@/lib/auth'
 
 const splitLines = (v: unknown) => Array.isArray(v) ? v : (String(v || '')).split('\n').map(s => s.trim()).filter(Boolean)
+
+/** Department-scoped roles (Manager, HR) can't reach jobs outside their assignment. */
+async function isOutOfScope(department: string | null | undefined): Promise<boolean> {
+  const me = await getCurrentAdminUser()
+  if (!me || me.departments.length === 0) return false
+  return !department || !me.departments.includes(department)
+}
 
 export async function GET(_req: NextRequest, context: { params: Promise<{ id: string }> }) {
   const unauth = await requireAdminSession()
@@ -11,6 +18,7 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ id: st
   try {
     const job = await prisma.jobListing.findUnique({ where: { id } })
     if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (await isOutOfScope(job.department)) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     return NextResponse.json(job)
   } catch {
     return NextResponse.json({ error: 'DB error' }, { status: 500 })
@@ -22,6 +30,10 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
   if (unauth) return unauth
   const { id } = await context.params
   try {
+    const existing = await prisma.jobListing.findUnique({ where: { id } })
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (await isOutOfScope(existing.department)) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
     const body = await req.json()
     const job = await prisma.jobListing.update({
       where: { id },
@@ -50,6 +62,10 @@ export async function DELETE(_req: NextRequest, context: { params: Promise<{ id:
   if (unauth) return unauth
   const { id } = await context.params
   try {
+    const existing = await prisma.jobListing.findUnique({ where: { id } })
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (await isOutOfScope(existing.department)) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
     await prisma.jobListing.delete({ where: { id } })
     return NextResponse.json({ ok: true })
   } catch {

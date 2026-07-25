@@ -24,8 +24,10 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
     const pkg = await prisma.videoPackage.update({
       where: { id },
       data: {
+        shootingType: body.shootingType || 'Indoor Shooting',
         category: body.category, name: body.name, price: Number(body.price) || 0,
         priceLabel: body.priceLabel || null,
+        durationTiers: Array.isArray(body.durationTiers) && body.durationTiers.length > 0 ? body.durationTiers : null,
         sortOrder: Number(body.sortOrder) || 0,
         isPublished: body.isPublished ?? true,
       },

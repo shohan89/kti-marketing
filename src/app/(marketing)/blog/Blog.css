@@ -5,7 +5,7 @@
 /* ── Hero ─────────────────────────────────────────────── */
 .blog-hero {
   position: relative;
-  padding: 9rem 0 6rem;
+  padding: 5.5rem 0 4rem;
   background:
     radial-gradient(ellipse 60% 50% at 80% 20%, rgba(215, 38, 46, 0.1) 0%, transparent 60%),
     radial-gradient(ellipse 40% 60% at 10% 80%, rgba(215, 38, 46, 0.05) 0%, transparent 60%),
@@ -23,20 +23,20 @@
 }
 
 .blog-hero__title {
-  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-size: clamp(1.8rem, 5vw, 2.85rem);
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   color: var(--white);
-  line-height: 1.1;
-  margin: 0.75rem 0 1.25rem;
+  line-height: 1.15;
+  margin: 0.6rem 0 1rem;
 }
 
 .blog-hero__sub {
-  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-size: 1rem;
   color: rgba(255,255,255,0.55);
-  line-height: 1.8;
-  max-width: 600px;
-  margin: 0 auto 2.5rem;
+  line-height: 1.65;
+  max-width: 520px;
+  margin: 0 auto 1.75rem;
 }
 
 .blog-hero__nav {
@@ -287,6 +287,6 @@
 
 @media (max-width: 640px) {
   .blog-section__grid { grid-template-columns: 1fr; }
-  .blog-hero { padding: 7rem 0 4rem; }
+  .blog-hero { padding: 4rem 0 3rem; }
   .blog-hero__title { letter-spacing: -0.03em; }
 }

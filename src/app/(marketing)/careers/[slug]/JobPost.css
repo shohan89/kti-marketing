@@ -1,7 +1,7 @@
 /* ── Hero ─────────────────────────────────────────────── */
 .jp-hero {
   position: relative;
-  padding: 9rem 0 5.5rem;
+  padding: 5.5rem 0 3.5rem;
   background:
     radial-gradient(ellipse 55% 50% at 85% 10%, rgba(215, 38, 46, 0.12) 0%, transparent 65%),
     radial-gradient(ellipse 30% 50% at 10% 90%, rgba(215, 38, 46, 0.06) 0%, transparent 65%),
@@ -69,13 +69,13 @@
 }
 
 .jp-hero__title {
-  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-size: clamp(1.8rem, 5vw, 2.75rem);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
   color: var(--white);
-  margin: 0 0 1.5rem;
-  max-width: 640px;
+  margin: 0 0 1rem;
+  max-width: 620px;
 }
 
 .jp-hero__meta {
@@ -181,13 +181,14 @@
   color: var(--gray-400);
 }
 
-/* Article footer */
+/* Article footer — own grid item so it can be reordered independently of
+   the sidebar on mobile (Apply CTA should appear above this on small screens) */
 .jp-article__footer {
+  grid-column: 1;
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-top: 3rem;
   padding-top: 2rem;
   border-top: 1px solid var(--gray-100);
 }
@@ -320,7 +321,7 @@
 }
 
 @media (max-width: 768px) {
-  .jp-hero { padding: 7rem 0 4.5rem; }
+  .jp-hero { padding: 4.5rem 0 3.5rem; }
   .jp-content { padding: 4rem 0 5rem; }
 
   .jp-sidebar {
@@ -329,8 +330,8 @@
 }
 
 @media (max-width: 480px) {
-  .jp-hero { padding: 5.5rem 0 3.5rem; }
-  .jp-hero__title { font-size: clamp(1.9rem, 7vw, 3.5rem); }
+  .jp-hero { padding: 3.5rem 0 3rem; }
+  .jp-hero__title { font-size: clamp(1.6rem, 7vw, 2.2rem); }
   .jp-article__footer { flex-direction: column; }
   .jp-article__footer .btn { width: 100%; text-align: center; justify-content: center; }
 }

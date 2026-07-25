@@ -17,7 +17,7 @@ function getPPI(qtyConfig: unknown): number {
 export default async function AdminPricingPage() {
   let mPkgs: { id: string; name: string; price: number; badge: string | null; highlight: boolean; isPublished: boolean }[] = []
   let pPkgs: { id: string; type: string; icon: string; price: string; priceNumeric: number; unit: string; isPublished: boolean; qtyConfig: unknown }[] = []
-  let vPkgs: { id: string; category: string; name: string; price: number; priceLabel: string | null; isPublished: boolean }[] = []
+  let vPkgs: { id: string; shootingType: string; category: string; name: string; price: number; priceLabel: string | null; isPublished: boolean }[] = []
 
   try {
     const [mRows, pRows, vRows] = await Promise.all([
@@ -32,12 +32,12 @@ export default async function AdminPricingPage() {
       ? pRows.map(r => ({ id: r.id, type: r.type, icon: r.icon ?? '', price: r.price, priceNumeric: r.priceNumeric, unit: r.unit, isPublished: r.isPublished, qtyConfig: r.qtyConfig }))
       : staticPhotoshoot.map((p, i) => ({ id: `s${i}`, type: p.type, icon: p.icon, price: p.price, priceNumeric: p.priceNumeric, unit: p.unit, isPublished: true, qtyConfig: p.qtyConfig }))
     vPkgs = vRows.length > 0
-      ? vRows.map(r => ({ id: r.id, category: r.category, name: r.name, price: r.price, priceLabel: r.priceLabel, isPublished: r.isPublished }))
-      : staticVideo.map(p => ({ id: p.id, category: p.category, name: p.name, price: p.price, priceLabel: p.priceLabel ?? null, isPublished: true }))
+      ? vRows.map(r => ({ id: r.id, shootingType: r.shootingType, category: r.category, name: r.name, price: r.price, priceLabel: r.priceLabel, isPublished: r.isPublished }))
+      : staticVideo.map(p => ({ id: p.id, shootingType: p.shootingType, category: p.category, name: p.name, price: p.price, priceLabel: p.priceLabel ?? null, isPublished: true }))
   } catch {
     mPkgs = marketingPackages.map((p, i) => ({ id: String(i), name: p.name, price: p.price, badge: p.badge ?? null, highlight: p.highlight, isPublished: true }))
     pPkgs = staticPhotoshoot.map((p, i) => ({ id: `s${i}`, type: p.type, icon: p.icon, price: p.price, priceNumeric: p.priceNumeric, unit: p.unit, isPublished: true, qtyConfig: p.qtyConfig }))
-    vPkgs = staticVideo.map(p => ({ id: p.id, category: p.category, name: p.name, price: p.price, priceLabel: p.priceLabel ?? null, isPublished: true }))
+    vPkgs = staticVideo.map(p => ({ id: p.id, shootingType: p.shootingType, category: p.category, name: p.name, price: p.price, priceLabel: p.priceLabel ?? null, isPublished: true }))
   }
 
   return (
@@ -155,44 +155,60 @@ export default async function AdminPricingPage() {
 
       {/* ── Video Packages ─────────────────────────────── */}
       <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', margin: '2rem 0 0.75rem' }}>Video Packages</p>
-      <div className="admin-card admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {vPkgs.length === 0 && (
-              <tr>
-                <td colSpan={5} style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', padding: '1.5rem' }}>
-                  No video packages. <Link href="/admin/pricing/video/new" style={{ color: '#D7262E' }}>Create one →</Link>
-                </td>
-              </tr>
-            )}
-            {vPkgs.map(p => (
-              <tr key={p.id}>
-                <td style={{ color: 'rgba(255,255,255,0.6)' }}>{p.category}</td>
-                <td style={{ fontWeight: 500, color: '#fff' }}>{p.name}</td>
-                <td style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>
-                  ৳{p.price.toLocaleString()}
-                  {p.priceLabel && <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}> {p.priceLabel}</span>}
-                </td>
-                <td>
-                  <span className={`admin-badge admin-badge--${p.isPublished ? 'green' : 'gray'}`}>{p.isPublished ? 'Published' : 'Draft'}</span>
-                </td>
-                <td>
-                  <Link href={`/admin/pricing/video/${p.id}/edit`} className="admin-btn admin-btn--outline admin-btn--sm">Edit</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {vPkgs.length === 0 && (
+        <div className="admin-card" style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)', padding: '1.5rem' }}>
+          No video packages. <Link href="/admin/pricing/video/new" style={{ color: '#D7262E' }}>Create one →</Link>
+        </div>
+      )}
+      {['Indoor Shooting', 'Outdoor Shooting'].map(shootingType => {
+        const group = vPkgs.filter(p => p.shootingType === shootingType)
+        if (group.length === 0) return null
+        return (
+          <div key={shootingType} style={{ marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: '0.5rem' }}>{shootingType}</p>
+            <div className="admin-card admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {group.map(p => {
+                    const isStatic = p.id.startsWith('v') && !p.id.includes('-')
+                    return (
+                      <tr key={p.id}>
+                        <td style={{ color: 'rgba(255,255,255,0.6)' }}>{p.category}</td>
+                        <td style={{ fontWeight: 500, color: '#fff' }}>
+                          {p.name}
+                          {isStatic && <span style={{ marginLeft: '0.5rem', fontSize: '0.65rem', background: 'rgba(255,255,255,0.08)', padding: '0.1rem 0.45rem', borderRadius: '4px', color: 'rgba(255,255,255,0.35)' }}>static</span>}
+                        </td>
+                        <td style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace' }}>
+                          ৳{p.price.toLocaleString()}
+                          {p.priceLabel && <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}> {p.priceLabel}</span>}
+                        </td>
+                        <td>
+                          <span className={`admin-badge admin-badge--${p.isPublished ? 'green' : 'gray'}`}>{p.isPublished ? 'Published' : 'Draft'}</span>
+                        </td>
+                        <td>
+                          {!isStatic
+                            ? <Link href={`/admin/pricing/video/${p.id}/edit`} className="admin-btn admin-btn--outline admin-btn--sm">Edit</Link>
+                            : <Link href="/admin/pricing/video/new" className="admin-btn admin-btn--outline admin-btn--sm">Add to DB</Link>
+                          }
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
+      })}
     </>
   )
 }

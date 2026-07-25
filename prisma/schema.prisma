@@ -9,16 +9,16 @@ datasource db {
 
 // ── Auth ─────────────────────────────────────────────
 model AdminUser {
-  id         String    @id @default(uuid())
-  email      String    @unique
-  supabaseId String    @unique
-  role       AdminRole @default(EDITOR)
-  createdAt  DateTime  @default(now())
-}
-
-enum AdminRole {
-  SUPER_ADMIN
-  EDITOR
+  id          String   @id @default(uuid())
+  email       String   @unique
+  supabaseId  String   @unique
+  name        String?
+  roleLabel   String   @default("VIEWER")
+  permissions Json
+  departments String[] @default([])
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // ── Services ─────────────────────────────────────────
@@ -176,15 +176,17 @@ model PhotoshootPackage {
 }
 
 model VideoPackage {
-  id          String   @id @default(cuid())
-  category    String
-  name        String
-  price       Int
-  priceLabel  String?
-  sortOrder   Int      @default(0)
-  isPublished Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  shootingType  String   @default("Indoor Shooting")
+  category      String
+  name          String
+  price         Int
+  priceLabel    String?
+  durationTiers Json?
+  sortOrder     Int      @default(0)
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model WebsiteTheme {
@@ -245,10 +247,11 @@ model JobListing {
 model ContactSubmission {
   id        String           @id @default(cuid())
   name      String
-  email     String
+  email     String?
+  phone     String?
   company   String?
   budget    String?
-  message   String           @db.Text
+  message   String?          @db.Text
   status    SubmissionStatus @default(NEW)
   ipAddress String?
   userAgent String?

@@ -1,7 +1,7 @@
 /* ── Hero ─────────────────────────────────────────────── */
 .services-hero {
   text-align: center;
-  padding: 9.5rem 0 7.5rem;
+  padding: 7rem 0 5rem;
   background:
     radial-gradient(ellipse 65% 55% at 85% 0%,  rgba(215, 38, 46, 0.11) 0%, transparent 60%),
     radial-gradient(ellipse 40% 60% at 5%  110%, rgba(215, 38, 46, 0.06) 0%, transparent 60%),
@@ -28,21 +28,21 @@
 .services-hero .eyebrow { color: #f87171; }
 
 .services-hero__title {
-  font-size: clamp(2.2rem, 8vw, 4.5rem);
+  font-size: clamp(1.8rem, 5vw, 2.85rem);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.08;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
   color: var(--white);
-  max-width: 700px;
-  margin: 0 auto 1.25rem;
+  max-width: 620px;
+  margin: 0 auto 0.9rem;
 }
 
 .services-hero__sub {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.55);
-  line-height: 1.8;
-  max-width: 560px;
-  margin: 0 auto 2.25rem;
+  line-height: 1.65;
+  max-width: 520px;
+  margin: 0 auto 1.75rem;
 }
 
 /* Badges */
@@ -80,34 +80,7 @@
   padding: 8rem 0 9rem;
   position: relative;
   overflow: hidden;
-}
-
-/* ── Background image layers ──────────────────────────── */
-.services-bg-layers {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
   background: #0B0B0B;
-}
-
-.services-bg-layer {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  will-change: opacity;
-}
-
-.services-bg-layer--active { opacity: 1; }
-
-.services-bg-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: rgba(11, 11, 11, 0.62);
 }
 
 .services-grid-section > .container {
@@ -136,8 +109,13 @@
   position: relative;
   overflow: hidden;
   box-shadow: none;
-  cursor: default;
-  transition: background 0.22s ease, box-shadow 0.22s ease;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+}
+
+.service-card:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--red);
 }
 
 .service-card::before { display: none; }
@@ -148,10 +126,53 @@
 /* Remove bottom border from last row (9 cards, last 3) */
 .service-card:nth-last-child(-n+3) { border-bottom: none; }
 
-.service-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 0 0 1.5px var(--red);
+/* Per-card background image — hidden until this card is focused */
+.service-card__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: scale(1.08);
+  transition: opacity 0.4s ease, transform 0.5s ease;
+  will-change: opacity, transform;
+}
+
+.service-card__bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(11, 11, 11, 0.82) 0%, rgba(11, 11, 11, 0.55) 55%, rgba(11, 11, 11, 0.4) 100%);
+}
+
+.service-card__content,
+.service-card__footer {
+  position: relative;
   z-index: 1;
+}
+
+.service-card[data-state="active"] {
+  box-shadow: inset 0 0 0 1.5px var(--red);
+  transform: scale(1.015) !important;
+  z-index: 2;
+}
+
+.service-card[data-state="active"] .service-card__bg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.service-card[data-state="dimmed"] {
+  opacity: 0.45 !important;
+  filter: blur(3px) saturate(0.7) !important;
+  transform: scale(0.985) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-card,
+  .service-card__bg { transition: none; }
 }
 
 /* Card content */
@@ -363,7 +384,7 @@
 }
 
 @media (max-width: 768px) {
-  .services-hero           { padding: 6.5rem 0 5rem; }
+  .services-hero           { padding: 5.5rem 0 4rem; }
   .services-grid-section   { padding: 5.5rem 0 6rem; }
   .services-cta            { padding-top: 5rem; }
   .services-cta__stat-strip { grid-template-columns: repeat(2, 1fr); }
@@ -373,11 +394,11 @@
 
 @media (max-width: 640px) {
   .services-grid { grid-template-columns: 1fr; }
-  .services-hero { padding: 5.5rem 0 4rem; }
+  .services-hero { padding: 4.5rem 0 3.5rem; }
   .services-cta__actions { flex-direction: column; }
   .services-cta__actions .btn,
   .btn-outline-white { width: 100%; }
-  .services-hero__title { font-size: clamp(2.1rem, 8vw, 4.5rem); }
+  .services-hero__title { font-size: clamp(1.6rem, 7vw, 2.2rem); }
   .services-cta__title  { font-size: clamp(2.2rem, 8vw, 4.5rem); }
 
   /* Reset 2-col border rules, apply 1-col */
@@ -410,6 +431,3 @@
   .services-badge           { font-size: 0.75rem; padding: 0.4rem 0.85rem; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .services-bg-layer { transition: none; will-change: auto; }
-}

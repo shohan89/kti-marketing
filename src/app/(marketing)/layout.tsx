@@ -77,7 +77,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
     <>
       <ScrollProgress />
       <CustomCursor />
-      <Navbar services={services} logoUrl={logoUrl} />
+      <Navbar services={services} logoUrl={logoUrl} isHiring={isHiring} />
       <ScrollRevealProvider>
         <main>{children}</main>
       </ScrollRevealProvider>

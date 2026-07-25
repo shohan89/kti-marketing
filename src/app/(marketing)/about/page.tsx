@@ -84,6 +84,7 @@ const STATS = [
 type ClientItem = { name: string; logoUrl?: string; website?: string }
 type AchievementItem = { year: string; title: string; description?: string }
 type FounderTag = { label: string; url: string }
+type FounderSection = { title: string; description: string; images: string[] }
 type FounderContent = {
   photoUrl: string; badge: string; sinceBadge: string; name: string; nickname: string
   bio: string; pullquote: string; email: string; facebookUrl: string
@@ -123,6 +124,7 @@ export default async function AboutPage() {
   let achievements: AchievementItem[] = []
   let founderTags: FounderTag[] = DEFAULT_FOUNDER_TAGS
   let founder: FounderContent = DEFAULT_FOUNDER
+  let founderSections: FounderSection[] = []
   let aboutExtra = { clientsTitle: "Brands We've Helped Grow", achievementsTitle: 'Our Milestones' }
 
   try {
@@ -147,6 +149,7 @@ export default async function AboutPage() {
     const map = Object.fromEntries(settings.map(r => [r.key, r.value]))
     founderTags = safeJson<FounderTag[]>(map['about_founder_tags'], DEFAULT_FOUNDER_TAGS)
     founder = { ...DEFAULT_FOUNDER, ...safeJson<Partial<FounderContent>>(map['about_founder'], {}) }
+    founderSections = safeJson<FounderSection[]>(map['about_founder_sections'], [])
     clients = safeJson<ClientItem[]>(map['about_clients'], [])
     achievements = safeJson<AchievementItem[]>(map['about_achievements'], [])
     aboutExtra = { ...aboutExtra, ...safeJson(map['about_extra'], {}) }
@@ -154,15 +157,6 @@ export default async function AboutPage() {
 
   return (
     <main className="about-page">
-      <section className="about-hero">
-        <div className="container">
-          <div className="about-hero__badge fade-up"><span className="about-hero__badge-dot" />Full-Service Marketing Agency · Since 2016</div>
-          <p className="eyebrow fade-up-1">About KTI Marketing</p>
-          <h1 className="about-hero__title fade-up-2">Built to Grow Brands.<br /><span className="accent">Obsessed With Results.</span></h1>
-          <p className="about-hero__sub fade-up-2">A team of strategists, creatives, and performance marketers united by one obsession — making your brand the market leader it deserves to be.</p>
-        </div>
-      </section>
-
       <section className="about-founder">
         <div className="container">
           <div className="about-founder__grid">
@@ -202,6 +196,26 @@ export default async function AboutPage() {
               </div>
             </div>
           </div>
+
+          {founderSections.length > 0 && (
+            <div className="about-founder__sections">
+              {founderSections.map((sec, i) => (
+                <div className="founder-section reveal" key={i} style={{ '--reveal-delay': `${Math.min(i * 0.1, 0.4)}s` } as React.CSSProperties}>
+                  <h3 className="founder-section__title">{sec.title}</h3>
+                  {sec.description && <p className="founder-section__desc">{sec.description}</p>}
+                  {sec.images && sec.images.length > 0 && (
+                    <div className="founder-section__images">
+                      {sec.images.map((src, j) => (
+                        <div className="founder-section__image-wrap" key={j}>
+                          <img src={src} alt={`${sec.title} ${j + 1}`} className="founder-section__image" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
