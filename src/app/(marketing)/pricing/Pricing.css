@@ -829,12 +829,12 @@
   display: flex;
 }
 
-.faq-item--open .faq-item__chevron {
+.faq-item[data-open="true"] .faq-item__chevron {
   transform: rotate(180deg);
   color: var(--red);
 }
 
-.faq-item--open .faq-item__q { color: var(--red); }
+.faq-item[data-open="true"] .faq-item__q { color: var(--red); }
 
 .faq-item__a {
   padding: 0 0 1.5rem;

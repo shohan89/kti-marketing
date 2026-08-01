@@ -481,7 +481,7 @@ export default function PricingClient({ marketingPackages, photoshootPackages, v
           <div className="pricing-faq__header reveal"><p className="eyebrow">Common Questions</p><h2>Everything You <span className="accent">Need to Know</span></h2></div>
           <div className="pricing-faq__list">
             {FAQS.map((faq, i) => (
-              <div key={i} className={`faq-item${openFaq === i ? ' faq-item--open' : ''} reveal`} style={{ '--reveal-delay': `${i * 0.06}s` } as React.CSSProperties}>
+              <div key={i} className="faq-item reveal" data-open={openFaq === i} style={{ '--reveal-delay': `${i * 0.06}s` } as React.CSSProperties}>
                 <button className="faq-item__q" onClick={() => setOpenFaq(openFaq === i ? null : i)} aria-expanded={openFaq === i}>
                   <span>{faq.q}</span>
                   <span className="faq-item__chevron" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
