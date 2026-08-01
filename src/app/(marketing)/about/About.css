@@ -244,7 +244,9 @@
 
 /* Photo */
 .about-founder__photo {
-  position: relative;
+  position: sticky;
+  top: 110px;
+  align-self: start;
 }
 
 .about-founder__photo-frame {
@@ -444,29 +446,29 @@
 }
 
 /* ── Founder Key Points (Early Life, Career, etc.) ───── */
+/* Rendered inline within the bio column, between the bio paragraphs and pull-quote. */
 .about-founder__sections {
-  margin-top: 5rem;
-  padding-top: 4rem;
+  margin: 2rem 0;
+  padding-top: 1.75rem;
   border-top: 1px solid var(--gray-100);
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 2rem;
 }
 
 .founder-section__title {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--gray-900);
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.6rem;
 }
 
 .founder-section__desc {
   font-size: 0.95rem;
   color: var(--gray-500);
   line-height: 1.8;
-  max-width: 720px;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.25rem;
 }
 
 .founder-section__images {
@@ -533,7 +535,7 @@
   .about-stat:nth-child(4) { border-right: 1px solid var(--gray-100); }
 
   .about-founder__grid { grid-template-columns: 1fr; gap: 3rem; }
-  .about-founder__photo { max-width: 420px; }
+  .about-founder__photo { position: static; max-width: 420px; }
   .about-founder__photo-frame { max-width: 420px; }
 }
 
@@ -541,7 +543,7 @@
   .about-story__grid   { grid-template-columns: 1fr; gap: 2.5rem; }
   .about-story__left h2 { position: static; }
   .about-values__grid  { grid-template-columns: 1fr; }
-  .about-founder__sections { margin-top: 3rem; padding-top: 2.5rem; gap: 2.25rem; }
+  .about-founder__sections { margin: 1.5rem 0; padding-top: 1.5rem; gap: 1.75rem; }
   .founder-section__images { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .about-mission       { padding: 5.5rem 0; }
   .about-values        { padding: 6rem 0; }

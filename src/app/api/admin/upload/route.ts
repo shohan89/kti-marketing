@@ -5,7 +5,11 @@ import { isScriptableType, validateMediaUpload } from '@/lib/upload-validation'
 
 // Buckets the Media Library is allowed to write to. Previously any caller-
 // supplied `folder` value created a new public bucket on demand.
-const ALLOWED_BUCKETS = new Set(['assets', 'media', 'images', 'logos', 'videos'])
+const ALLOWED_BUCKETS = new Set([
+  'assets', 'media', 'images', 'logos', 'videos',
+  'blog', 'website-themes', 'founder', 'founder-sections', 'clients',
+  'hero', 'brand-logos', 'portfolio', 'team', 'services', 'branding',
+])
 
 const SUPABASE_URL = () => process.env.NEXT_PUBLIC_SUPABASE_URL!
 const SERVICE_KEY  = () => process.env.SUPABASE_SERVICE_ROLE_KEY!

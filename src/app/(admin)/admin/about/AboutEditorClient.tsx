@@ -257,7 +257,7 @@ export default function AboutEditorClient({ clients: initClients, achievements: 
       <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
         <h2 className="admin-section-title">Founder Key Points</h2>
         <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1.25rem' }}>
-          Add sections like &quot;Early Life and Education&quot; or &quot;Career&quot; — each with its own description and images, shown below the founder bio on the About page.
+          Add sections like &quot;Early Life and Education&quot; or &quot;Career&quot; — each with its own description and images, shown inline within the founder bio on the About page.
         </p>
         {founderSections.map((sec, i) => (
           <div key={i} style={{ marginBottom: '1.25rem', paddingBottom: '1.25rem', borderBottom: i < founderSections.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>

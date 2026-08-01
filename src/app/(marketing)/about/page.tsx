@@ -180,6 +180,27 @@ export default async function AboutPage() {
                 ))}
               </div>
               {founder.bio.split(/\n\s*\n/).filter(Boolean).map((para, i) => <p key={i}>{para}</p>)}
+
+              {founderSections.length > 0 && (
+                <div className="about-founder__sections">
+                  {founderSections.map((sec, i) => (
+                    <div className="founder-section" key={i}>
+                      {sec.title && <h3 className="founder-section__title">{sec.title}</h3>}
+                      {sec.description && <p className="founder-section__desc">{sec.description}</p>}
+                      {sec.images && sec.images.length > 0 && (
+                        <div className="founder-section__images">
+                          {sec.images.map((src, j) => (
+                            <div className="founder-section__image-wrap" key={j}>
+                              <img src={src} alt={`${sec.title} ${j + 1}`} className="founder-section__image" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <blockquote className="about-founder__pullquote">&quot;{founder.pullquote}&quot;</blockquote>
               <div className="about-founder__connect">
                 <h3 className="about-founder__connect-title">
@@ -196,26 +217,6 @@ export default async function AboutPage() {
               </div>
             </div>
           </div>
-
-          {founderSections.length > 0 && (
-            <div className="about-founder__sections">
-              {founderSections.map((sec, i) => (
-                <div className="founder-section reveal" key={i} style={{ '--reveal-delay': `${Math.min(i * 0.1, 0.4)}s` } as React.CSSProperties}>
-                  <h3 className="founder-section__title">{sec.title}</h3>
-                  {sec.description && <p className="founder-section__desc">{sec.description}</p>}
-                  {sec.images && sec.images.length > 0 && (
-                    <div className="founder-section__images">
-                      {sec.images.map((src, j) => (
-                        <div className="founder-section__image-wrap" key={j}>
-                          <img src={src} alt={`${sec.title} ${j + 1}`} className="founder-section__image" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
