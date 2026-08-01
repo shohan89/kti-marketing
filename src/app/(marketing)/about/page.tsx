@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import PageCTA from '@/components/ui/PageCTA'
 import { getPageSeo, buildMetadata } from '@/lib/seo'
 import { prisma } from '@/lib/prisma'
@@ -68,18 +67,6 @@ function SocialIcon({ platform }: { platform: string }) {
       return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
   }
 }
-
-const VALUES = [
-  { icon: '🎯', title: 'Results First', body: 'We measure success in revenue, not reach. Every strategy we build is engineered around your business objectives — and nothing else.' },
-  { icon: '🔍', title: 'Radical Transparency', body: 'No smoke and mirrors. No vanity metrics. You will always know exactly what we are doing, why we are doing it, and how it is performing.' },
-  { icon: '⚡', title: 'Obsessive Quality', body: 'We do not do average. Every campaign, every piece of content, every report reflects our absolute commitment to excellence.' },
-  { icon: '🤝', title: 'True Partnership', body: 'Your wins are our wins. We show up as a genuine extension of your team — invested in your success just as much as you are.' },
-]
-
-const STATS = [
-  { num: '120+', label: 'Brands Grown' }, { num: '8+', label: 'Years in Business' }, { num: '$40M+', label: 'Revenue Generated' },
-  { num: '94%', label: 'Client Retention' }, { num: '3.2×', label: 'Average ROI' }, { num: '9', label: 'Core Services' },
-]
 
 type ClientItem = { name: string; logoUrl?: string; website?: string }
 type AchievementItem = { year: string; title: string; description?: string }
@@ -220,19 +207,6 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="about-stats">
-        <div className="container">
-          <div className="about-stats__grid">
-            {STATS.map(({ num, label }, i) => (
-              <div className="about-stat reveal-scale" key={label} style={{ '--reveal-delay': `${i * 0.07}s` } as React.CSSProperties}>
-                <span className="about-stat__num">{num}</span>
-                <span className="about-stat__label">{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {clients.length > 0 && (
         <section className="about-clients">
           <div className="container">
@@ -282,35 +256,6 @@ export default async function AboutPage() {
         </section>
       )}
 
-      <section className="about-mission">
-        <div className="container">
-          <div className="about-mission__inner reveal">
-            <p className="eyebrow">Our Mission</p>
-            <blockquote className="about-mission__quote">&quot;We exist to help ambitious brands grow. Not just in followers or impressions, but in the metrics that actually matter: qualified leads, conversions, revenue, and market share. Since 2016, we have helped over 120 businesses transform their marketing from a cost centre into their most powerful competitive advantage.&quot;</blockquote>
-            <cite className="about-mission__cite">— The KTI Marketing Team</cite>
-          </div>
-        </div>
-      </section>
-
-      <section className="about-story">
-        <div className="container">
-          <div className="about-story__grid">
-            <div className="about-story__left reveal">
-              <p className="eyebrow">Our Story</p>
-              <h2>From a Small Studio to <span className="accent">a Full-Scale Agency</span></h2>
-            </div>
-            <div className="about-story__right reveal" style={{ '--reveal-delay': '0.15s' } as React.CSSProperties}>
-              <span className="about-story__milestone">2016 — Founded</span>
-              <p>KTI Marketing started in 2016 with a simple belief: that great marketing should be accessible to every ambitious business. We began as a small creative studio with three people and a shared passion for brand storytelling.</p>
-              <span className="about-story__milestone">2019 — Full-Service Expansion</span>
-              <p>Over the years, we expanded into performance advertising, social media management, influencer marketing, and production — building a full-service capability that covers every stage of your customer journey.</p>
-              <span className="about-story__milestone">Today — 25+ Specialists</span>
-              <p>But what has never changed is our core obsession: delivering results that genuinely move the needle for the brands we work with. We do not just run campaigns. We build growth engines.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="about-team">
         <div className="container">
           <div className="about-team__header text-center reveal">
@@ -348,24 +293,6 @@ export default async function AboutPage() {
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="about-values">
-        <div className="container">
-          <div className="about-values__header text-center reveal">
-            <p className="eyebrow">What We Stand For</p>
-            <h2>The Values That Drive <span className="accent">Everything We Do</span></h2>
-          </div>
-          <div className="about-values__grid">
-            {VALUES.map(({ icon, title, body }, i) => (
-              <div className="value-card reveal" key={title} style={{ '--reveal-delay': `${i * 0.1}s` } as React.CSSProperties}>
-                <div className="value-card__icon-wrap" aria-hidden="true">{icon}</div>
-                <h3 className="value-card__title">{title}</h3>
-                <p className="value-card__body">{body}</p>
               </div>
             ))}
           </div>

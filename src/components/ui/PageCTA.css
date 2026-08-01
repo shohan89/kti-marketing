@@ -35,6 +35,29 @@
   flex-wrap: wrap;
 }
 
+/* Baseline styling for the primary button so it stays visible against the
+   dark background on every page that renders PageCTA — page-specific CSS
+   (e.g. Pricing.css) can still override this with a higher-specificity rule. */
+.page-cta .btn-white {
+  background: var(--white);
+  color: var(--dark);
+  font-size: 1rem;
+  font-weight: 800;
+  padding: 0.9rem 2.25rem;
+  transition:
+    background var(--transition),
+    color var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.page-cta .btn-white:hover {
+  background: var(--red);
+  color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-red);
+}
+
 .page-cta__secondary-link {
   font-size: 0.88rem;
   font-weight: 600;
