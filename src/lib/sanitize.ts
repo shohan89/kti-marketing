@@ -72,3 +72,16 @@ export function safeJsonLd(value: unknown): string {
     .split(LINE_SEP).join(BACKSLASH + 'u2028')
     .split(PARA_SEP).join(BACKSLASH + 'u2029')
 }
+
+/**
+ * Strip a tracking/verification ID (GTM container ID, GA4 measurement ID,
+ * Meta Pixel ID, Google Search Console verification token) down to a safe
+ * charset before it's interpolated into an inline <script> body. These
+ * values are admin-authored, but every vendor format is alphanumeric plus
+ * `-`/`_`, so allowlisting removes any possibility of breaking out of the
+ * script even if something unexpected ends up stored.
+ */
+export function sanitizeTrackingId(value: string | null | undefined): string {
+  if (!value) return ''
+  return value.trim().replace(/[^A-Za-z0-9_-]/g, '')
+}

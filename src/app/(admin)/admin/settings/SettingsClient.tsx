@@ -12,6 +12,14 @@ interface Initial {
   address: string; businessHours: string; mapEmbedUrl: string
   phones: Phone[]; emails: Email[]; socials: Social[]
   seoTitle: string; seoDescription: string
+  gscVerification: string; gtmId: string; ga4Id: string; metaPixelId: string
+}
+
+/** Google's HTML-tag verification method gives you a whole <meta> tag to
+ *  paste — pull out just the content value so we only ever store the token. */
+function extractGscContent(input: string): string {
+  const match = input.match(/content=["']([^"']+)["']/i)
+  return (match ? match[1] : input).trim()
 }
 
 /* ── Social platforms ───────────────────────────────────── */
@@ -92,7 +100,7 @@ function UploadBtn({ folder, onUploaded, uploading, setUploading }: {
 
 /* ── Main Component ─────────────────────────────────────── */
 export default function SettingsClient({ initial }: { initial: Initial }) {
-  const [tab, setTab]                 = useState<'general' | 'contact' | 'social' | 'seo'>('general')
+  const [tab, setTab]                 = useState<'general' | 'contact' | 'social' | 'seo' | 'integrations'>('general')
   const [siteName, setSiteName]       = useState(initial.siteName)
   const [tagline, setTagline]         = useState(initial.tagline)
   const [logoUrl, setLogoUrl]         = useState(initial.logoUrl)
@@ -105,6 +113,10 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
   const [socials, setSocials]         = useState<Social[]>(initial.socials)
   const [seoTitle, setSeoTitle]       = useState(initial.seoTitle)
   const [seoDesc, setSeoDesc]         = useState(initial.seoDescription)
+  const [gscVerification, setGscVerification] = useState(initial.gscVerification)
+  const [gtmId, setGtmId]             = useState(initial.gtmId)
+  const [ga4Id, setGa4Id]             = useState(initial.ga4Id)
+  const [metaPixelId, setMetaPixelId] = useState(initial.metaPixelId)
   const [logoUpl, setLogoUpl]         = useState(false)
   const [faviconUpl, setFaviconUpl]   = useState(false)
   const [saving, setSaving]           = useState(false)
@@ -126,6 +138,10 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
       social_links:           JSON.stringify(socials),
       seo_default_title:      seoTitle,
       seo_default_description: seoDesc,
+      integrations_gsc_verification: gscVerification,
+      integrations_gtm_id:           gtmId,
+      integrations_ga4_id:           ga4Id,
+      integrations_meta_pixel_id:    metaPixelId,
     }
     try {
       const res = await fetch('/api/admin/settings', {
@@ -195,6 +211,7 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
         <button style={tabStyle('contact')} onClick={() => setTab('contact')}>✆ Contact</button>
         <button style={tabStyle('social')}  onClick={() => setTab('social')}>◎ Social Media</button>
         <button style={tabStyle('seo')}     onClick={() => setTab('seo')}>◈ SEO</button>
+        <button style={tabStyle('integrations')} onClick={() => setTab('integrations')}>⚡ Integrations</button>
       </div>
 
       {/* ── GENERAL tab ───────────────────────────────────────── */}
@@ -420,6 +437,61 @@ export default function SettingsClient({ initial }: { initial: Initial }) {
             <p style={{ marginTop: '0.35rem', fontSize: '0.73rem', color: Number(seoDesc.length) > 160 ? '#f87171' : 'rgba(255,255,255,0.25)' }}>{seoDesc.length}/160 characters</p>
           </div>
         </div>
+      )}
+
+      {/* ── INTEGRATIONS tab ──────────────────────────────────── */}
+      {tab === 'integrations' && (
+        <>
+          <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
+            <SubLabel>Google Search Console</SubLabel>
+            <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', lineHeight: 1.6 }}>
+              In Search Console: Add property → HTML tag method → copy the verification tag or just the code inside <code style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 3, padding: '1px 5px' }}>content=&quot;…&quot;</code> and paste it below.
+            </p>
+            <div className="admin-field">
+              <label className="admin-label">Verification Code</label>
+              <input
+                className="admin-input"
+                value={gscVerification}
+                onChange={e => setGscVerification(e.target.value)}
+                onBlur={e => setGscVerification(extractGscContent(e.target.value))}
+                placeholder='<meta name="google-site-verification" content="…" /> or just the code'
+              />
+            </div>
+          </div>
+
+          <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
+            <SubLabel>Google Tag Manager</SubLabel>
+            <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', lineHeight: 1.6 }}>
+              Found in GTM under Admin → Container ID, at the top of the workspace.
+            </p>
+            <div className="admin-field">
+              <label className="admin-label">Container ID</label>
+              <input className="admin-input" value={gtmId} onChange={e => setGtmId(e.target.value.trim())} placeholder="GTM-XXXXXXX" />
+            </div>
+          </div>
+
+          <div className="admin-card" style={{ marginBottom: '1.25rem' }}>
+            <SubLabel>Google Analytics 4</SubLabel>
+            <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', lineHeight: 1.6 }}>
+              In GA4: Admin → Data Streams → your web stream → Measurement ID. Skip this if you&apos;re already sending GA4 through Tag Manager above, to avoid double-counting.
+            </p>
+            <div className="admin-field">
+              <label className="admin-label">Measurement ID</label>
+              <input className="admin-input" value={ga4Id} onChange={e => setGa4Id(e.target.value.trim())} placeholder="G-XXXXXXXXXX" />
+            </div>
+          </div>
+
+          <div className="admin-card">
+            <SubLabel>Meta Pixel</SubLabel>
+            <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem', lineHeight: 1.6 }}>
+              In Meta Events Manager: Data Sources → your pixel → Settings — the Pixel ID is a numeric code at the top.
+            </p>
+            <div className="admin-field">
+              <label className="admin-label">Pixel ID</label>
+              <input className="admin-input" value={metaPixelId} onChange={e => setMetaPixelId(e.target.value.trim())} placeholder="1234567890123456" />
+            </div>
+          </div>
+        </>
       )}
 
       {/* Sticky save bar */}

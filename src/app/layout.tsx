@@ -26,19 +26,25 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image' },
 }
 
-async function getFaviconUrl(): Promise<string> {
+async function getHeadSettings(): Promise<{ faviconUrl: string; gscVerification: string }> {
   try {
-    const setting = await prisma.siteSetting.findUnique({ where: { key: 'site_favicon_url' } })
-    return setting?.value ?? ''
+    const rows = await prisma.siteSetting.findMany({
+      where: { key: { in: ['site_favicon_url', 'integrations_gsc_verification'] } },
+    })
+    const map = Object.fromEntries(rows.map(r => [r.key, r.value]))
+    return {
+      faviconUrl: map['site_favicon_url'] ?? '',
+      gscVerification: map['integrations_gsc_verification'] ?? '',
+    }
   } catch {
-    return ''
+    return { faviconUrl: '', gscVerification: '' }
   }
 }
 
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const faviconUrl = await getFaviconUrl()
+  const { faviconUrl, gscVerification } = await getHeadSettings()
 
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
@@ -52,6 +58,7 @@ export default async function RootLayout({
           ? <link rel="icon" href={faviconUrl} />
           : <link rel="icon" href="/favicon.svg" />
         }
+        {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
       </head>
       <body>{children}</body>
     </html>

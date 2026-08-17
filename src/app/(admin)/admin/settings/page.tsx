@@ -43,6 +43,10 @@ async function loadSettings() {
     mapEmbedUrl:     map['map_embed_url']             ?? '',
     seoTitle:        map['seo_default_title']        ?? 'KTI Marketing — Bold Strategy. Real Revenue.',
     seoDescription:  map['seo_default_description']  ?? 'Full-service growth agency for ambitious brands.',
+    gscVerification: map['integrations_gsc_verification'] ?? '',
+    gtmId:           map['integrations_gtm_id']            ?? '',
+    ga4Id:           map['integrations_ga4_id']             ?? '',
+    metaPixelId:     map['integrations_meta_pixel_id']      ?? '',
   }
 }
 

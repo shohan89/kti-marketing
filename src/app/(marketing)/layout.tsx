@@ -1,4 +1,6 @@
+import Script from 'next/script'
 import { prisma } from '@/lib/prisma'
+import { sanitizeTrackingId } from '@/lib/sanitize'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import ScrollProgress from '@/components/ui/ScrollProgress'
@@ -44,6 +46,9 @@ async function getNavData() {
       mapEmbedUrl:  map['map_embed_url']   ?? '',
       socials,
       whatsappUrl: toWhatsAppUrl(footerPhones, socials),
+      gtmId:       sanitizeTrackingId(map['integrations_gtm_id']),
+      ga4Id:       sanitizeTrackingId(map['integrations_ga4_id']),
+      metaPixelId: sanitizeTrackingId(map['integrations_meta_pixel_id']),
     }
   } catch {
     return {
@@ -66,15 +71,48 @@ async function getNavData() {
       mapEmbedUrl: '',
       socials: [] as { id: string; platform: string; url: string }[],
       whatsappUrl: 'https://wa.me/8801700000000',
+      gtmId: '', ga4Id: '', metaPixelId: '',
     }
   }
 }
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const { services, isHiring, logoUrl, footerPhones, footerEmails, footerAddress, mapEmbedUrl, socials, whatsappUrl } = await getNavData()
+  const { services, isHiring, logoUrl, footerPhones, footerEmails, footerAddress, mapEmbedUrl, socials, whatsappUrl, gtmId, ga4Id, metaPixelId } = await getNavData()
 
   return (
     <>
+      {gtmId && (
+        <>
+          <Script id="gtm-loader" strategy="afterInteractive">
+            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`}
+          </Script>
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        </>
+      )}
+      {ga4Id && (
+        <>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`} strategy="afterInteractive" />
+          <Script id="ga4-init" strategy="afterInteractive">
+            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${ga4Id}');`}
+          </Script>
+        </>
+      )}
+      {metaPixelId && (
+        <>
+          <Script id="meta-pixel-init" strategy="afterInteractive">
+            {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', '${metaPixelId}');fbq('track', 'PageView');`}
+          </Script>
+          <noscript>
+            <img height="1" width="1" style={{ display: 'none' }} alt=""
+              src={`https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1`} />
+          </noscript>
+        </>
+      )}
       <ScrollProgress />
       <CustomCursor />
       <Navbar services={services} logoUrl={logoUrl} isHiring={isHiring} />
