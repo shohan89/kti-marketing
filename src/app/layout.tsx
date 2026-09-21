@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { prisma } from '@/lib/prisma'
+import { SITE_URL } from '@/lib/seo-utils'
 import './globals.css'
 
 const inter = Inter({
@@ -11,7 +12,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ktimarketing.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
     template: '%s | KTI Marketing',
     default: 'KTI Marketing — Bold Strategy. Real Revenue.',

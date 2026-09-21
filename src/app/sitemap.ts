@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
+import { SITE_URL } from '@/lib/seo-utils'
 import { servicesData, blogPosts, jobListings } from '@/data/staticData'
 
-const BASE = 'https://ktimarketing.com'
+const BASE = SITE_URL
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
@@ -16,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/pricing`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/careers`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE}/website-development`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/themes`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
   ]
 

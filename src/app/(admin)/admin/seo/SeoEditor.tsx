@@ -306,7 +306,7 @@ export default function SeoEditor({ pageId, pageLabel, initialData }: Props) {
                       className="admin-input"
                       value={canonicalUrl}
                       onChange={e => setCanonicalUrl(e.target.value)}
-                      placeholder="https://ktimarketing.com/page"
+                      placeholder="https://ktimarketing.agency/page"
                     />
                     <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)' }}>Prevents duplicate content — use full absolute HTTPS URL</span>
                   </div>
@@ -342,7 +342,7 @@ export default function SeoEditor({ pageId, pageLabel, initialData }: Props) {
                   <div className="admin-form-row">
                     <div className="admin-field">
                       <label className="admin-label">OG URL</label>
-                      <input className="admin-input" value={ogUrl} onChange={e => setOgUrl(e.target.value)} placeholder={canonicalUrl || 'https://ktimarketing.com/page'} />
+                      <input className="admin-input" value={ogUrl} onChange={e => setOgUrl(e.target.value)} placeholder={canonicalUrl || 'https://ktimarketing.agency/page'} />
                     </div>
                     <div className="admin-field">
                       <label className="admin-label">OG Type</label>
@@ -411,7 +411,7 @@ export default function SeoEditor({ pageId, pageLabel, initialData }: Props) {
                       )}
                       <div style={{ padding: '0.75rem 1rem' }}>
                         <div style={{ fontSize: '0.8rem', color: '#657786', marginBottom: '2px' }}>
-                          {canonicalUrl ? (() => { try { return new URL(canonicalUrl).hostname } catch { return 'ktimarketing.com' } })() : 'ktimarketing.com'}
+                          {canonicalUrl ? (() => { try { return new URL(canonicalUrl).hostname } catch { return 'ktimarketing.agency' } })() : 'ktimarketing.agency'}
                         </div>
                         <div style={{ fontWeight: 700, color: '#14171a', fontSize: '0.9rem', marginBottom: '3px' }}>
                           {(twitterTitle || metaTitle || 'Page Title').slice(0, 70)}

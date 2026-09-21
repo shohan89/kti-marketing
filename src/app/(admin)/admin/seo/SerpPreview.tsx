@@ -44,7 +44,7 @@ function getBreadcrumb(url: string): string {
 export default function SerpPreview({ title, description, url }: Props) {
   const displayTitle = title || 'Page Title — KTI Marketing'
   const displayDesc = description || 'Page description will appear here in Google search results.'
-  const displayUrl = url || 'https://ktimarketing.com'
+  const displayUrl = url || 'https://ktimarketing.agency'
 
   const titlePx = displayTitle.length * TITLE_PX_PER_CHAR
   const descPx = displayDesc.length * DESC_PX_PER_CHAR

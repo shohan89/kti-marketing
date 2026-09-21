@@ -13,8 +13,14 @@ interface ExistingPage {
   metaTitle: string | null
   metaDescription: string | null
   focusKeyword: string | null
+  canonicalUrl: string | null
+  ogTitle: string | null
+  ogDescription: string | null
   ogImage: string | null
+  ogUrl: string | null
   twitterCard: string | null
+  twitterTitle: string | null
+  twitterImage: string | null
   robotsIndex: boolean
   updatedAt: string
   _schemasActive: number
@@ -130,14 +136,19 @@ export default function SeoOverview({ staticPages }: Props) {
           </thead>
           <tbody>
             {staticPages.map(page => {
+              // Same inputs as the editor's SeoScore panel so both show one number.
               const seoScore = page.seo ? calculateSeoScore({
                 focusKeyword: page.seo.focusKeyword,
                 metaTitle: page.seo.metaTitle,
                 metaDescription: page.seo.metaDescription,
-                canonicalUrl: null,
-                ogTitle: null,
+                canonicalUrl: page.seo.canonicalUrl,
+                ogTitle: page.seo.ogTitle,
+                ogDescription: page.seo.ogDescription,
                 ogImage: page.seo.ogImage,
-                twitterCard: page.seo.twitterCard,
+                ogUrl: page.seo.ogUrl,
+                twitterCard: page.seo.twitterCard ?? 'summary_large_image',
+                twitterTitle: page.seo.twitterTitle,
+                twitterImage: page.seo.twitterImage,
                 schemasCount: page.seo._schemasActive,
               }).score : 0
               const color = getScoreColor(seoScore)

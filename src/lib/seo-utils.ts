@@ -1,5 +1,10 @@
 // Browser-safe SEO utilities — no server imports (no prisma, no pg)
 
+// Canonical production domain. Must match the host in next.config.ts redirects
+// and the canonical URLs saved in PageSeo — a sitemap/robots/metadataBase on a
+// different host tells Google the pages live somewhere else and blocks indexing.
+export const SITE_URL = 'https://ktimarketing.agency'
+
 export interface SeoSchemaData {
   id: string
   schemaType: string
@@ -149,7 +154,7 @@ export function calculateSeoScore(data: {
   const isAbsoluteHttps = canonical.startsWith('https://')
   checks.push({
     category: 'content', label: 'Canonical URL is absolute HTTPS', pass: !canonical || isAbsoluteHttps,
-    rec: 'Use an absolute HTTPS URL for canonical (e.g. https://ktimarketing.com/page)',
+    rec: 'Use an absolute HTTPS URL for canonical (e.g. https://ktimarketing.agency/page)',
   })
 
   // ── Social Checks (6) ───────────────────────────────────────────
@@ -303,19 +308,19 @@ export function getSchemaTemplate(type: string): object {
   const base = { '@context': 'https://schema.org' }
   switch (type) {
     case 'Organization':
-      return { ...base, '@type': 'Organization', name: 'KTI Marketing', url: 'https://ktimarketing.com', logo: '', description: '', telephone: '', email: '', sameAs: ['https://facebook.com/ktimarketing', 'https://instagram.com/ktimarketing'] }
+      return { ...base, '@type': 'Organization', name: 'KTI Marketing', url: SITE_URL, logo: '', description: '', telephone: '', email: '', sameAs: ['https://facebook.com/ktimarketing', 'https://instagram.com/ktimarketing'] }
     case 'LocalBusiness':
-      return { ...base, '@type': 'LocalBusiness', name: 'KTI Marketing', url: 'https://ktimarketing.com', telephone: '', email: '', address: { '@type': 'PostalAddress', streetAddress: '', addressLocality: 'Dhaka', addressRegion: 'Dhaka Division', postalCode: '', addressCountry: 'BD' }, openingHoursSpecification: [] }
+      return { ...base, '@type': 'LocalBusiness', name: 'KTI Marketing', url: SITE_URL, telephone: '', email: '', address: { '@type': 'PostalAddress', streetAddress: '', addressLocality: 'Dhaka', addressRegion: 'Dhaka Division', postalCode: '', addressCountry: 'BD' }, openingHoursSpecification: [] }
     case 'Website':
-      return { ...base, '@type': 'WebSite', name: 'KTI Marketing', url: 'https://ktimarketing.com', description: 'Full-service growth agency for ambitious brands.' }
+      return { ...base, '@type': 'WebSite', name: 'KTI Marketing', url: SITE_URL, description: 'Full-service growth agency for ambitious brands.' }
     case 'Article':
       return { ...base, '@type': 'Article', headline: '', author: { '@type': 'Person', name: '' }, datePublished: '', dateModified: '', description: '', image: '' }
     case 'Service':
-      return { ...base, '@type': 'Service', name: '', description: '', provider: { '@type': 'Organization', name: 'KTI Marketing', url: 'https://ktimarketing.com' }, areaServed: 'BD' }
+      return { ...base, '@type': 'Service', name: '', description: '', provider: { '@type': 'Organization', name: 'KTI Marketing', url: SITE_URL }, areaServed: 'BD' }
     case 'FAQPage':
       return { ...base, '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What services does KTI Marketing offer?', acceptedAnswer: { '@type': 'Answer', text: 'KTI Marketing offers full-service digital marketing including SEO, paid media, content creation, and more.' } }] }
     case 'BreadcrumbList':
-      return { ...base, '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ktimarketing.com' }, { '@type': 'ListItem', position: 2, name: 'Page', item: 'https://ktimarketing.com/page' }] }
+      return { ...base, '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL }, { '@type': 'ListItem', position: 2, name: 'Page', item: `${SITE_URL}/page` }] }
     case 'Review':
       return { ...base, '@type': 'Review', name: 'Excellent service', reviewBody: '', author: { '@type': 'Person', name: '' }, reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' }, itemReviewed: { '@type': 'LocalBusiness', name: 'KTI Marketing' } }
     default:

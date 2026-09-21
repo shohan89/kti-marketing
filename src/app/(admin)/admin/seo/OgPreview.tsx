@@ -9,14 +9,14 @@ interface Props {
 }
 
 function getDomain(url: string): string {
-  try { return new URL(url).hostname.replace('www.', '') } catch { return 'ktimarketing.com' }
+  try { return new URL(url).hostname.replace('www.', '') } catch { return 'ktimarketing.agency' }
 }
 
 export default function OgPreview({ ogImage, ogTitle, ogDescription, ogUrl, canonicalUrl, metaTitle, metaDescription }: Props) {
   const displayImage = ogImage
   const displayTitle = ogTitle || metaTitle || 'Page Title'
   const displayDesc = ogDescription || metaDescription || ''
-  const displayUrl = ogUrl || canonicalUrl || 'https://ktimarketing.com'
+  const displayUrl = ogUrl || canonicalUrl || 'https://ktimarketing.agency'
   const domain = getDomain(displayUrl).toUpperCase()
 
   return (
