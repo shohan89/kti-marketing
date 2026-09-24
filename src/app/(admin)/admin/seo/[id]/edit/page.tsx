@@ -11,10 +11,16 @@ export default async function SeoEditorPage({ params }: { params: Promise<{ id: 
 
   if (!page) notFound()
 
+  // Readability text is stored in SiteSetting (no PageSeo column) so it survives reloads.
+  const setting = await prisma.siteSetting
+    .findUnique({ where: { key: `seo_readability_${id}` } })
+    .catch(() => null)
+
   return (
     <SeoEditor
       pageId={page.id}
       pageLabel={page.pageLabel}
+      initialReadability={setting?.value ?? ''}
       initialData={page as Parameters<typeof SeoEditor>[0]['initialData']}
     />
   )

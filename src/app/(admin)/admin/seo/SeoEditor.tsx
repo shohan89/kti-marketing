@@ -23,6 +23,7 @@ interface Props {
   pageId: string
   pageLabel: string
   initialData: PageSeoData
+  initialReadability?: string
 }
 
 function ProgressBar({ value, max, warn, limit }: { value: string; max: number; warn: number; limit: number }) {
@@ -120,7 +121,7 @@ function ReadabilityTab({ content, onChange }: { content: string; onChange: (v: 
   )
 }
 
-export default function SeoEditor({ pageId, pageLabel, initialData }: Props) {
+export default function SeoEditor({ pageId, pageLabel, initialData, initialReadability = '' }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('meta')
 
   // Meta Tags
@@ -149,7 +150,7 @@ export default function SeoEditor({ pageId, pageLabel, initialData }: Props) {
   const [changeFreq, setChangeFreq]     = useState(initialData.changeFreq)
 
   // Readability
-  const [readabilityContent, setReadabilityContent] = useState('')
+  const [readabilityContent, setReadabilityContent] = useState(initialReadability)
 
   // Schemas count for score
   const [activeSchemasCount, setActiveSchemasCount] = useState(
@@ -196,6 +197,7 @@ export default function SeoEditor({ pageId, pageLabel, initialData }: Props) {
         robotsFollow,
         priority,
         changeFreq,
+        readabilityContent,
       }),
     })
     if (res.ok) {

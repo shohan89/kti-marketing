@@ -46,6 +46,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         changeFreq:   body.changeFreq   ?? 'monthly',
       },
     })
+    if (typeof body.readabilityContent === 'string') {
+      const key = `seo_readability_${id}`
+      const value = body.readabilityContent
+      await prisma.siteSetting.upsert({ where: { key }, update: { value }, create: { key, value } })
+    }
     return NextResponse.json(page)
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'DB error'
@@ -59,6 +64,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params
   try {
     await prisma.pageSeo.delete({ where: { id } })
+    await prisma.siteSetting.delete({ where: { key: `seo_readability_${id}` } }).catch(() => {})
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ error: 'DB error' }, { status: 500 })
