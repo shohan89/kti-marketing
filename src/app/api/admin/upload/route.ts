@@ -30,7 +30,7 @@ async function ensureBucket(bucket: string) {
 }
 
 function getPublicUrl(bucket: string, path: string) {
-  return `${SUPABASE_URL()}/storage/v1/object/public/${bucket}/${path}`
+  return `/public/${bucket}/${path}`
 }
 
 export async function POST(request: NextRequest) {
