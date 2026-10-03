@@ -3,6 +3,15 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import type { Metadata } from 'next'
 import AdminToast from '@/components/ui/AdminToast'
+import { SITE_URL } from '@/lib/seo-utils'
+
+// Show/copy branded /public/{bucket}/{filename} URLs instead of raw Supabase storage URLs.
+function publicAssetUrl(url: string): string {
+  const m = url.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/)
+  if (m) return `${SITE_URL}/public/${m[1]}/${m[2]}`
+  if (url.startsWith('/public/')) return `${SITE_URL}${url}`
+  return url
+}
 
 // Next.js metadata must be in a server component; keep title via document.title trick instead
 void (null as unknown as Metadata)
@@ -157,7 +166,7 @@ export default function MediaLibraryPage() {
   }
 
   function copyUrl(file: MediaFile) {
-    const url = file.url
+    const url = publicAssetUrl(file.url)
     navigator.clipboard.writeText(url).then(() => {
       setCopiedId(file.id)
       setTimeout(() => setCopiedId(null), 2200)
@@ -418,7 +427,7 @@ export default function MediaLibraryPage() {
             <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>URL</p>
             <div style={{ marginBottom: '1rem' }}>
               <code style={{ display: 'block', fontSize: '0.68rem', color: '#D7262E', wordBreak: 'break-all', background: 'rgba(215,38,46,0.08)', padding: '0.35rem 0.5rem', borderRadius: '5px', lineHeight: 1.6 }}>
-                {selected.url}
+                {publicAssetUrl(selected.url)}
               </code>
             </div>
 

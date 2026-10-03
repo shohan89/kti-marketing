@@ -72,7 +72,7 @@ export const STATIC_PAGES = [
   { key: 'portfolio',  label: 'Portfolio',  path: '/portfolio' },
   { key: 'pricing',       label: 'Pricing',       path: '/pricing' },
   { key: 'careers',       label: 'Careers',       path: '/careers' },
-  { key: 'themes',        label: 'Themes',        path: '/themes' },
+  { key: 'website-development', label: 'Website Development', path: '/website-development' },
 ] as const
 
 export type StaticPageKey = typeof STATIC_PAGES[number]['key']
